@@ -566,7 +566,7 @@
         <h1 style="font-family:'Spectral',serif;font-weight:600;font-size:28px;margin:6px 0 4px;color:#0e2a43">What the AI wants your eyes on</h1>
         <p style="margin:0 0 8px;font-size:13.5px;line-height:1.5;color:#5c6773;max-width:640px;text-wrap:pretty">A short, triaged list of flagged moments, not a transcript archive. Only diagnoses that look uncertain or interactions worth a teacher's judgement surface here, so the list stays short enough to actually clear.</p>
         <div style="display:flex;align-items:center;gap:8px;margin:16px 0 14px">
-          <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8a7c63">4 flagged this week</span>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8a7c63">{{ ovCount }} flagged this week</span>
           <span style="width:4px;height:4px;border-radius:50%;background:#c3b8a1"></span>
           <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8a7c63">nothing older is kept for you to audit</span>
         </div>
@@ -586,11 +586,17 @@
                 <div style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap">
                   <button onClick="{{ o.onAddress }}" style="background:#fff;border:1px solid #eecab0;border-radius:8px;padding:8px 13px;font-size:12.5px;font-weight:600;color:#b6531f;cursor:pointer;font-family:inherit">+ Address in person</button>
                   <button onClick="{{ o.onOpenContention }}" style="background:#fff;border:1px solid #cdbfa6;border-radius:8px;padding:8px 13px;font-size:12.5px;font-weight:600;color:#0e2a43;cursor:pointer;font-family:inherit">Go to the question →</button>
-                  <button style="background:#0e2a43;border:none;border-radius:8px;padding:8px 13px;font-size:12.5px;font-weight:600;color:#fff;cursor:pointer;font-family:inherit">Resolve</button>
+                  <button onClick="{{ o.onResolve }}" style="background:#0e2a43;border:none;border-radius:8px;padding:8px 13px;font-size:12.5px;font-weight:600;color:#fff;cursor:pointer;font-family:inherit">Resolve</button>
                 </div>
               </div>
             </div>
           </sc-for>
+          <sc-if value="{{ ovEmpty }}" hint-placeholder-val="{{ false }}">
+          <div style="background:#fff;border:1px dashed #d8cfbb;border-radius:12px;padding:30px 20px;text-align:center">
+            <p style="margin:0;font-size:14px;font-weight:600;color:#0e2a43">All clear</p>
+            <p style="margin:6px 0 0;font-size:13px;color:#8a7c63;text-wrap:pretty">Every flag has been resolved or moved to your address-in-person list. New ones will appear here as the AI raises them.</p>
+          </div>
+          </sc-if>
         </div>
         <div style="margin-top:18px;display:flex;gap:10px;align-items:flex-start;background:#eef3f7;border:1px solid #d3e0ea;border-radius:10px;padding:14px 16px">
           <span style="width:7px;height:7px;border-radius:50%;background:#1f4e75;margin-top:6px;flex:none"></span>
@@ -907,6 +913,7 @@ class Component extends DCLogic {
     ovDetail: null,
     detailReturn: 'student',
     addressList: [],
+    dismissedOv: [],
     addSeq: 0,
     addingNote: false,
     noteDraft: '',
@@ -923,6 +930,10 @@ class Component extends DCLogic {
 
   pushAddress(p){
     this.setState(st=>({addressList:[...st.addressList, {id:'a'+st.addSeq, ...p}], addSeq:st.addSeq+1, addingNote:false, noteDraft:''}));
+  }
+
+  dismissOv(id){
+    this.setState(st=>({dismissedOv:[...st.dismissedOv, id]}));
   }
 
   insertSym(ins){
@@ -1304,13 +1315,17 @@ class Component extends DCLogic {
     const selCount = (s.pLines||[]).length;
     const continueLabel = selCount>1 ? `Continue with ${selCount} lines →` : 'Continue →';
 
+    const ovList = this.buildOversight();
+
     return {
       teacherMode: s.screen!=='practice',
       showPractice: s.screen==='practice',
       showDashboard: s.screen==='dashboard',
       showStudent: s.screen==='student',
       showOversight: s.screen==='oversight',
-      oversight: this.buildOversight(),
+      oversight: ovList,
+      ovCount: ovList.length,
+      ovEmpty: ovList.length===0,
       showSetup: s.screen==='setup',
       ...this.buildSetup(),
       goDashboard: ()=>this.setState({screen:'dashboard'}),
@@ -1448,13 +1463,14 @@ class Component extends DCLogic {
           {label:'Now', q:'Delayed retrieval (yesterday)', hit:true, note:'3 of 5 — the drop the model is unsure how to weight.'},
         ]}},
     ];
-    return raw.map((it,i)=>{
+    return raw.map((it,i)=>({...it, id:'ov'+i})).filter(it=>!this.state.dismissedOv.includes(it.id)).map((it)=>{
       const m=kindMeta[it.kind];
       return {...it,
         tagLabel:m.label, tagStyle:{fontSize:'10.5px',fontWeight:600,color:m.color,background:m.bg,border:`1px solid ${m.bd}`,padding:'3px 10px',borderRadius:'20px',whiteSpace:'nowrap'},
         dotStyle:{width:'8px',height:'8px',borderRadius:'50%',flex:'none',background:m.color},
         onOpenContention: ()=>this.setState({screen:'logdetail', ovDetail:it.detail, selectedLog:null, detailReturn:'oversight', selectedNode:null, qOpen:null}),
-        onAddress: ()=>this.pushAddress({student:it.student, context:it.context, note:it.title}),
+        onAddress: ()=>{ this.pushAddress({student:it.student, context:it.context, note:it.title}); this.dismissOv(it.id); },
+        onResolve: ()=>this.dismissOv(it.id),
       };
     });
   }

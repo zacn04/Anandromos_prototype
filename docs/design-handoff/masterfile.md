@@ -32,3 +32,16 @@ Our priority will be Mathematics, but we will also have a service for writing (E
 * Especially helpful in instances where the teacher feels that there is something off about what the student has written, but can’t put their finger on it, so just gives a lower mark without the requisite feedback, which would be especially difficult if the teacher has a big class.
 
 * Feels like these approaches would mainly be for Maths, English, Humanities, Social sciences, but a slightly different method would be needed for the three sciences
+
+---
+
+# Changelog — decisions layered on during design (18 July 2026)
+
+*The notes above are the original founder brainstorm and are left untouched. These points were decided later, while prototyping the Teacher / Student / Parent views, and extend (rather than replace) the thinking above.*
+
+* **Multi-select on "why did you get this wrong."** The original idea was the student selects/articulates the one place they went wrong. In the prototype the student can flag *every* line that went wrong, each with its own reason and its own focused re-teach — a richer RLHF signal per piece of working. Keeps the "I don't know / got it all wrong" option you wanted.
+* **A read-only parent view exists now.** Not a consumer product and not a comms channel — no marks, no scores, no comparison. Parents see mastery, what's coming up, and where their child got stuck (with the re-teach), all through the school. Flagged for a deliberate decision, since it touches the "service to schools, not parents" line.
+* **Free play, but earned.** Students get an open topic map with unlimited AI-generated problems, but a subtopic only unlocks once its lessons are done, and the work still feeds the knowledge profile and recency stats — so it can't be used to skip the taught path.
+* **Teacher oversight is a short flag list, not a transcript dump:** uncertain diagnosis, possible gaming, mastery/retention mismatch → an "address in person" to-do list on the dashboard.
+* **Knowledge graph shown two ways:** a Focused view (just the class's basket of topics for the year) and All of Maths; clicking a node shows when it was last worked, next review, and retention.
+* **A class carries a "basket of topics" for the year** — this drives the focused graph, homework gating, and the expected-pace comparison in a student's drill-down.

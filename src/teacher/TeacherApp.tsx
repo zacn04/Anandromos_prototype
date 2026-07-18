@@ -59,6 +59,7 @@ interface TeacherState {
   ovDetail: OversightDetail | null
   detailReturn: 'student' | 'oversight'
   addressList: AddressItem[]
+  dismissedOv: string[]
   addSeq: number
   addingNote: boolean
   noteDraft: string
@@ -238,6 +239,7 @@ const INITIAL: TeacherState = {
   ovDetail: null,
   detailReturn: 'student',
   addressList: [],
+  dismissedOv: [],
   addSeq: 0,
   addingNote: false,
   noteDraft: '',
@@ -265,6 +267,13 @@ export default function TeacherApp() {
     }))
 
   const openStudent = () => setState({ screen: 'student' })
+
+  const dismissOv = (id: string) => setState((st) => ({ dismissedOv: [...st.dismissedOv, id] }))
+
+  // Both Resolve and Address in person dismiss a flag; prototype-local, resets on reload.
+  const ovList = OVERSIGHT_RAW.map((it, i) => ({ ...it, id: `ov${i}` })).filter(
+    (it) => !s.dismissedOv.includes(it.id),
+  )
 
   if (s.screen === 'practice') {
     return (
@@ -1126,15 +1135,15 @@ export default function TeacherApp() {
                 A short, triaged list of flagged moments, not a transcript archive. Only diagnoses that look uncertain or interactions worth a teacher's judgement surface here, so the list stays short enough to actually clear.
               </p>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '16px 0 14px' }}>
-                <span style={{ fontFamily: FONT_MONO, fontSize: 12, color: '#8a7c63' }}>4 flagged this week</span>
+                <span style={{ fontFamily: FONT_MONO, fontSize: 12, color: '#8a7c63' }}>{ovList.length} flagged this week</span>
                 <span style={{ width: 4, height: 4, borderRadius: '50%', background: '#c3b8a1' }} />
                 <span style={{ fontFamily: FONT_MONO, fontSize: 12, color: '#8a7c63' }}>nothing older is kept for you to audit</span>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                {OVERSIGHT_RAW.map((o, i) => {
+                {ovList.map((o) => {
                   const m = OVERSIGHT_KIND_META[o.kind]
                   return (
-                    <div key={i} style={{ background: '#fff', border: '1px solid #e4dccb', borderRadius: 12, padding: '18px 20px' }}>
+                    <div key={o.id} style={{ background: '#fff', border: '1px solid #e4dccb', borderRadius: 12, padding: '18px 20px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
                         <span style={{ width: 8, height: 8, borderRadius: '50%', flex: 'none', background: m.color }} />
                         <span style={{ fontSize: 10.5, fontWeight: 600, color: m.color, background: m.bg, border: `1px solid ${m.bd}`, padding: '3px 10px', borderRadius: 20, whiteSpace: 'nowrap' }}>{m.label}</span>
@@ -1147,7 +1156,10 @@ export default function TeacherApp() {
                         <span style={{ fontSize: 13, fontWeight: 600, color: '#0e2a43' }}>{o.asks}</span>
                         <div style={{ marginLeft: 'auto', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                           <button
-                            onClick={() => pushAddress({ student: o.student, context: o.context, note: o.title })}
+                            onClick={() => {
+                              pushAddress({ student: o.student, context: o.context, note: o.title })
+                              dismissOv(o.id)
+                            }}
                             style={{ background: '#fff', border: '1px solid #eecab0', borderRadius: 8, padding: '8px 13px', fontSize: 12.5, fontWeight: 600, color: '#b6531f', cursor: 'pointer' }}
                           >
                             + Address in person
@@ -1159,12 +1171,25 @@ export default function TeacherApp() {
                             Go to the question →
                           </button>
                           {/* Resolve = defer to the AI's judgement */}
-                          <button style={{ background: '#0e2a43', border: 'none', borderRadius: 8, padding: '8px 13px', fontSize: 12.5, fontWeight: 600, color: '#fff', cursor: 'pointer' }}>Resolve</button>
+                          <button
+                            onClick={() => dismissOv(o.id)}
+                            style={{ background: '#0e2a43', border: 'none', borderRadius: 8, padding: '8px 13px', fontSize: 12.5, fontWeight: 600, color: '#fff', cursor: 'pointer' }}
+                          >
+                            Resolve
+                          </button>
                         </div>
                       </div>
                     </div>
                   )
                 })}
+                {ovList.length === 0 && (
+                  <div style={{ background: '#fff', border: '1px dashed #d8cfbb', borderRadius: 12, padding: '30px 20px', textAlign: 'center' }}>
+                    <p style={{ margin: 0, fontSize: 14, fontWeight: 600, color: '#0e2a43' }}>All clear</p>
+                    <p style={{ margin: '6px 0 0', fontSize: 13, color: '#8a7c63', textWrap: 'pretty' }}>
+                      Every flag has been resolved or moved to your address-in-person list. New ones will appear here as the AI raises them.
+                    </p>
+                  </div>
+                )}
               </div>
               <div style={{ marginTop: 18, display: 'flex', gap: 10, alignItems: 'flex-start', background: '#eef3f7', border: '1px solid #d3e0ea', borderRadius: 10, padding: '14px 16px' }}>
                 <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#1f4e75', marginTop: 6, flex: 'none' }} />

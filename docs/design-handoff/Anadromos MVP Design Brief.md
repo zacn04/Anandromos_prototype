@@ -59,3 +59,54 @@ A handful of behavioural rules from the underlying research should shape the int
 ## Reference
 
 The full business plan, including the problem statement, evidence base, business model, and roadmap this brief is drawn from, is in "Anadromos Business Plan.md" in the same folder.
+
+---
+
+# Changelog — Design-phase decisions (18 July 2026)
+
+*Everything above this line is the original brief as written before prototyping. This section records the decisions we made while building the interactive prototypes (Teacher / Student / Parent POVs) so the brief reflects the product as actually designed. Where a decision changes something above, it says so explicitly rather than editing the original text.*
+
+## A. A parent view was added (supersedes the "no parent accounts" line in MVP Scope)
+
+The original scope ruled out anything consumer-facing, including parent accounts. During design we added a **read-only Parent POV**, deliberately built to stay inside the school-mediated, un-gamified frame rather than becoming a consumer tutoring surface. It is not a separate purchase, not a communication channel, and shows no marks, scores, or peer comparison. Three screens:
+
+- **Overview** — mastery bars per topic area, plus a "coming up" list of upcoming lessons and homework.
+- **Sessions** — completed work shown as *struggle-points only* (where the child got stuck and what was re-taught), with no marks or grades attached.
+- **Map** — the child's knowledge profile, again with no marks.
+
+Rationale: parents kept surfacing as a real audience, but the research-driven "no social comparison / no grading theatre" principle still holds, so the parent view exposes *understanding and next steps*, never a score. This is a genuine strategic reintroduction of a parent surface and should be flagged to the founders (see Business Plan §3.4, which had listed direct-to-parent products as deliberately excluded).
+
+## B. Student practice: wrong-answer flow is now multi-select (extends Screen 2)
+
+The original brief had the student pinpoint *the* single line where they went wrong. In the prototype this became **multi-select**: a student can flag every line where a technique mistake occurred, not just one. The rest of the flow runs per flagged line:
+
+- Final-answer entry uses a **notation palette**, with an **optional handwriting upload** (photo of their working) alongside it.
+- After submitting, the student compares their working against the worked solution, then multi-selects the line(s) that went wrong.
+- Each flagged line gets its own **"why"**: typing/clicking slip, silly mistake, genuinely too hard, content not yet learned — plus a free-text **"Other"** option.
+- Each flagged line gets its own **re-teach**, scoped to that specific step (not one generic worked example for the whole problem).
+
+The "I got it all wrong / I'm not sure where" alternative from the original brief is retained.
+
+## C. New student surfaces beyond the single practice screen
+
+The brief described one core practice screen. The prototype student experience is broader:
+
+- **Home** — mastery-path lessons and reviews on individual subtopics, *plus* teacher-set **problem sets** with due-date stickers and prerequisite gating.
+- **Problem Sets** — teacher-assigned, multi-question solving screen; due dates; locked until prerequisites are met.
+- **Free Play** — the full maths topic map. Tap a topic → unlock subtopic practice by completing its lessons → infinite AI-generated problems. Free-play work **contributes to mastery data and "last studied" recency**, and is **locked behind lesson completion** so it can't be used to skip the taught path.
+- **My Map** — a **Focused** profile (driven by the class basket of topics) and a full **"All of Maths"** profile; clicking a node shows last-worked, next-review, and retention timings.
+
+## D. Teacher dashboard and drill-down (extends Screens 3–5)
+
+- **Class switcher** across the teacher's classes.
+- **Dashboard** keeps the attention-first triage, and adds an **"address in person" to-do list** fed from student activity logs and the Oversight flags.
+- **Student drill-down** now shows pace vs. expected, mastery, the two knowledge-graph views (Focused + All of Maths) with spaced-repetition timings, and an **activity log** with per-hiccup detail including any **uploaded working images**.
+- **Oversight** flag types were made concrete: uncertain diagnosis, possible gaming, and mastery/retention mismatch.
+
+## E. Class Setup (extends Screen 6, school-admin)
+
+Class setup is now roster **plus a "basket of topics" for the year** — the set of topics that drives the Focused knowledge-graph view and problem-set gating — with a year-band filter and search over the topic list.
+
+## F. Knowledge graph split
+
+Throughout the product the knowledge graph is presented in two views: **Focused** (only the basket of topics for the class/year) and **All of Maths** (the complete graph). Node click surfaces last-worked / next-review / retention in both.

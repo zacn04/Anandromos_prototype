@@ -145,3 +145,37 @@ A few decisions in the source material were left unresolved by the masterfile an
 ## 12. Brand
 
 The name Anadromos (from the Greek for fish that swim upstream to spawn) and the accompanying koi-fish mark position the company around the idea of swimming against a difficult current to reach a place of growth, a natural fit for a product built around students the system has, for one reason or another, been unable to properly serve.
+
+---
+
+# Changelog — Design-phase decisions (18 July 2026)
+
+*Everything above this line is the business plan as written before prototyping. This section records the product decisions made while building the interactive prototypes (Teacher / Student / Parent POVs), so the plan reflects what was actually designed. Where a decision changes something above, it says so explicitly rather than editing the original text.*
+
+## 1. A read-only parent view was reintroduced (revises §3.4 and §4)
+
+§3.4 deliberately excluded all direct-to-parent products as belonging to the pre-pivot consumer direction, and §4 framed the product as strictly B2B(2C) with the teacher as primary user. During design we added a **read-only Parent POV**. This is **not** a return to the consumer model: it is not separately sold, carries no parent-facing pricing, has no ads, is not a tutoring surface, and shows **no marks, scores, or peer comparison**. It exposes only the child's mastery/understanding, upcoming lessons and homework, and struggle-points from completed sessions.
+
+The strategic read: this stays inside the school-as-buyer, teacher-as-primary-user model — the parent view is a byproduct surface of the same knowledge profile, offered through the school, not a consumer product. It is flagged here (rather than folded in silently) because it does touch the boundary §3.4 drew, and the founders may want to decide deliberately how far a parent surface goes before it re-opens the consumer questions that section closed.
+
+## 2. Error-classification loop is multi-select, per-line (deepens §3.2)
+
+§3.2 describes the student pinpointing the line where they went wrong and classifying why. The prototype extends this to **multi-select**: a student flags *every* line where a technique mistake occurred, and each flagged line carries its own reason (slip / silly mistake / too hard / not yet learned, plus a free-text "Other") and its own focused re-teach of that specific step. The standing "I got it all wrong / not sure where" option is retained. This makes the routing into Chi's misconception taxonomy (§3.2) finer-grained — one piece of working can now yield several distinct, separately-classified signals rather than one.
+
+Practice input was also specified concretely: a notation palette for the final answer, with an **optional handwriting upload** (photo of the student's working) that the teacher can see in the activity log.
+
+## 3. Free play, gated behind lessons and feeding the profile (new mechanic)
+
+A **Free Play** mode was added: the full maths topic map, where a student unlocks a subtopic's practice by completing its lessons, then gets unlimited AI-generated problems. Free-play work **contributes to the same mastery data and "last studied" recency** as taught practice. It is deliberately **locked behind lesson completion** so it cannot be used to route around the taught mastery path — consistent with the "no place to hide" and forced-review cautions in §3.2.
+
+## 4. Teacher oversight flags were made concrete (implements §8)
+
+§8 called for curated, triaged flagged moments rather than raw transcript dumps. The prototype implements three concrete flag types: **uncertain diagnosis**, **possible gaming**, and **mastery/retention mismatch** — the last directly operationalising the learning-vs-performance / forgetting-model risk raised in §7. These feed a teacher **"address in person" to-do list** on the dashboard, keeping the oversight burden curated per the cognitive-cost-of-oversight finding in §8.
+
+## 5. Knowledge graph presented in two views (design detail on §7)
+
+In the interface the graph appears as a **Focused** view (only the class/year "basket of topics") and an **All of Maths** view (the full graph). Node click surfaces last-worked, next-review, and retention timings, making the spaced-repetition and frontier concepts from §7 directly legible to teachers, students, and parents.
+
+## 6. Class setup carries a per-year "basket of topics"
+
+Beyond the roster, a class is configured with a **basket of topics for the year** that drives the Focused graph view, problem-set prerequisite gating, and the "expected pace" comparison in the student drill-down. This is the concrete data structure behind the "curriculum slice being piloted" mentioned in the MVP brief's onboarding screen.
