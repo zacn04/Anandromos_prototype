@@ -44,4 +44,27 @@ Our priority will be Mathematics, but we will also have a service for writing (E
 * **Free play, but earned.** Students get an open topic map with unlimited AI-generated problems, but a subtopic only unlocks once its lessons are done, and the work still feeds the knowledge profile and recency stats — so it can't be used to skip the taught path.
 * **Teacher oversight is a short flag list, not a transcript dump:** uncertain diagnosis, possible gaming, mastery/retention mismatch → an "address in person" to-do list on the dashboard.
 * **Knowledge graph shown two ways:** a Focused view (just the class's basket of topics for the year) and All of Maths; clicking a node shows when it was last worked, next review, and retention.
+
+Why the student said that they got the answer wrong should influence how we code this in the recommendation algorithm for reviews.
+
+* E.g.: Too hard/I understood nothing, the student has to redo the lesson
+* Silly mistake: the student gets to do a similar question with different numbers
+   * Student gets the question wrong: the subtopic instantly gets coded as "hasn't learned properly"
+
+* Study Definitions:
+   * Lesson:
+      * Students learn a subtopic and the corresponding concepts related to the subtopic.
+      * During lessons, students learn a concept and are then immediately tested on their understanding of the concept within the lesson
+   * Review:
+      * Spaced repetition of specific subtopics that contribute to a student's knowledge profile
+   * Freeplay
+      * Repetition of specific subtopics, where students do not have to follow our knowledge graph based recommendation algorithm
+      * This can contribute to a student's knowledge profile, but we will still require the student to follow our program of spaced repetition for the "compulsory" reviews
+   * Problem Set
+      * Questions that the teacher sets on specific subtopics
+      * Depending on what students get right or wrong, our recommendation algorithm acts accordingly
+         * It is not yet clear how the teacher would set the homework, but possible options include:
+            * Scanned and uploaded by the teacher
+            * Scanned by the teacher and integrated on to the platform using AI
+            * AI generated problems audited by the teacher
 * **A class carries a "basket of topics" for the year** — this drives the focused graph, homework gating, and the expected-pace comparison in a student's drill-down.

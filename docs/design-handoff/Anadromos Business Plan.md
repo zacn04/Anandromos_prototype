@@ -179,3 +179,23 @@ In the interface the graph appears as a **Focused** view (only the class/year "b
 ## 6. Class setup carries a per-year "basket of topics"
 
 Beyond the roster, a class is configured with a **basket of topics for the year** that drives the Focused graph view, problem-set prerequisite gating, and the "expected pace" comparison in the student drill-down. This is the concrete data structure behind the "curriculum slice being piloted" mentioned in the MVP brief's onboarding screen.
+
+## 7. Reason-coded routing in the review recommendation algorithm (deepens §3.2)
+
+*Why* the student said they got the answer wrong should influence how the recommendation algorithm codes the subtopic for reviews — the self-reported reason is a routing input, not just teacher context. Examples of the intended routing:
+
+* **Too hard / "I understood nothing"** → the student has to redo the lesson.
+* **Silly mistake** → the student gets to do a similar question with different numbers.
+  * If the student gets that question wrong too, the subtopic is instantly coded as **"hasn't learned properly"**.
+
+## 8. Study-mode definitions
+
+The four study modes referenced throughout the product, defined precisely:
+
+* **Lesson** — students learn a subtopic and the corresponding concepts related to the subtopic. During lessons, students learn a concept and are then immediately tested on their understanding of the concept within the lesson.
+* **Review** — spaced repetition of specific subtopics that contribute to a student's knowledge profile.
+* **Freeplay** — repetition of specific subtopics, where students do not have to follow our knowledge-graph-based recommendation algorithm. This can contribute to a student's knowledge profile, but we will still require the student to follow our program of spaced repetition for the "compulsory" reviews.
+* **Problem Set** — questions that the teacher sets on specific subtopics. Depending on what students get right or wrong, our recommendation algorithm acts accordingly. It is not yet clear how the teacher would set the homework, but possible options include:
+  * Scanned and uploaded by the teacher
+  * Scanned by the teacher and integrated onto the platform using AI
+  * AI-generated problems audited by the teacher

@@ -110,3 +110,23 @@ Class setup is now roster **plus a "basket of topics" for the year** — the set
 ## F. Knowledge graph split
 
 Throughout the product the knowledge graph is presented in two views: **Focused** (only the basket of topics for the class/year) and **All of Maths** (the complete graph). Node click surfaces last-worked / next-review / retention in both.
+
+## G. Reason-coded routing for reviews (extends Screen 2 / section B)
+
+*Why* the student said they got the answer wrong should influence how we code this in the recommendation algorithm for reviews — the per-line reason chosen in the practice loop is a routing input, not just context for the teacher. Intended routing:
+
+* **Too hard / "I understood nothing"** → the student has to redo the lesson.
+* **Silly mistake** → the student gets to do a similar question with different numbers.
+  * If the student gets that question wrong, the subtopic instantly gets coded as **"hasn't learned properly"**.
+
+## H. Study-mode definitions
+
+Shared definitions for the four modes the screens are built around:
+
+* **Lesson** — students learn a subtopic and the corresponding concepts related to the subtopic. During lessons, students learn a concept and are then immediately tested on their understanding of the concept within the lesson.
+* **Review** — spaced repetition of specific subtopics that contribute to a student's knowledge profile.
+* **Freeplay** — repetition of specific subtopics, where students do not have to follow our knowledge-graph-based recommendation algorithm. This can contribute to a student's knowledge profile, but we will still require the student to follow our program of spaced repetition for the "compulsory" reviews.
+* **Problem Set** — questions that the teacher sets on specific subtopics. Depending on what students get right or wrong, our recommendation algorithm acts accordingly. It is not yet clear how the teacher would set the homework, but possible options include:
+  * Scanned and uploaded by the teacher
+  * Scanned by the teacher and integrated onto the platform using AI
+  * AI-generated problems audited by the teacher
