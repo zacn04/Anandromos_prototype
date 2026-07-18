@@ -56,7 +56,7 @@ src/
   student/StudentApp.tsx   Student POV
   parent/ParentApp.tsx     Parent POV
 docs/design-handoff/       the original design bundle (open the .dc.html files directly
-                           in a browser to view the reference prototypes)
+                           in a browser to view the reference prototypes). See the business plan in here.
 ```
 
 Sample data is hardcoded in `src/data/` with the shapes a future API should keep
