@@ -1,0 +1,123 @@
+import type { LogQuestion } from './activityLog'
+
+/**
+ * The Oversight queue: AI moments that need a human's judgement. Each item
+ * carries the exact contention items (`detail`) so "Go to the question →"
+ * can jump straight to them in the log-detail view.
+ */
+export type OversightKind = 'uncertain' | 'gaming' | 'probe'
+
+export interface OversightDetail {
+  kind: string
+  title: string
+  date: string
+  result: string
+  flag: 'attention' | 'ok'
+  upload: boolean
+  items: LogQuestion[]
+}
+
+export interface OversightItem {
+  kind: OversightKind
+  student: string
+  context: string
+  title: string
+  body: string
+  asks: string
+  detail: OversightDetail
+}
+
+export const OVERSIGHT_KIND_META: Record<
+  OversightKind,
+  { label: string; color: string; bg: string; bd: string }
+> = {
+  uncertain: { label: 'Uncertain diagnosis', color: '#b6531f', bg: '#fbe7d8', bd: '#eecab0' },
+  gaming: { label: 'Possible gaming', color: '#b6531f', bg: '#fbe7d8', bd: '#eecab0' },
+  probe: { label: 'Worth a look', color: '#1f4e75', bg: '#e4edf3', bd: '#cddceb' },
+}
+
+export const OVERSIGHT_RAW: OversightItem[] = [
+  {
+    kind: 'uncertain',
+    student: 'Aisha Bello',
+    context: 'Linear equations · review, today',
+    title: 'Diagnosis confidence is low',
+    body: 'The model isn’t sure whether the repeated sign error is a genuine misconception or a careless slip. Her self-reported reason ("silly mistake") conflicts with a three-time pattern. Your read would settle it.',
+    asks: 'Is this a real gap or a slip?',
+    detail: {
+      kind: 'Review',
+      title: 'Linear equations · spaced review',
+      date: 'Today',
+      result: '2 of 5 correct',
+      flag: 'attention',
+      upload: true,
+      items: [
+        { label: 'Q1', q: 'Solve 3x − 7 = 11', hit: true, note: 'Wrote 3x = 11 − 7. Sign not flipped when moving −7 across =.' },
+        { label: 'Q3', q: 'Solve 5x − 4 = 16', hit: true, note: 'Wrote 5x = 16 − 4. Same sign error as Q1.' },
+        { label: 'Q5', q: 'Solve 7 − 2x = 3', hit: true, note: 'Lost the sign on −2x. Flagged as "silly mistake" — the point of contention.' },
+      ],
+    },
+  },
+  {
+    kind: 'gaming',
+    student: 'Daniel Kovač',
+    context: 'Fractions to % · problem set, today',
+    title: 'Answering "I don’t know" to skip',
+    body: 'Daniel selected "I don’t know" on 4 of 6 diagnostic prompts in a row, which reads as skipping the diagnostic rather than engaging with it. Credit has been withheld pending your view.',
+    asks: 'Nudge in person, or let the system re-prompt?',
+    detail: {
+      kind: 'Problem set',
+      title: 'Fractions to percentages · Daniel Kovač',
+      date: 'Today',
+      result: 'flagged',
+      flag: 'attention',
+      upload: false,
+      items: [
+        { label: 'P2', q: 'Diagnostic: why is 3/8 not 30%?', hit: true, note: 'Selected "I don’t know" without an attempt.' },
+        { label: 'P3', q: 'Diagnostic: convert 1/4 to a percentage', hit: true, note: '"I don’t know" again — 2nd in a row.' },
+        { label: 'P4', q: 'Diagnostic: explain your method', hit: true, note: '"I don’t know" — 3rd.' },
+        { label: 'P5', q: 'Diagnostic: check a worked example', hit: true, note: '"I don’t know" — 4th. Reads as skipping, not stuck.' },
+      ],
+    },
+  },
+  {
+    kind: 'probe',
+    student: 'Reuben Clarke',
+    context: 'Substitution · lesson, yesterday',
+    title: 'Probe may have cued the answer',
+    body: 'A probe-mode question was phrased in a way that could have hinted the correct step, so the "understood" result here may be softer than it looks. Flagged so it isn’t over-weighted.',
+    asks: 'Re-assess without the cue?',
+    detail: {
+      kind: 'Lesson',
+      title: 'Substitution · Reuben Clarke',
+      date: 'Yesterday',
+      result: 'review',
+      flag: 'attention',
+      upload: false,
+      items: [
+        { label: 'Probe', q: '"You multiplied first here, didn’t you?"', hit: true, note: 'The phrasing itself hints the correct order — the "yes" may not reflect real understanding.' },
+        { label: 'Check', q: 'Evaluate 2 + 3 × 4', hit: false, note: 'Correct, but immediately after the cue.' },
+      ],
+    },
+  },
+  {
+    kind: 'uncertain',
+    student: 'Priya Shah',
+    context: 'Expanding brackets · review, yesterday',
+    title: 'Mastery vs. retention mismatch',
+    body: 'Same-session accuracy is high, but delayed retrieval two weeks on dropped sharply. The model is unsure whether to keep this topic marked mastered.',
+    asks: 'Hold at mastered, or schedule extra review?',
+    detail: {
+      kind: 'Review',
+      title: 'Expanding brackets · Priya Shah',
+      date: 'Yesterday',
+      result: '3 of 5 correct',
+      flag: 'attention',
+      upload: false,
+      items: [
+        { label: 'Then', q: 'Same-session accuracy (2 wks ago)', hit: false, note: '5 of 5 — looked mastered.' },
+        { label: 'Now', q: 'Delayed retrieval (yesterday)', hit: true, note: '3 of 5 — the drop the model is unsure how to weight.' },
+      ],
+    },
+  },
+]

@@ -1,0 +1,182 @@
+/**
+ * Aisha's activity log — the shared record behind the teacher's activity log,
+ * the log-detail view, and the student's Sessions list.
+ *
+ * Per-question fields: `hit` marks a hiccup; `work` is the student's full
+ * working (plain-text lines); `wrong` holds the indices of the lines the
+ * student flagged; `why` gives the diagnosis for each flagged line.
+ */
+export interface LogQuestion {
+  label: string
+  q: string
+  hit: boolean
+  note: string
+  work?: string[]
+  wrong?: number[]
+  why?: string[]
+}
+
+export interface LogActivity {
+  kind: 'Review' | 'Problem set' | 'Lesson'
+  date: string
+  title: string
+  result: string
+  flag: 'attention' | 'ok'
+  summary: string
+  detail: string[]
+  upload: boolean
+  items: LogQuestion[]
+}
+
+export const LOG_RAW: LogActivity[] = [
+  {
+    kind: 'Review',
+    date: 'Today',
+    title: 'Linear equations · spaced review',
+    result: '2 of 5 correct',
+    flag: 'attention',
+    summary: 'Sign errors when moving a term across the equals sign.',
+    detail: [
+      '3 of 5 items failed on the same step: moving a term across = without flipping its sign.',
+      'She flagged two as "silly mistake"; the pattern says otherwise - third time this fortnight.',
+      'Routed a focused re-teach of inverse operations before the next review.',
+    ],
+    upload: true,
+    items: [
+      {
+        label: 'Q1',
+        q: 'Solve 3x − 7 = 11',
+        hit: true,
+        note: 'Wrote 3x = 11 − 7. Sign not flipped when moving −7 across =.',
+        work: ['3x − 7 = 11', '3x = 11 − 7', '3x = 4', 'x = 4⁄3'],
+        wrong: [1],
+        why: ['Moved −7 across the = but kept it negative. It should flip to +7, giving 3x = 11 + 7 = 18.'],
+      },
+      { label: 'Q2', q: 'Solve 2x + 5 = 13', hit: false, note: 'Correct.' },
+      {
+        label: 'Q3',
+        q: 'Solve 5x − 4 = 16',
+        hit: true,
+        note: 'Wrote 5x = 16 − 4. Same sign error as Q1.',
+        work: ['5x − 4 = 16', '5x = 16 − 4', '5x = 12', 'x = 12⁄5'],
+        wrong: [1],
+        why: ['Same sign slip as Q1: −4 crossing the = should become +4, giving 5x = 16 + 4 = 20.'],
+      },
+      { label: 'Q4', q: 'Solve 4x + 9 = 1', hit: false, note: 'Correct.' },
+      {
+        label: 'Q5',
+        q: 'Solve 7 − 2x = 3',
+        hit: true,
+        note: 'Lost the sign on −2x. Flagged as "silly mistake".',
+        work: ['7 − 2x = 3', '−2x = 3 − 7', '−2x = −4', 'x = −2'],
+        wrong: [3],
+        why: ['Sign lost on the final divide: −4 ÷ −2 = +2, so x = 2, not −2.'],
+      },
+    ],
+  },
+  {
+    kind: 'Problem set',
+    date: 'Yesterday',
+    title: 'Substitution into expressions',
+    result: '6 of 10 correct',
+    flag: 'attention',
+    summary: 'Substituted values into the wrong term on the harder items.',
+    detail: [
+      'First 5 (single-term) items correct; last 5 (two-term) items mostly wrong.',
+      'Consistent with a shaky grasp of the prerequisite, not carelessness.',
+      'This is the likely root cause feeding the linear-equations struggle.',
+    ],
+    upload: true,
+    items: [
+      {
+        label: 'Q6',
+        q: 'Evaluate 3a + 2b when a=4, b=5',
+        hit: true,
+        note: 'Computed 3×4 + 2×4. Substituted a into both terms.',
+        work: ['3a + 2b', '3×4 + 2×4', '12 + 8', '20'],
+        wrong: [1],
+        why: ['Substituted a=4 into both terms. The 2b term takes b=5, so it should be 2×5 = 10, giving 12 + 10 = 22.'],
+      },
+      {
+        label: 'Q7',
+        q: 'Evaluate 5m − n when m=3, n=8',
+        hit: true,
+        note: 'Swapped m and n.',
+        work: ['5m − n', '5×8 − 3', '40 − 3', '37'],
+        wrong: [1],
+        why: ['Swapped the values: m=3 and n=8, so it should read 5×3 − 8 = 7.'],
+      },
+      { label: 'Q8', q: 'Evaluate 2x + 7 when x=6', hit: false, note: 'Correct (single term).' },
+      {
+        label: 'Q9',
+        q: 'Evaluate ab + c when a=2, b=3, c=4',
+        hit: true,
+        note: 'Left c out of the sum.',
+        work: ['ab + c', '2×3', '6'],
+        wrong: [1],
+        why: ['Stopped after ab = 6 and never added c. Should be 6 + 4 = 10.'],
+      },
+      { label: 'Q10', q: 'Evaluate 4p when p=9', hit: false, note: 'Correct (single term).' },
+    ],
+  },
+  {
+    kind: 'Lesson',
+    date: 'Mon',
+    title: 'Solving two-step equations',
+    result: 'Completed',
+    flag: 'ok',
+    summary: 'Worked through cleanly; no misconceptions surfaced.',
+    detail: [
+      'Attempted every check-in before revealing the worked step.',
+      'No repeated errors within the lesson.',
+      'Frontier advanced to two-step equations with the unknown on one side.',
+    ],
+    upload: false,
+    items: [
+      { label: 'Check 1', q: 'Undo the +3 in x + 3 = 10', hit: false, note: 'Correct on first attempt.' },
+      { label: 'Check 2', q: 'Undo the ×4 in 4x = 20', hit: false, note: 'Correct on first attempt.' },
+      { label: 'Check 3', q: 'Solve 2x + 1 = 9', hit: false, note: 'Correct; attempted before revealing the step.' },
+    ],
+  },
+  {
+    kind: 'Problem set',
+    date: 'Last wk',
+    title: 'Fractions to percentages',
+    result: '9 of 10 correct',
+    flag: 'ok',
+    summary: 'One method slip, corroborated as a genuine one-off.',
+    detail: [
+      'Single error on a conversion; her wider pattern is strong here.',
+      'No re-teach needed - logged and closed.',
+    ],
+    upload: false,
+    items: [
+      {
+        label: 'Q4',
+        q: 'Write 3/8 as a percentage',
+        hit: true,
+        note: 'Divided 8 by 3 instead of 3 by 8. One-off; corroborated against strong history.',
+        work: ['3/8 as a %', '8 ÷ 3 = 2.67', '267%'],
+        wrong: [1],
+        why: ['Divided 8 by 3 the wrong way round. Should be 3 ÷ 8 = 0.375 = 37.5%.'],
+      },
+      { label: 'Q1–3, 5–10', q: 'Remaining conversions', hit: false, note: 'All correct.' },
+    ],
+  },
+  {
+    kind: 'Review',
+    date: '2 wks',
+    title: 'Negatives · spaced review',
+    result: '5 of 5 correct',
+    flag: 'ok',
+    summary: 'Fully retained across sessions.',
+    detail: [
+      'Held up on delayed, cross-session retrieval, not just same-session accuracy.',
+      'Trickle-down credit applied to dependent topics.',
+    ],
+    upload: false,
+    items: [
+      { label: 'Q1–5', q: 'Adding and subtracting negatives', hit: false, note: 'All correct on delayed retrieval.' },
+    ],
+  },
+]

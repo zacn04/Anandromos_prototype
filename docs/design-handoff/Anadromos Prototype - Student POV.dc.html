@@ -1,0 +1,2103 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:'Public Sans',system-ui,sans-serif;background:#fbf9f5;color:#1a2129;-webkit-font-smoothing:antialiased}
+  a{color:#dd6a2f;text-decoration:none}
+  a:hover{color:#b6531f}
+  .wline:hover{border-color:#dd6a2f !important}
+  ::selection{background:#fbe7d8}
+</style>
+</helmet>
+<div style="min-height:100vh;background:#fbf9f5">
+
+  <!-- ============ TEACHER MODE ============ -->
+  <sc-if value="{{ teacherMode }}" hint-placeholder-val="{{ true }}">
+  <div style="display:flex;min-height:100vh">
+
+    <!-- Left nav rail -->
+    <nav style="width:212px;flex:none;background:#0e2a43;color:#dbe6ef;display:flex;flex-direction:column;padding:22px 14px;position:sticky;top:0;height:100vh">
+      <div style="display:flex;align-items:center;gap:10px;padding:4px 8px 24px">
+        <svg width="30" height="30" viewBox="0 0 40 40" aria-hidden="true">
+          <path d="M6 22 C 12 12, 26 12, 33 20 C 27 15, 15 16, 10 24 C 9 22, 7 22, 6 22 Z" fill="#dd6a2f"/>
+          <path d="M31 20 l6 -5 l0 10 z" fill="#dd6a2f"/>
+          <circle cx="14" cy="20" r="1.6" fill="#0e2a43"/>
+        </svg>
+        <span style="font-family:'Spectral',serif;font-weight:600;font-size:19px;color:#fff;letter-spacing:.2px">Anadromos</span>
+      </div>
+      <sc-for list="{{ nav }}" as="item" hint-placeholder-count="5">
+        <div onClick="{{ item.onClick }}" style="{{ item.style }}">
+          <span style="{{ item.dotStyle }}"></span>{{ item.label }}
+        </div>
+      </sc-for>
+      <div style="margin-top:auto;padding:14px 10px 4px;border-top:1px solid rgba(255,255,255,.1)">
+        <div style="font-size:12px;color:#9fb4c7">Ms. Okafor</div>
+        <div style="font-size:11px;color:#6f8aa2;margin-top:2px">Maths · 8M2, 8M4, 9S1</div>
+      </div>
+    </nav>
+
+    <main style="flex:1;min-width:0">
+
+      <!-- ---------- DASHBOARD ---------- -->
+      <sc-if value="{{ showDashboard }}" hint-placeholder-val="{{ true }}">
+      <div style="padding:30px 40px 60px;max-width:1180px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.6px;text-transform:uppercase;color:#8a7c63;margin-right:4px">Your classes</span>
+          <sc-for list="{{ classTabs }}" as="c" hint-placeholder-count="3">
+            <button onClick="{{ c.onClick }}" style="{{ c.style }}"><span style="font-weight:600;font-size:13.5px;display:block;line-height:1.2">{{ c.label }}</span><span style="font-size:10.5px;opacity:.75;display:block">{{ c.sub }}</span></button>
+          </sc-for>
+        </div>
+        <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap">
+          <div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#8a7c63">Class overview</div>
+            <h1 style="font-family:'Spectral',serif;font-weight:600;font-size:30px;margin:6px 0 4px;color:#0e2a43">{{ dashTitle }}</h1>
+            <div style="font-size:14px;color:#5c6773">{{ dashSub }}</div>
+          </div>
+          <div style="display:flex;background:#efe7d9;border:1px solid #e0d4bd;border-radius:11px;padding:3px;gap:2px">
+            <sc-for list="{{ layouts }}" as="lo" hint-placeholder-count="3">
+              <button onClick="{{ lo.onClick }}" style="{{ lo.style }}">{{ lo.label }}</button>
+            </sc-for>
+          </div>
+        </div>
+
+        <!-- Address in person to-do -->
+        <div style="margin-top:24px;background:#fdf0e6;border:1px solid #f0d3bc;border-radius:12px;padding:18px 20px">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <span style="width:9px;height:9px;border-radius:50%;background:#dd6a2f;flex:none"></span>
+            <h2 style="font-family:'Spectral',serif;font-size:16px;font-weight:600;margin:0;color:#0e2a43">Address in person</h2>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#b6531f">{{ addCount }} to do</span>
+            <button onClick="{{ toggleAddNote }}" title="Add a note" style="margin-left:auto;width:30px;height:30px;border-radius:8px;border:1px solid #e0b997;background:#fff;color:#b6531f;font-size:18px;line-height:1;cursor:pointer;font-family:inherit">+</button>
+          </div>
+
+          <sc-if value="{{ addingNote }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:12px;display:flex;gap:8px">
+            <input value="{{ noteDraft }}" onInput="{{ onNoteInput }}" placeholder="e.g. Check in with Marcus about missed homework" style="flex:1;min-width:0;border:1px solid #e0b997;border-radius:8px;background:#fff;padding:10px 12px;font-size:13.5px;font-family:inherit;color:#1a2129;outline:none" />
+            <button onClick="{{ saveNote }}" style="background:#dd6a2f;color:#fff;border:none;border-radius:8px;padding:0 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Add</button>
+          </div>
+          </sc-if>
+
+          <sc-if value="{{ hasAddress }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:14px;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px">
+            <sc-for list="{{ addressCards }}" as="c" hint-placeholder-count="2">
+              <div style="background:#fff;border:1px solid #f0d3bc;border-radius:10px;padding:12px 14px;position:relative">
+                <div style="display:flex;align-items:baseline;gap:8px">
+                  <span style="font-size:13.5px;font-weight:600;color:#0e2a43">{{ c.student }}</span>
+                  <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#8a7c63;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ c.context }}</span>
+                  <button onClick="{{ c.onMenu }}" style="border:none;background:transparent;color:#a99e88;font-size:16px;line-height:1;cursor:pointer;flex:none;font-family:inherit">···</button>
+                </div>
+                <p style="margin:6px 0 0;font-size:12.5px;line-height:1.45;color:#5c6773;text-wrap:pretty">{{ c.note }}</p>
+                <sc-if value="{{ c.menuOpen }}" hint-placeholder-val="{{ false }}">
+                <div style="position:absolute;top:34px;right:10px;background:#fff;border:1px solid #e4dccb;border-radius:8px;box-shadow:0 4px 14px rgba(20,48,74,.14);overflow:hidden;z-index:5">
+                  <button onClick="{{ c.onRemove }}" style="display:block;width:100%;text-align:left;border:none;background:transparent;padding:9px 16px;font-size:12.5px;color:#b6531f;cursor:pointer;font-family:inherit;white-space:nowrap">Remove from list</button>
+                </div>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+          </sc-if>
+
+          <sc-if value="{{ noAddress }}" hint-placeholder-val="{{ true }}">
+          <p style="margin:10px 0 0;font-size:12.5px;color:#8a6b4f;text-wrap:pretty">Nothing flagged for a face-to-face yet. Add items from a student's activity log or the Oversight list, or hit + for a quick note.</p>
+          </sc-if>
+        </div>
+
+        <!-- ATTENTION FIRST layout -->
+        <sc-if value="{{ isAttention }}" hint-placeholder-val="{{ true }}">
+        <div style="margin-top:26px">
+          <div style="display:flex;align-items:center;gap:9px;margin-bottom:14px">
+            <span style="width:9px;height:9px;border-radius:50%;background:#dd6a2f;display:inline-block"></span>
+            <h2 style="font-family:'Spectral',serif;font-size:17px;font-weight:600;margin:0;color:#0e2a43">Needs attention first</h2>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8a7c63">3 students</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px">
+            <sc-for list="{{ attention }}" as="s" hint-placeholder-count="3">
+              <div style="background:#fff;border:1px solid #eecab0;border-top:3px solid #dd6a2f;border-radius:12px;padding:18px 18px 16px;box-shadow:0 1px 3px rgba(20,48,74,.05)">
+                <div style="display:flex;align-items:center;gap:12px">
+                  <div style="width:38px;height:38px;border-radius:50%;background:#0e2a43;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px;flex:none">{{ s.initials }}</div>
+                  <div style="min-width:0">
+                    <div style="font-weight:600;font-size:15px;color:#1a2129">{{ s.name }}</div>
+                    <div style="font-size:12.5px;color:#8a7c63">{{ s.trend }}</div>
+                  </div>
+                  <span style="margin-left:auto;font-size:11px;font-weight:600;color:#b6531f;background:#fbe7d8;border:1px solid #eecab0;padding:3px 9px;border-radius:20px;white-space:nowrap">Stuck</span>
+                </div>
+                <div style="margin-top:14px;display:flex;flex-direction:column;gap:8px">
+                  <div style="display:flex;gap:8px;align-items:baseline">
+                    <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;color:#8a7c63;width:56px;flex:none">Topic</span>
+                    <span style="font-size:13.5px;font-weight:500;color:#1a2129">{{ s.topic }}</span>
+                  </div>
+                  <div style="display:flex;gap:8px;align-items:baseline">
+                    <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;color:#8a7c63;width:56px;flex:none">Cause</span>
+                    <span style="font-size:13.5px;font-weight:600;color:#b6531f">{{ s.cause }}</span>
+                  </div>
+                  <p style="margin:4px 0 0;font-size:13px;line-height:1.5;color:#5c6773;text-wrap:pretty">{{ s.line }}</p>
+                </div>
+                <button onClick="{{ s.onOpen }}" style="margin-top:15px;width:100%;background:#dd6a2f;color:#fff;border:none;border-radius:9px;padding:10px;font-weight:600;font-size:13.5px;cursor:pointer;font-family:inherit">Open profile →</button>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        </sc-if>
+
+        <!-- THREE LANES layout -->
+        <sc-if value="{{ isLanes }}" hint-placeholder-val="{{ true }}">
+        <div style="margin-top:26px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">
+          <sc-for list="{{ lanes }}" as="lane" hint-placeholder-count="3">
+            <div style="{{ lane.colStyle }}">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+                <span style="{{ lane.dotStyle }}"></span>
+                <h2 style="font-family:'Spectral',serif;font-size:15px;font-weight:600;margin:0;color:#0e2a43">{{ lane.title }}</h2>
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8a7c63;margin-left:auto">{{ lane.count }}</span>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <sc-for list="{{ lane.students }}" as="s" hint-placeholder-count="3">
+                  <div onClick="{{ s.onOpen }}" style="background:#fff;border:1px solid #e4dccb;border-radius:9px;padding:10px 12px;cursor:pointer;display:flex;align-items:center;gap:10px">
+                    <div style="{{ s.avatarStyle }}">{{ s.initials }}</div>
+                    <div style="min-width:0;flex:1">
+                      <div style="font-weight:600;font-size:13.5px;color:#1a2129;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.name }}</div>
+                      <div style="font-size:11.5px;color:#8a7c63;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.sub }}</div>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+        </sc-if>
+
+        <!-- ROSTER layout -->
+        <sc-if value="{{ isRoster }}" hint-placeholder-val="{{ true }}">
+        <div style="margin-top:22px;background:#fff;border:1px solid #e4dccb;border-radius:12px;overflow:hidden">
+          <div style="display:grid;grid-template-columns:1.6fr 1.4fr 1fr 0.8fr;gap:12px;padding:11px 18px;background:#efe7d9;font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.6px;text-transform:uppercase;color:#8a7c63">
+            <div>Student</div><div>Current topic</div><div>Status</div><div style="text-align:right">Last active</div>
+          </div>
+          <sc-for list="{{ roster }}" as="s" hint-placeholder-count="8">
+            <div onClick="{{ s.onOpen }}" style="display:grid;grid-template-columns:1.6fr 1.4fr 1fr 0.8fr;gap:12px;padding:12px 18px;border-top:1px solid #f0e9dc;cursor:pointer;align-items:center">
+              <div style="display:flex;align-items:center;gap:10px"><div style="{{ s.avatarStyle }}">{{ s.initials }}</div><span style="font-weight:600;font-size:13.5px">{{ s.name }}</span></div>
+              <div style="font-size:13px;color:#5c6773">{{ s.topic }}</div>
+              <div><span style="{{ s.chipStyle }}">{{ s.statusLabel }}</span></div>
+              <div style="text-align:right;font-size:12.5px;color:#8a7c63">{{ s.last }}</div>
+            </div>
+          </sc-for>
+        </div>
+        </sc-if>
+
+        <!-- Collapsed rest (shown only in attention layout) -->
+        <sc-if value="{{ isAttention }}" hint-placeholder-val="{{ true }}">
+        <div style="margin-top:26px;display:flex;flex-direction:column;gap:10px">
+          <sc-for list="{{ collapsed }}" as="grp" hint-placeholder-count="2">
+            <div style="background:#fff;border:1px solid #e4dccb;border-radius:12px;overflow:hidden">
+              <div onClick="{{ grp.onToggle }}" style="display:flex;align-items:center;gap:10px;padding:14px 18px;cursor:pointer">
+                <span style="{{ grp.dotStyle }}"></span>
+                <span style="font-family:'Spectral',serif;font-weight:600;font-size:15px;color:#0e2a43">{{ grp.title }}</span>
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8a7c63">{{ grp.count }} students</span>
+                <span style="margin-left:auto;font-size:12.5px;color:#8a7c63">{{ grp.toggleLabel }}</span>
+              </div>
+              <sc-if value="{{ grp.open }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-wrap:wrap;gap:8px;padding:2px 18px 18px">
+                <sc-for list="{{ grp.students }}" as="s" hint-placeholder-count="6">
+                  <div onClick="{{ s.onOpen }}" style="display:flex;align-items:center;gap:8px;background:#faf6ee;border:1px solid #ece3d2;border-radius:20px;padding:5px 12px 5px 5px;cursor:pointer">
+                    <div style="{{ s.avatarStyle }}">{{ s.initials }}</div>
+                    <span style="font-size:13px;font-weight:500">{{ s.name }}</span>
+                  </div>
+                </sc-for>
+              </div>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+        </sc-if>
+
+        <!-- Class mastery by topic (difficulty-weighted) -->
+        <div style="margin-top:30px;background:#fff;border:1px solid #e4dccb;border-radius:12px;padding:22px 24px">
+          <div style="display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:12px">
+            <h2 style="font-family:'Spectral',serif;font-size:17px;font-weight:600;margin:0;color:#0e2a43">Class mastery by topic</h2>
+            <div style="display:flex;align-items:center;gap:16px;font-size:11.5px;color:#8a7c63">
+              <span style="display:flex;align-items:center;gap:6px"><span style="width:26px;height:9px;border-radius:2px;background:#1f4e75;display:inline-block"></span>Foundations</span>
+              <span style="display:flex;align-items:center;gap:6px"><span style="width:26px;height:9px;border-radius:2px;background:#4a86ad;display:inline-block"></span>Core</span>
+              <span style="display:flex;align-items:center;gap:6px"><span style="width:26px;height:9px;border-radius:2px;background:#e8a06a;display:inline-block"></span>Stretch</span>
+            </div>
+          </div>
+          <p style="margin:6px 0 18px;font-size:12.5px;color:#8a7c63;max-width:640px">Weighted by item difficulty, so a class can't look finished on a topic by only clearing its easy items. Thin stretch bars are where the hardest work still sits.</p>
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <sc-for list="{{ classTopics }}" as="t" hint-placeholder-count="5">
+              <div style="display:grid;grid-template-columns:170px 1fr;gap:16px;align-items:center">
+                <div style="font-size:13.5px;font-weight:500;color:#1a2129">{{ t.name }}</div>
+                <div style="display:flex;gap:6px">
+                  <sc-for list="{{ t.tiers }}" as="tier" hint-placeholder-count="3">
+                    <div style="flex:1;height:22px;border-radius:5px;background:#f0e9dc;overflow:hidden;position:relative">
+                      <div style="{{ tier.fillStyle }}"></div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ---------- STUDENT DRILL-DOWN ---------- -->
+      <sc-if value="{{ showStudent }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:26px 40px 60px;max-width:1180px">
+        <div onClick="{{ goDashboard }}" style="display:inline-flex;align-items:center;gap:7px;font-size:13px;color:#5c6773;cursor:pointer;margin-bottom:16px">← 8M2 class overview</div>
+        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+          <div style="width:52px;height:52px;border-radius:50%;background:#0e2a43;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:19px;flex:none">AB</div>
+          <div>
+            <h1 style="font-family:'Spectral',serif;font-weight:600;font-size:27px;margin:0;color:#0e2a43">Aisha Bello</h1>
+            <div style="font-size:13.5px;color:#5c6773">Year 8 · 8M2 · joined September</div>
+          </div>
+          <span style="font-size:12px;font-weight:600;color:#b6531f;background:#fbe7d8;border:1px solid #eecab0;padding:5px 12px;border-radius:20px">Needs attention</span>
+          <button onClick="{{ openPractice }}" style="margin-left:auto;background:#0e2a43;color:#fff;border:none;border-radius:9px;padding:11px 18px;font-weight:600;font-size:13.5px;cursor:pointer;font-family:inherit">Preview her practice view →</button>
+        </div>
+
+        <div style="margin-top:8px;background:#fdf0e6;border:1px solid #f0d3bc;border-radius:10px;padding:16px 18px">
+          <div style="display:flex;align-items:center;gap:9px;margin-bottom:10px">
+            <span style="width:8px;height:8px;border-radius:50%;background:#dd6a2f;flex:none"></span>
+            <span style="font-size:12.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:#b6531f;font-family:'IBM Plex Mono',monospace">Where to start</span>
+          </div>
+          <ul style="margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px">
+            <li style="display:flex;gap:10px;font-size:13.5px;line-height:1.5;color:#5c3a24"><span style="color:#dd6a2f;flex:none">•</span><span>At the linear-equations frontier, but rearranging is a memorised ritual, not understood.</span></li>
+            <li style="display:flex;gap:10px;font-size:13.5px;line-height:1.5;color:#5c3a24"><span style="color:#dd6a2f;flex:none">•</span><span>Likely root cause: the prerequisite - inverse operations (substitution) - never became solid.</span></li>
+            <li style="display:flex;gap:10px;font-size:13.5px;line-height:1.5;color:#5c3a24"><span style="color:#dd6a2f;flex:none">•</span><span>Best next move: a short re-teach of that step, not more equation practice.</span></li>
+          </ul>
+        </div>
+
+        <div style="margin-top:22px;display:grid;grid-template-columns:1.15fr 0.85fr;gap:20px;align-items:start">
+
+          <!-- Pace ribbon -->
+          <div style="background:#fff;border:1px solid #e4dccb;border-radius:12px;padding:20px 22px">
+            <h2 style="font-family:'Spectral',serif;font-size:16px;font-weight:600;margin:0 0 3px;color:#0e2a43">Against expected pace</h2>
+            <p style="margin:0 0 16px;font-size:12.5px;color:#8a7c63">Where a Year 8 is expected to be by week 9 (marker) vs. where Aisha actually is. Mixed is normal - she's ahead on some, behind on others.</p>
+            <div style="display:flex;flex-direction:column;gap:15px">
+              <sc-for list="{{ paceItems }}" as="p" hint-placeholder-count="5">
+                <div>
+                  <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
+                    <span style="font-size:13px;font-weight:500;color:#1a2129">{{ p.topic }}</span>
+                    <span style="{{ p.tagStyle }}">{{ p.tag }}</span>
+                  </div>
+                  <div style="position:relative;height:14px;background:#f0e9dc;border-radius:7px">
+                    <div style="{{ p.fillStyle }}"></div>
+                    <div style="{{ p.markStyle }}" title="expected"></div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="margin-top:14px;display:flex;gap:18px;font-size:11.5px;color:#8a7c63">
+              <span style="display:flex;align-items:center;gap:6px"><span style="width:20px;height:8px;border-radius:2px;background:#1f4e75;display:inline-block"></span>Aisha now</span>
+              <span style="display:flex;align-items:center;gap:6px"><span style="width:2px;height:14px;background:#0e2a43;display:inline-block"></span>Expected by wk 9</span>
+            </div>
+          </div>
+
+          <!-- Difficulty-weighted mastery -->
+          <div style="background:#fff;border:1px solid #e4dccb;border-radius:12px;padding:20px 22px">
+            <h2 style="font-family:'Spectral',serif;font-size:16px;font-weight:600;margin:0 0 3px;color:#0e2a43">Mastery, difficulty-weighted</h2>
+            <p style="margin:0 0 16px;font-size:12.5px;color:#8a7c63">No place to hide: solid on the easy items, thin where it gets hard.</p>
+            <div style="display:flex;flex-direction:column;gap:14px">
+              <sc-for list="{{ masteryTopics }}" as="t" hint-placeholder-count="4">
+                <div>
+                  <div style="font-size:13px;font-weight:500;color:#1a2129;margin-bottom:6px">{{ t.name }}</div>
+                  <div style="display:flex;gap:6px">
+                    <sc-for list="{{ t.tiers }}" as="tier" hint-placeholder-count="3">
+                      <div style="flex:1;height:20px;border-radius:5px;background:#f0e9dc;overflow:hidden"><div style="{{ tier.fillStyle }}"></div></div>
+                    </sc-for>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+
+        <!-- Knowledge graph access (opened on purpose, never auto-loaded) -->
+        <div style="margin-top:20px;display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <button onClick="{{ openFocusedGraph }}" style="text-align:left;background:#fff;border:1px solid #e4dccb;border-radius:12px;padding:18px 20px;cursor:pointer;font-family:inherit">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.6px;text-transform:uppercase;color:#b6531f">Day to day</div>
+            <div style="font-family:'Spectral',serif;font-size:17px;font-weight:600;color:#0e2a43;margin:5px 0 5px">Focused knowledge graph →</div>
+            <p style="margin:0;font-size:12.5px;line-height:1.5;color:#5c6773;text-wrap:pretty">Scoped to 8M2's basket of topics for the year, plus every prerequisite subtopic. Filter by topic.</p>
+          </button>
+          <button onClick="{{ openFullGraph }}" style="text-align:left;background:#fff;border:1px solid #e4dccb;border-radius:12px;padding:18px 20px;cursor:pointer;font-family:inherit">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.6px;text-transform:uppercase;color:#1f4e75">Full picture</div>
+            <div style="font-family:'Spectral',serif;font-size:17px;font-weight:600;color:#0e2a43;margin:5px 0 5px">All of mathematics →</div>
+            <p style="margin:0;font-size:12.5px;line-height:1.5;color:#5c6773;text-wrap:pretty">Every topic Anadromos has assessed Aisha on, across all years, not just this class.</p>
+          </button>
+        </div>
+
+        <div style="margin-top:20px;display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start">
+          <!-- Activity log -->
+          <div style="background:#fff;border:1px solid #e4dccb;border-radius:12px;padding:20px 22px">
+            <h2 style="font-family:'Spectral',serif;font-size:16px;font-weight:600;margin:0 0 4px;color:#0e2a43">Activity log</h2>
+            <p style="margin:0 0 12px;font-size:12.5px;color:#8a7c63">Every lesson, problem set and review she's completed. Click one for the detail behind the summary.</p>
+            <div style="display:flex;flex-direction:column;gap:0">
+              <sc-for list="{{ activityLog }}" as="a" hint-placeholder-count="5">
+                <div style="border-top:1px solid #f0e9dc">
+                  <div onClick="{{ a.onToggle }}" style="display:flex;align-items:center;gap:10px;padding:13px 0;cursor:pointer">
+                    <span style="{{ a.dotStyle }}"></span>
+                    <span style="{{ a.kindStyle }}">{{ a.kind }}</span>
+                    <div style="min-width:0;flex:1">
+                      <div style="font-size:13.5px;font-weight:600;color:#1a2129;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ a.title }}</div>
+                      <div style="font-size:12.5px;color:#8a7c63;margin-top:1px;text-wrap:pretty">{{ a.summary }}</div>
+                    </div>
+                    <span style="{{ a.resultStyle }}">{{ a.result }}</span>
+                    <span style="color:#b1a58c;font-size:12px;width:14px;flex:none;text-align:center">{{ a.caret }}</span>
+                  </div>
+                  <sc-if value="{{ a.open }}" hint-placeholder-val="{{ false }}">
+                  <div style="padding:2px 0 16px 26px">
+                    <div style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#a99e88;margin-bottom:8px">{{ a.date }}</div>
+                    <ul style="margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:7px">
+                      <sc-for list="{{ a.detail }}" as="d" hint-placeholder-count="3">
+                        <li style="display:flex;gap:9px;font-size:12.5px;line-height:1.5;color:#5c6773"><span style="color:#c3b8a1;flex:none">-</span><span style="text-wrap:pretty">{{ d }}</span></li>
+                      </sc-for>
+                    </ul>
+                    <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+                      <button onClick="{{ a.onOpenDetail }}" style="background:#0e2a43;color:#fff;border:none;border-radius:8px;padding:9px 14px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit">Open where it happened →</button>
+                      <button onClick="{{ a.onAddress }}" style="background:#fff;color:#b6531f;border:1px solid #eecab0;border-radius:8px;padding:9px 14px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit">+ Address in person</button>
+                    </div>
+                  </div>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <!-- Frontier / working on now -->
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <div style="background:#fff;border:1px solid #e4dccb;border-radius:12px;padding:20px 22px">
+              <h2 style="font-family:'Spectral',serif;font-size:16px;font-weight:600;margin:0 0 14px;color:#0e2a43">Frontier</h2>
+              <div style="display:flex;flex-direction:column;gap:14px">
+                <sc-for list="{{ frontierGroups }}" as="g" hint-placeholder-count="3">
+                  <div>
+                    <div style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.6px;text-transform:uppercase;margin-bottom:8px;color:{{ g.color }}">{{ g.label }}</div>
+                    <div style="display:flex;flex-wrap:wrap;gap:7px">
+                      <sc-for list="{{ g.chips }}" as="c" hint-placeholder-count="4">
+                        <span style="{{ c.style }}">{{ c.name }}</span>
+                      </sc-for>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+            <div style="background:#fdf0e6;border:1px solid #f0d3bc;border-radius:12px;padding:18px 20px">
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.6px;text-transform:uppercase;color:#b6531f">Working on now</div>
+              <div style="font-family:'Spectral',serif;font-size:18px;font-weight:600;color:#0e2a43;margin:6px 0 4px">Linear equations</div>
+              <p style="margin:0 0 10px;font-size:13px;color:#5c3a24">Two-step equations with the unknown on one side.</p>
+              <p style="margin:0;font-size:12.5px;line-height:1.5;color:#8a6b4f;text-wrap:pretty">Scaffolding is still high here - hints show full worked steps, and will fade automatically as her mastery of this topic rises.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ---------- FULL KNOWLEDGE GRAPH ---------- -->
+      <sc-if value="{{ showGraphFull }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:26px 40px 60px">
+        <div onClick="{{ backToProfile }}" style="display:inline-flex;align-items:center;gap:7px;font-size:13px;color:#5c6773;cursor:pointer;margin-bottom:14px">← Aisha's profile</div>
+        <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:14px">
+          <div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#8a7c63">Full picture</div>
+            <h1 style="font-family:'Spectral',serif;font-weight:600;font-size:26px;margin:5px 0 3px;color:#0e2a43">Aisha Bello · all of mathematics</h1>
+            <div style="font-size:13px;color:#5c6773">Every topic Anadromos has assessed her on, across all years. Scroll to explore; click a subtopic for its last-worked and review dates.</div>
+          </div>
+          <div style="display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:#8a7c63">
+            <span style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:12px;border-radius:3px;background:#1f4e75;display:inline-block"></span>Mastered</span>
+            <span style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:12px;border-radius:3px;background:#7fb0cd;display:inline-block"></span>In progress</span>
+            <span style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:12px;border-radius:3px;background:#fdf0e6;border:2px solid #dd6a2f;display:inline-block"></span>Frontier</span>
+            <span style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:12px;border-radius:3px;background:#efe7d9;border:1px solid #d8cbb2;display:inline-block"></span>Not ready</span>
+          </div>
+        </div>
+        <div style="margin-top:16px;background:#fff;border:1px solid #e4dccb;border-radius:12px;padding:16px;overflow:auto;max-height:72vh">
+          <svg viewBox="0 0 820 420" width="1120" style="display:block">
+            <sc-for list="{{ fullEdges }}" as="e" hint-placeholder-count="14">
+              <path d="{{ e.d }}" fill="none" stroke="{{ e.stroke }}" stroke-width="{{ e.sw }}"></path>
+            </sc-for>
+            <sc-for list="{{ fullNodes }}" as="n" hint-placeholder-count="15">
+              <g onClick="{{ n.onClick }}" style="cursor:pointer">
+                <rect x="{{ n.x }}" y="{{ n.y }}" width="132" height="42" rx="9" fill="{{ n.fill }}" stroke="{{ n.stroke }}" stroke-width="{{ n.sw }}" stroke-dasharray="{{ n.dash }}"></rect>
+                <text x="{{ n.tx }}" y="{{ n.ty }}" text-anchor="middle" dominant-baseline="middle" font-family="Public Sans, sans-serif" font-size="11" font-weight="600" fill="{{ n.text }}">{{ n.label }}</text>
+              </g>
+            </sc-for>
+          </svg>
+        </div>
+        <sc-if value="{{ nodeSel }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:14px;background:#fff;border:1px solid #dd6a2f;border-radius:12px;padding:16px 18px;display:flex;align-items:center;gap:26px;flex-wrap:wrap">
+          <div style="min-width:150px">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.5px;text-transform:uppercase;color:#8a7c63">Subtopic</div>
+            <div style="font-family:'Spectral',serif;font-size:17px;font-weight:600;color:#0e2a43">{{ nodeInfo.label }}</div>
+          </div>
+          <div><div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.5px;text-transform:uppercase;color:#8a7c63;margin-bottom:3px">Last worked</div><div style="font-size:14px;font-weight:600;color:#1a2129">{{ nodeInfo.last }}</div></div>
+          <div><div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.5px;text-transform:uppercase;color:#8a7c63;margin-bottom:3px">Next review</div><div style="font-size:14px;font-weight:600;color:#1a2129">{{ nodeInfo.next }}</div></div>
+          <div><div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.5px;text-transform:uppercase;color:#8a7c63;margin-bottom:3px">Times practised</div><div style="font-size:14px;font-weight:600;color:#1a2129">{{ nodeInfo.reps }}</div></div>
+          <div><div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.5px;text-transform:uppercase;color:#8a7c63;margin-bottom:3px">Retention</div><div style="font-size:14px;font-weight:600;color:{{ nodeInfo.retColor }}">{{ nodeInfo.ret }}</div></div>
+          <button onClick="{{ nodeInfo.close }}" style="margin-left:auto;background:#f2ece0;border:1px solid #ddd2bd;border-radius:8px;padding:8px 14px;font-size:12.5px;font-weight:600;color:#5c6773;cursor:pointer;font-family:inherit">Close</button>
+        </div>
+        </sc-if>
+      </div>
+      </sc-if>
+
+      <!-- ---------- FOCUSED KNOWLEDGE GRAPH ---------- -->
+      <sc-if value="{{ showGraphFocused }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:26px 40px 60px">
+        <div onClick="{{ backToProfile }}" style="display:inline-flex;align-items:center;gap:7px;font-size:13px;color:#5c6773;cursor:pointer;margin-bottom:14px">← Aisha's profile</div>
+        <div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#8a7c63">Day to day</div>
+          <h1 style="font-family:'Spectral',serif;font-weight:600;font-size:26px;margin:5px 0 3px;color:#0e2a43">Focused profile · 8M2 basket</h1>
+          <div style="font-size:13px;color:#5c6773;max-width:640px;text-wrap:pretty">The topics 8M2 should master this year, expanded to every prerequisite subtopic (shared subtopics shown once). Filter to a single basket topic and its prerequisite chain.</div>
+        </div>
+        <div style="margin-top:16px;display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.6px;text-transform:uppercase;color:#8a7c63;margin-right:2px">Filter</span>
+          <sc-for list="{{ filterChips }}" as="c" hint-placeholder-count="5">
+            <button onClick="{{ c.onClick }}" style="{{ c.style }}">{{ c.label }}</button>
+          </sc-for>
+        </div>
+        <div style="margin-top:12px;font-size:12px;color:#8a7c63">Click a subtopic to see when Aisha last worked on it and when it's next due for review.</div>
+        <div style="margin-top:8px;background:#fff;border:1px solid #e4dccb;border-radius:12px;padding:16px;overflow-x:auto">
+          <svg viewBox="0 0 820 420" width="100%" style="min-width:760px;display:block">
+            <sc-for list="{{ focusedEdges }}" as="e" hint-placeholder-count="14">
+              <path d="{{ e.d }}" fill="none" stroke="{{ e.stroke }}" stroke-width="{{ e.sw }}" opacity="{{ e.op }}"></path>
+            </sc-for>
+            <sc-for list="{{ focusedNodes }}" as="n" hint-placeholder-count="15">
+              <g opacity="{{ n.op }}" onClick="{{ n.onClick }}" style="cursor:pointer">
+                <rect x="{{ n.x }}" y="{{ n.y }}" width="132" height="42" rx="9" fill="{{ n.fill }}" stroke="{{ n.stroke }}" stroke-width="{{ n.sw }}" stroke-dasharray="{{ n.dash }}"></rect>
+                <text x="{{ n.tx }}" y="{{ n.ty }}" text-anchor="middle" dominant-baseline="middle" font-family="Public Sans, sans-serif" font-size="11" font-weight="600" fill="{{ n.text }}">{{ n.label }}</text>
+              </g>
+            </sc-for>
+          </svg>
+        </div>
+        <sc-if value="{{ nodeSel }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:14px;background:#fff;border:1px solid #dd6a2f;border-radius:12px;padding:16px 18px;display:flex;align-items:center;gap:26px;flex-wrap:wrap">
+          <div style="min-width:150px">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.5px;text-transform:uppercase;color:#8a7c63">Subtopic</div>
+            <div style="font-family:'Spectral',serif;font-size:17px;font-weight:600;color:#0e2a43">{{ nodeInfo.label }}</div>
+          </div>
+          <div><div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.5px;text-transform:uppercase;color:#8a7c63;margin-bottom:3px">Last worked</div><div style="font-size:14px;font-weight:600;color:#1a2129">{{ nodeInfo.last }}</div></div>
+          <div><div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.5px;text-transform:uppercase;color:#8a7c63;margin-bottom:3px">Next review</div><div style="font-size:14px;font-weight:600;color:#1a2129">{{ nodeInfo.next }}</div></div>
+          <div><div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.5px;text-transform:uppercase;color:#8a7c63;margin-bottom:3px">Times practised</div><div style="font-size:14px;font-weight:600;color:#1a2129">{{ nodeInfo.reps }}</div></div>
+          <div><div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.5px;text-transform:uppercase;color:#8a7c63;margin-bottom:3px">Retention</div><div style="font-size:14px;font-weight:600;color:{{ nodeInfo.retColor }}">{{ nodeInfo.ret }}</div></div>
+          <button onClick="{{ nodeInfo.close }}" style="margin-left:auto;background:#f2ece0;border:1px solid #ddd2bd;border-radius:8px;padding:8px 14px;font-size:12.5px;font-weight:600;color:#5c6773;cursor:pointer;font-family:inherit">Close</button>
+        </div>
+        </sc-if>
+      </div>
+      </sc-if>
+
+      <!-- ---------- ACTIVITY LOG DETAIL ---------- -->
+      <sc-if value="{{ showLogDetail }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:26px 40px 60px;max-width:960px">
+        <div onClick="{{ logBack }}" style="display:inline-flex;align-items:center;gap:7px;font-size:13px;color:#5c6773;cursor:pointer;margin-bottom:14px">{{ logBackLabel }}</div>
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <span style="{{ logDetail.kindStyle }}">{{ logDetail.kind }}</span>
+          <h1 style="font-family:'Spectral',serif;font-weight:600;font-size:24px;margin:0;color:#0e2a43">{{ logDetail.title }}</h1>
+          <span style="{{ logDetail.resultStyle }}">{{ logDetail.result }}</span>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#8a7c63">{{ logDetail.date }}</span>
+        </div>
+        <p style="margin:10px 0 18px;font-size:13px;color:#5c6773">Every item in this activity, with the hiccups flagged. Orange rows are where it went wrong.</p>
+
+        <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:20px;align-items:start">
+          <div style="display:flex;flex-direction:column;gap:9px">
+            <sc-for list="{{ logDetail.items }}" as="it" hint-placeholder-count="5">
+              <div style="{{ it.rowStyle }}">
+                <span style="{{ it.tagStyle }}">{{ it.label }}</span>
+                <div>
+                  <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+                    <span style="font-family:'Spectral',serif;font-size:15px;color:#1a2129">{{ it.q }}</span>
+                    <span style="{{ it.badgeStyle }}">{{ it.badge }}</span>
+                  </div>
+                  <div style="font-size:12.5px;color:#5c6773;margin-top:4px;text-wrap:pretty">{{ it.note }}</div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="background:#fff;border:1px solid #e4dccb;border-radius:12px;padding:18px 20px">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;color:#8a7c63;margin-bottom:10px">Handwritten working</div>
+            <sc-if value="{{ logDetail.hasUpload }}" hint-placeholder-val="{{ false }}">
+            <div style="border:1px solid #e4dccb;border-radius:10px;height:260px;background:repeating-linear-gradient(#fffdf8,#fffdf8 30px,#eef0f2 31px);position:relative;display:flex;align-items:flex-end;justify-content:center;overflow:hidden">
+              <div style="position:absolute;top:14px;left:16px;font-family:'Spectral',serif;font-size:18px;color:#33404b;transform:rotate(-1.5deg)">3x − 7 = 11</div>
+              <div style="position:absolute;top:44px;left:22px;font-family:'Spectral',serif;font-size:18px;color:#33404b;transform:rotate(-1deg)">3x = 11 − 7  ✗</div>
+              <div style="position:absolute;top:74px;left:20px;font-family:'Spectral',serif;font-size:18px;color:#33404b;transform:rotate(-2deg)">3x = 4</div>
+              <div style="width:100%;padding:8px;background:rgba(14,42,67,.82);color:#dbe6ef;font-size:11px;text-align:center;font-family:'IBM Plex Mono',monospace">aisha_working.jpg · uploaded today · click to enlarge</div>
+            </div>
+            <p style="margin:10px 0 0;font-size:11.5px;line-height:1.5;color:#8a7c63;text-wrap:pretty">She uploaded this for reference. It isn't read by the AI or used in the diagnosis - it's here so you can confirm the working was done by hand.</p>
+            </sc-if>
+            <sc-if value="{{ noLogUpload }}" hint-placeholder-val="{{ true }}">
+            <p style="margin:0;font-size:13px;color:#8a7c63;text-wrap:pretty">No handwritten working was uploaded for this activity.</p>
+            </sc-if>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ---------- OVERSIGHT ---------- -->
+      <sc-if value="{{ showOversight }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:30px 40px 60px;max-width:900px">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#8a7c63">Oversight</div>
+        <h1 style="font-family:'Spectral',serif;font-weight:600;font-size:28px;margin:6px 0 4px;color:#0e2a43">What the AI wants your eyes on</h1>
+        <p style="margin:0 0 8px;font-size:13.5px;line-height:1.5;color:#5c6773;max-width:640px;text-wrap:pretty">A short, triaged list of flagged moments, not a transcript archive. Only diagnoses that look uncertain or interactions worth a teacher's judgement surface here, so the list stays short enough to actually clear.</p>
+        <div style="display:flex;align-items:center;gap:8px;margin:16px 0 14px">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8a7c63">4 flagged this week</span>
+          <span style="width:4px;height:4px;border-radius:50%;background:#c3b8a1"></span>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8a7c63">nothing older is kept for you to audit</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <sc-for list="{{ oversight }}" as="o" hint-placeholder-count="4">
+            <div style="background:#fff;border:1px solid #e4dccb;border-radius:12px;padding:18px 20px">
+              <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+                <span style="{{ o.dotStyle }}"></span>
+                <span style="{{ o.tagStyle }}">{{ o.tagLabel }}</span>
+                <span style="font-size:14px;font-weight:600;color:#1a2129">{{ o.title }}</span>
+                <span style="margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#8a7c63">{{ o.context }}</span>
+              </div>
+              <p style="margin:12px 0 0;font-size:13.5px;line-height:1.55;color:#5c6773;text-wrap:pretty">{{ o.body }}</p>
+              <div style="margin-top:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding-top:14px;border-top:1px solid #f0e9dc">
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;color:#8a7c63">Your call</span>
+                <span style="font-size:13px;font-weight:600;color:#0e2a43">{{ o.asks }}</span>
+                <div style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap">
+                  <button onClick="{{ o.onAddress }}" style="background:#fff;border:1px solid #eecab0;border-radius:8px;padding:8px 13px;font-size:12.5px;font-weight:600;color:#b6531f;cursor:pointer;font-family:inherit">+ Address in person</button>
+                  <button onClick="{{ o.onOpenContention }}" style="background:#fff;border:1px solid #cdbfa6;border-radius:8px;padding:8px 13px;font-size:12.5px;font-weight:600;color:#0e2a43;cursor:pointer;font-family:inherit">Go to the question →</button>
+                  <button style="background:#0e2a43;border:none;border-radius:8px;padding:8px 13px;font-size:12.5px;font-weight:600;color:#fff;cursor:pointer;font-family:inherit">Resolve</button>
+                </div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="margin-top:18px;display:flex;gap:10px;align-items:flex-start;background:#eef3f7;border:1px solid #d3e0ea;border-radius:10px;padding:14px 16px">
+          <span style="width:7px;height:7px;border-radius:50%;background:#1f4e75;margin-top:6px;flex:none"></span>
+          <p style="margin:0;font-size:12.5px;line-height:1.5;color:#2b4a63;text-wrap:pretty">Deliberately not a full log. Research on AI oversight found unstructured monitoring makes reviewers measurably worse and more likely to burn out, so Anadromos triages for you and keeps this list short.</p>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ---------- CLASS SETUP ---------- -->
+      <sc-if value="{{ showSetup }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:30px 40px 60px;max-width:880px">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#8a7c63">Class setup</div>
+        <h1 style="font-family:'Spectral',serif;font-weight:600;font-size:28px;margin:6px 0 4px;color:#0e2a43">Set up a class</h1>
+        <p style="margin:0 0 24px;font-size:13.5px;line-height:1.5;color:#5c6773;max-width:620px;text-wrap:pretty">A few minutes, once. Name the class, bring in the roster, and choose the topics you want this class to master this year, that basket is what builds each student's focused knowledge graph.</p>
+
+        <!-- 1. Basics -->
+        <div style="background:#fff;border:1px solid #e4dccb;border-radius:12px;padding:22px 24px;margin-bottom:16px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:#fff;background:#0e2a43;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none">1</span>
+            <h2 style="font-family:'Spectral',serif;font-size:17px;font-weight:600;margin:0;color:#0e2a43">Class basics</h2>
+          </div>
+          <div style="display:grid;grid-template-columns:220px 1fr;gap:20px;align-items:start">
+            <div>
+              <label style="display:block;font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;color:#8a7c63;margin-bottom:7px">Class name</label>
+              <input value="{{ suClass }}" onInput="{{ onClassInput }}" style="width:100%;border:1px solid #e0d4bd;border-radius:8px;background:#faf6ee;padding:10px 12px;font-size:14px;font-family:inherit;color:#1a2129;outline:none" />
+            </div>
+            <div>
+              <label style="display:block;font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;color:#8a7c63;margin-bottom:7px">Grade band</label>
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <sc-for list="{{ gradeChips }}" as="g" hint-placeholder-count="3">
+                  <button onClick="{{ g.onClick }}" style="{{ g.style }}">{{ g.label }}</button>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Roster -->
+        <div style="background:#fff;border:1px solid #e4dccb;border-radius:12px;padding:22px 24px;margin-bottom:16px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:#fff;background:#0e2a43;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none">2</span>
+            <h2 style="font-family:'Spectral',serif;font-size:17px;font-weight:600;margin:0;color:#0e2a43">Roster</h2>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8a7c63">{{ suRosterCount }} students</span>
+          </div>
+          <p style="margin:0 0 14px;font-size:12.5px;color:#8a7c63">Import from your school's MIS, or add students by hand.</p>
+          <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+            <input value="{{ suDraft }}" onInput="{{ onDraftInput }}" placeholder="Add a student by name" style="flex:1;min-width:180px;border:1px solid #e0d4bd;border-radius:8px;background:#faf6ee;padding:10px 12px;font-size:14px;font-family:inherit;color:#1a2129;outline:none" />
+            <button onClick="{{ addStudent }}" style="background:#0e2a43;color:#fff;border:none;border-radius:8px;padding:0 18px;font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit">Add</button>
+            <button onClick="{{ importRoster }}" style="background:#fff;color:#0e2a43;border:1px solid #cdbfa6;border-radius:8px;padding:10px 16px;font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit">Import from MIS / CSV</button>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px">
+            <sc-for list="{{ suRosterList }}" as="r" hint-placeholder-count="8">
+              <div style="display:flex;align-items:center;gap:8px;background:#faf6ee;border:1px solid #ece3d2;border-radius:20px;padding:5px 8px 5px 5px">
+                <div style="width:26px;height:26px;border-radius:50%;background:#0e2a43;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex:none">{{ r.initials }}</div>
+                <span style="font-size:13px;font-weight:500;color:#1a2129">{{ r.name }}</span>
+                <button onClick="{{ r.onRemove }}" style="border:none;background:transparent;color:#b1a58c;font-size:16px;line-height:1;cursor:pointer;font-family:inherit">×</button>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <!-- 3. Basket of topics -->
+        <div style="background:#fff;border:1px solid #e4dccb;border-radius:12px;padding:22px 24px;margin-bottom:16px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:#fff;background:#0e2a43;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none">3</span>
+            <h2 style="font-family:'Spectral',serif;font-size:17px;font-weight:600;margin:0;color:#0e2a43">Basket of topics for the year</h2>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#b6531f">{{ basketCount }} selected</span>
+          </div>
+          <p style="margin:0 0 14px;font-size:12.5px;color:#8a7c63;max-width:600px;text-wrap:pretty">We carry every maths topic Anadromos offers; you work with us to map which map to which year group. Pick what this class should master by year's end, Anadromos expands each choice into its prerequisite subtopics automatically, and that expanded set is the focused knowledge graph you'll use day to day.</p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:18px">
+            <sc-for list="{{ yearChips }}" as="y" hint-placeholder-count="4">
+              <button onClick="{{ y.onClick }}" style="{{ y.style }}">{{ y.label }}</button>
+            </sc-for>
+            <input value="{{ suSearch }}" onInput="{{ onSearchInput }}" placeholder="Search topics…" style="margin-left:auto;min-width:180px;border:1px solid #e0d4bd;border-radius:8px;background:#faf6ee;padding:9px 12px;font-size:13.5px;font-family:inherit;color:#1a2129;outline:none" />
+          </div>
+          <sc-if value="{{ anyResults }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <sc-for list="{{ basketGroups }}" as="grp" hint-placeholder-count="4">
+              <div>
+                <div style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;color:#8a7c63;margin-bottom:8px">{{ grp.group }}</div>
+                <div style="display:flex;flex-wrap:wrap;gap:8px">
+                  <sc-for list="{{ grp.topics }}" as="t" hint-placeholder-count="6">
+                    <button onClick="{{ t.onClick }}" style="{{ t.style }}"><span style="{{ t.markStyle }}">{{ t.mark }}</span>{{ t.label }}</button>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+          </sc-if>
+          <sc-if value="{{ noResults }}" hint-placeholder-val="{{ false }}">
+          <p style="margin:0;font-size:13px;color:#8a7c63">No topics match that filter. Try another year group or search term.</p>
+          </sc-if>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:20px">
+          <button style="background:#dd6a2f;color:#fff;border:none;border-radius:9px;padding:12px 22px;font-size:14.5px;font-weight:600;cursor:pointer;font-family:inherit">Create class</button>
+          <span style="font-size:12.5px;color:#8a7c63">You can change the roster and basket any time, the graph updates with them.</span>
+        </div>
+      </div>
+      </sc-if>
+
+    </main>
+  </div>
+  </sc-if>
+
+  <!-- ============ STUDENT HOME ============ -->
+  <sc-if value="{{ showShome }}" hint-placeholder-val="{{ true }}">
+  <div style="min-height:100vh;background:#f6f1e7">
+    <div style="background:#0e2a43;color:#dbe6ef;padding:0 22px">
+      <div style="max-width:680px;margin:0 auto;display:flex;align-items:center;gap:16px;height:56px">
+        <div style="display:flex;align-items:center;gap:9px">
+          <svg width="26" height="26" viewBox="0 0 40 40" aria-hidden="true"><path d="M6 22 C 12 12, 26 12, 33 20 C 27 15, 15 16, 10 24 C 9 22, 7 22, 6 22 Z" fill="#dd6a2f"/><path d="M31 20 l6 -5 l0 10 z" fill="#dd6a2f"/><circle cx="14" cy="20" r="1.6" fill="#0e2a43"/></svg>
+          <span style="font-family:'Spectral',serif;font-weight:600;font-size:17px;color:#fff">Anadromos</span>
+        </div>
+        <div style="margin-left:auto;display:flex;gap:6px">
+          <sc-for list="{{ sNav }}" as="t" hint-placeholder-count="4"><div onClick="{{ t.onClick }}" style="{{ t.style }}">{{ t.label }}</div></sc-for>
+        </div>
+        <div style="width:32px;height:32px;border-radius:50%;background:#dd6a2f;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600">AB</div>
+      </div>
+    </div>
+
+    <div style="max-width:680px;margin:0 auto;padding:30px 24px 60px">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#8a7c63">Friday · week 9</div>
+      <h1 style="font-family:'Spectral',serif;font-weight:600;font-size:28px;margin:6px 0 22px;color:#0e2a43">Good afternoon, Aisha</h1>
+
+      <!-- your path: lessons + reviews -->
+      <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:4px">
+        <h2 style="font-family:'Spectral',serif;font-size:19px;font-weight:600;margin:0;color:#0e2a43">Your path</h2>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8a7c63">{{ pathDoneCount }} of 6 done</span>
+      </div>
+      <p style="margin:0 0 14px;font-size:13px;line-height:1.5;color:#5c6773;max-width:520px;text-wrap:pretty">Lessons and reviews on the subtopics next on your learning path. Finish all six and a fresh set unlocks.</p>
+      <div style="display:flex;flex-direction:column;gap:9px">
+        <sc-for list="{{ pathItems }}" as="p" hint-placeholder-count="6">
+          <div onClick="{{ p.onOpen }}" style="{{ p.rowStyle }}">
+            <span style="{{ p.dotStyle }}">{{ p.dotMark }}</span>
+            <div style="min-width:0">
+              <div style="display:flex;align-items:center;gap:9px">
+                <span style="{{ p.kindStyle }}">{{ p.kind }}</span>
+                <span style="font-size:14.5px;font-weight:600;color:#1a2129">{{ p.subtopic }}</span>
+              </div>
+              <div style="font-size:12.5px;color:#8a7c63;margin-top:2px">{{ p.detail }} · {{ p.mins }}</div>
+            </div>
+            <span style="{{ p.ctaStyle }}">{{ p.cta }}</span>
+          </div>
+        </sc-for>
+      </div>
+      <sc-if value="{{ pathAllDone }}" hint-placeholder-val="{{ false }}">
+      <div style="margin-top:12px;background:#eef3f7;border:1px solid #d3e0ea;border-radius:11px;padding:16px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+        <div style="font-size:13.5px;color:#2b4a63;text-wrap:pretty">Nice work — you've cleared this set. A fresh batch of lessons and reviews is ready.</div>
+        <button onClick="{{ refreshPath }}" style="margin-left:auto;background:#1f4e75;color:#fff;border:none;border-radius:9px;padding:11px 18px;font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit">Load the next six →</button>
+      </div>
+      </sc-if>
+
+      <!-- problem sets: teacher-set homework -->
+      <div style="margin-top:30px">
+        <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:4px">
+          <h2 style="font-family:'Spectral',serif;font-size:19px;font-weight:600;margin:0;color:#0e2a43">Problem sets</h2>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8a7c63">homework from Ms. Okafor</span>
+        </div>
+        <p style="margin:0 0 14px;font-size:13px;line-height:1.5;color:#5c6773;max-width:520px;text-wrap:pretty">Set by your teacher, on their own deadlines. Some unlock only once you've finished the lessons they build on.</p>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <sc-for list="{{ problemSets }}" as="ps" hint-placeholder-count="3">
+            <div style="{{ ps.cardStyle }}">
+              <div style="display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap">
+                <div style="min-width:0;flex:1">
+                  <div style="font-size:15px;font-weight:600;color:#1a2129">{{ ps.title }}</div>
+                  <div style="font-size:12.5px;color:#8a7c63;margin-top:3px">{{ ps.topics }} · {{ ps.qs }}</div>
+                </div>
+                <span style="{{ ps.dueStyle }}">🗓 {{ ps.due }}</span>
+              </div>
+              <sc-if value="{{ ps.locked }}" hint-placeholder-val="{{ true }}">
+              <div style="margin-top:10px;display:flex;gap:8px;align-items:flex-start;background:#faf6ee;border:1px solid #ece3d2;border-radius:9px;padding:10px 12px">
+                <span style="font-size:13px;flex:none">🔒</span>
+                <div style="font-size:12.5px;color:#5c6773;line-height:1.5;text-wrap:pretty">{{ ps.lockNote }}</div>
+              </div>
+              </sc-if>
+              <button onClick="{{ ps.onOpen }}" style="{{ ps.ctaStyle }}">{{ ps.ctaLabel }}</button>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <p style="margin:24px 4px 0;font-size:11.5px;line-height:1.5;color:#a99e88;text-align:center;text-wrap:pretty">No streaks, points, or rankings. Just the next right thing to work on, and your own progress over time.</p>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ============ STUDENT PROGRESS ============ -->
+  <sc-if value="{{ showSprogress }}" hint-placeholder-val="{{ false }}">
+  <div style="min-height:100vh;background:#f6f1e7">
+    <div style="background:#0e2a43;color:#dbe6ef;padding:0 22px">
+      <div style="max-width:680px;margin:0 auto;display:flex;align-items:center;gap:16px;height:56px">
+        <div style="display:flex;align-items:center;gap:9px">
+          <svg width="26" height="26" viewBox="0 0 40 40" aria-hidden="true"><path d="M6 22 C 12 12, 26 12, 33 20 C 27 15, 15 16, 10 24 C 9 22, 7 22, 6 22 Z" fill="#dd6a2f"/><path d="M31 20 l6 -5 l0 10 z" fill="#dd6a2f"/><circle cx="14" cy="20" r="1.6" fill="#0e2a43"/></svg>
+          <span style="font-family:'Spectral',serif;font-weight:600;font-size:17px;color:#fff">Anadromos</span>
+        </div>
+        <div style="margin-left:auto;display:flex;gap:6px">
+          <sc-for list="{{ sNav }}" as="t" hint-placeholder-count="4"><div onClick="{{ t.onClick }}" style="{{ t.style }}">{{ t.label }}</div></sc-for>
+        </div>
+        <div style="width:32px;height:32px;border-radius:50%;background:#dd6a2f;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600">AB</div>
+      </div>
+    </div>
+
+    <div style="max-width:680px;margin:0 auto;padding:30px 24px 60px">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#8a7c63">My progress</div>
+      <h1 style="font-family:'Spectral',serif;font-weight:600;font-size:26px;margin:6px 0 4px;color:#0e2a43">How you're doing</h1>
+      <p style="margin:0 0 22px;font-size:13.5px;line-height:1.5;color:#5c6773;max-width:520px;text-wrap:pretty">This is only ever about you, then and now. It's never a comparison to anyone else in your class.</p>
+
+      <div style="background:#fff;border:1px solid #e4dccb;border-radius:12px;padding:22px 24px">
+        <h2 style="font-family:'Spectral',serif;font-size:16px;font-weight:600;margin:0 0 16px;color:#0e2a43">What you've built up</h2>
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <sc-for list="{{ sProgressTopics }}" as="t" hint-placeholder-count="4">
+            <div>
+              <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
+                <span style="font-size:14px;font-weight:500;color:#1a2129">{{ t.name }}</span>
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#8a7c63">{{ t.label }}</span>
+              </div>
+              <div style="height:12px;background:#f0e9dc;border-radius:6px;overflow:hidden"><div style="{{ t.barStyle }}"></div></div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="margin-top:16px;background:#fdf0e6;border:1px solid #f0d3bc;border-radius:12px;padding:18px 20px">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.6px;text-transform:uppercase;color:#b6531f">Working on now</div>
+        <div style="font-family:'Spectral',serif;font-size:18px;font-weight:600;color:#0e2a43;margin:6px 0 4px">Linear equations</div>
+        <p style="margin:0;font-size:13px;line-height:1.5;color:#8a6b4f;text-wrap:pretty">You're most of the way through the ideas this builds on. Keep going, it gets less hand-held as you get stronger.</p>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ============ STUDENT SESSIONS ============ -->
+  <sc-if value="{{ showSsessions }}" hint-placeholder-val="{{ false }}">
+  <div style="min-height:100vh;background:#f6f1e7">
+    <div style="background:#0e2a43;color:#dbe6ef;padding:0 22px">
+      <div style="max-width:680px;margin:0 auto;display:flex;align-items:center;gap:16px;height:56px">
+        <div style="display:flex;align-items:center;gap:9px">
+          <svg width="26" height="26" viewBox="0 0 40 40" aria-hidden="true"><path d="M6 22 C 12 12, 26 12, 33 20 C 27 15, 15 16, 10 24 C 9 22, 7 22, 6 22 Z" fill="#dd6a2f"/><path d="M31 20 l6 -5 l0 10 z" fill="#dd6a2f"/><circle cx="14" cy="20" r="1.6" fill="#0e2a43"/></svg>
+          <span style="font-family:'Spectral',serif;font-weight:600;font-size:17px;color:#fff">Anadromos</span>
+        </div>
+        <div style="margin-left:auto;display:flex;gap:6px"><sc-for list="{{ sNav }}" as="t" hint-placeholder-count="4"><div onClick="{{ t.onClick }}" style="{{ t.style }}">{{ t.label }}</div></sc-for></div>
+        <div style="width:32px;height:32px;border-radius:50%;background:#dd6a2f;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600">AB</div>
+      </div>
+    </div>
+    <div style="max-width:680px;margin:0 auto;padding:30px 24px 60px">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#8a7c63">Past sessions</div>
+      <h1 style="font-family:'Spectral',serif;font-weight:600;font-size:26px;margin:6px 0 4px;color:#0e2a43">What you've worked on</h1>
+      <p style="margin:0 0 20px;font-size:13.5px;line-height:1.5;color:#5c6773;max-width:520px;text-wrap:pretty">Every lesson, problem set and review you've done. Open one to see exactly where things clicked and where they didn't.</p>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <sc-for list="{{ sSessions }}" as="a" hint-placeholder-count="5">
+          <div onClick="{{ a.onOpen }}" style="background:#fff;border:1px solid #e4dccb;border-radius:11px;padding:15px 18px;cursor:pointer;display:flex;align-items:center;gap:12px">
+            <span style="{{ a.dotStyle }}"></span>
+            <span style="{{ a.kindStyle }}">{{ a.kind }}</span>
+            <div style="min-width:0;flex:1">
+              <div style="font-size:14px;font-weight:600;color:#1a2129;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ a.title }}</div>
+              <div style="font-size:12.5px;color:#8a7c63;text-wrap:pretty">{{ a.summary }}</div>
+            </div>
+            <span style="{{ a.resultStyle }}">{{ a.result }}</span>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#a99e88;white-space:nowrap">{{ a.date }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ============ STUDENT SESSION DETAIL ============ -->
+  <sc-if value="{{ showSsessiondetail }}" hint-placeholder-val="{{ false }}">
+  <div style="min-height:100vh;background:#f6f1e7">
+    <div style="background:#0e2a43;color:#dbe6ef;padding:11px 22px">
+      <div style="max-width:760px;margin:0 auto;display:flex;align-items:center;gap:12px">
+        <div onClick="{{ sBackSessions }}" style="font-size:13px;color:#9fb4c7;cursor:pointer">← Past sessions</div>
+        <span style="margin-left:auto;font-size:13px;color:#dbe6ef;font-family:'Spectral',serif">{{ logDetail.title }}</span>
+      </div>
+    </div>
+    <div style="max-width:760px;margin:0 auto;padding:26px 24px 60px">
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <span style="{{ logDetail.kindStyle }}">{{ logDetail.kind }}</span>
+        <h1 style="font-family:'Spectral',serif;font-weight:600;font-size:23px;margin:0;color:#0e2a43">{{ logDetail.title }}</h1>
+        <span style="{{ logDetail.resultStyle }}">{{ logDetail.result }}</span>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#8a7c63">{{ logDetail.date }}</span>
+      </div>
+      <p style="margin:10px 0 18px;font-size:13px;color:#5c6773">Where it went right, and the steps worth another look.</p>
+      <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:20px;align-items:start">
+        <div style="display:flex;flex-direction:column;gap:9px">
+          <sc-for list="{{ logDetail.items }}" as="it" hint-placeholder-count="5">
+            <div style="{{ it.rowStyle }}">
+              <span style="{{ it.tagStyle }}">{{ it.label }}</span>
+              <div>
+                <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+                  <span style="font-family:'Spectral',serif;font-size:15px;color:#1a2129">{{ it.q }}</span>
+                  <span style="{{ it.badgeStyle }}">{{ it.badge }}</span>
+                </div>
+                <div style="font-size:12.5px;color:#5c6773;margin-top:4px;text-wrap:pretty">{{ it.note }}</div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="background:#fff;border:1px solid #e4dccb;border-radius:12px;padding:18px 20px">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;color:#8a7c63;margin-bottom:10px">Your handwritten working</div>
+          <sc-if value="{{ logDetail.hasUpload }}" hint-placeholder-val="{{ false }}">
+          <div style="border:1px solid #e4dccb;border-radius:10px;height:220px;background:repeating-linear-gradient(#fffdf8,#fffdf8 30px,#eef0f2 31px);position:relative;overflow:hidden">
+            <div style="position:absolute;top:14px;left:16px;font-family:'Spectral',serif;font-size:17px;color:#33404b;transform:rotate(-1.5deg)">3x − 7 = 11</div>
+            <div style="position:absolute;top:44px;left:22px;font-family:'Spectral',serif;font-size:17px;color:#33404b;transform:rotate(-1deg)">3x = 11 − 7  ✗</div>
+            <div style="position:absolute;bottom:0;width:100%;padding:7px;background:rgba(14,42,67,.82);color:#dbe6ef;font-size:11px;text-align:center;font-family:'IBM Plex Mono',monospace">you uploaded this</div>
+          </div>
+          <p style="margin:10px 0 0;font-size:11.5px;line-height:1.5;color:#8a7c63;text-wrap:pretty">Only your teacher sees this. It isn't read by the AI.</p>
+          </sc-if>
+          <sc-if value="{{ noLogUpload }}" hint-placeholder-val="{{ true }}">
+          <p style="margin:0;font-size:13px;color:#8a7c63">You didn't upload handwriting for this one.</p>
+          </sc-if>
+        </div>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ============ STUDENT MAP ============ -->
+  <sc-if value="{{ showSmap }}" hint-placeholder-val="{{ false }}">
+  <div style="min-height:100vh;background:#f6f1e7">
+    <div style="background:#0e2a43;color:#dbe6ef;padding:0 22px">
+      <div style="max-width:840px;margin:0 auto;display:flex;align-items:center;gap:16px;height:56px">
+        <div style="display:flex;align-items:center;gap:9px">
+          <svg width="26" height="26" viewBox="0 0 40 40" aria-hidden="true"><path d="M6 22 C 12 12, 26 12, 33 20 C 27 15, 15 16, 10 24 C 9 22, 7 22, 6 22 Z" fill="#dd6a2f"/><path d="M31 20 l6 -5 l0 10 z" fill="#dd6a2f"/><circle cx="14" cy="20" r="1.6" fill="#0e2a43"/></svg>
+          <span style="font-family:'Spectral',serif;font-weight:600;font-size:17px;color:#fff">Anadromos</span>
+        </div>
+        <div style="margin-left:auto;display:flex;gap:6px"><sc-for list="{{ sNav }}" as="t" hint-placeholder-count="4"><div onClick="{{ t.onClick }}" style="{{ t.style }}">{{ t.label }}</div></sc-for></div>
+        <div style="width:32px;height:32px;border-radius:50%;background:#dd6a2f;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600">AB</div>
+      </div>
+    </div>
+    <div style="max-width:840px;margin:0 auto;padding:30px 24px 60px">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#8a7c63">My map</div>
+      <h1 style="font-family:'Spectral',serif;font-weight:600;font-size:26px;margin:6px 0 12px;color:#0e2a43">What you know, and what's next</h1>
+      <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap">
+        <button onClick="{{ setMapFocused }}" style="{{ mapFocusStyle }}">This year's topics</button>
+        <button onClick="{{ setMapFull }}" style="{{ mapFullStyle }}">All of maths</button>
+      </div>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:11.5px;color:#8a7c63;margin-bottom:6px">
+        <span style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:12px;border-radius:3px;background:#1f4e75;display:inline-block"></span>Mastered</span>
+        <span style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:12px;border-radius:3px;background:#7fb0cd;display:inline-block"></span>Getting there</span>
+        <span style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:12px;border-radius:3px;background:#fdf0e6;border:2px solid #dd6a2f;display:inline-block"></span>Working on now</span>
+        <span style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:12px;border-radius:3px;background:#efe7d9;border:1px solid #d8cbb2;display:inline-block"></span>Not yet</span>
+      </div>
+
+      <sc-if value="{{ mapFocused }}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0 4px">
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.6px;text-transform:uppercase;color:#8a7c63;margin-right:2px">Filter</span>
+        <sc-for list="{{ filterChips }}" as="c" hint-placeholder-count="5"><button onClick="{{ c.onClick }}" style="{{ c.style }}">{{ c.label }}</button></sc-for>
+      </div>
+      <div style="font-size:12px;color:#8a7c63;margin:6px 0 8px">Tap a topic to see when you last worked on it. Free play sessions count towards recency.</div>
+      <div style="background:#fff;border:1px solid #e4dccb;border-radius:12px;padding:16px;overflow-x:auto">
+        <svg viewBox="0 0 820 420" width="100%" style="min-width:760px;display:block">
+          <sc-for list="{{ focusedEdges }}" as="e" hint-placeholder-count="14"><path d="{{ e.d }}" fill="none" stroke="{{ e.stroke }}" stroke-width="{{ e.sw }}" opacity="{{ e.op }}"></path></sc-for>
+          <sc-for list="{{ focusedNodes }}" as="n" hint-placeholder-count="15">
+            <g opacity="{{ n.op }}" onClick="{{ n.onClick }}" style="cursor:pointer">
+              <rect x="{{ n.x }}" y="{{ n.y }}" width="132" height="42" rx="9" fill="{{ n.fill }}" stroke="{{ n.stroke }}" stroke-width="{{ n.sw }}" stroke-dasharray="{{ n.dash }}"></rect>
+              <text x="{{ n.tx }}" y="{{ n.ty }}" text-anchor="middle" dominant-baseline="middle" font-family="Public Sans, sans-serif" font-size="11" font-weight="600" fill="{{ n.text }}">{{ n.label }}</text>
+            </g>
+          </sc-for>
+        </svg>
+      </div>
+      </sc-if>
+
+      <sc-if value="{{ mapFull }}" hint-placeholder-val="{{ false }}">
+      <div style="font-size:12px;color:#8a7c63;margin:10px 0 8px">The whole curriculum, across all years. Tap a topic to see when you last worked on it.</div>
+      <div style="background:#fff;border:1px solid #e4dccb;border-radius:12px;padding:16px;overflow:auto;max-height:66vh">
+        <svg viewBox="0 0 820 420" width="1120" style="display:block">
+          <sc-for list="{{ fullEdges }}" as="e" hint-placeholder-count="14"><path d="{{ e.d }}" fill="none" stroke="{{ e.stroke }}" stroke-width="{{ e.sw }}"></path></sc-for>
+          <sc-for list="{{ fullNodes }}" as="n" hint-placeholder-count="15">
+            <g onClick="{{ n.onClick }}" style="cursor:pointer">
+              <rect x="{{ n.x }}" y="{{ n.y }}" width="132" height="42" rx="9" fill="{{ n.fill }}" stroke="{{ n.stroke }}" stroke-width="{{ n.sw }}" stroke-dasharray="{{ n.dash }}"></rect>
+              <text x="{{ n.tx }}" y="{{ n.ty }}" text-anchor="middle" dominant-baseline="middle" font-family="Public Sans, sans-serif" font-size="11" font-weight="600" fill="{{ n.text }}">{{ n.label }}</text>
+            </g>
+          </sc-for>
+        </svg>
+      </div>
+      </sc-if>
+
+      <sc-if value="{{ nodeSel }}" hint-placeholder-val="{{ false }}">
+      <div style="margin-top:14px;background:#fff;border:1px solid #dd6a2f;border-radius:12px;padding:16px 18px;display:flex;align-items:center;gap:26px;flex-wrap:wrap">
+        <div style="min-width:150px">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.5px;text-transform:uppercase;color:#8a7c63">Topic</div>
+          <div style="font-family:'Spectral',serif;font-size:17px;font-weight:600;color:#0e2a43">{{ nodeInfo.label }}</div>
+        </div>
+        <div><div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.5px;text-transform:uppercase;color:#8a7c63;margin-bottom:3px">Last worked</div><div style="font-size:14px;font-weight:600;color:#1a2129">{{ nodeInfo.last }}</div></div>
+        <div><div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.5px;text-transform:uppercase;color:#8a7c63;margin-bottom:3px">Next review</div><div style="font-size:14px;font-weight:600;color:#1a2129">{{ nodeInfo.next }}</div></div>
+        <div><div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.5px;text-transform:uppercase;color:#8a7c63;margin-bottom:3px">Times practised</div><div style="font-size:14px;font-weight:600;color:#1a2129">{{ nodeInfo.reps }}</div></div>
+        <button onClick="{{ nodeInfo.close }}" style="margin-left:auto;background:#f2ece0;border:1px solid #ddd2bd;border-radius:8px;padding:8px 14px;font-size:12.5px;font-weight:600;color:#5c6773;cursor:pointer;font-family:inherit">Close</button>
+      </div>
+      </sc-if>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ============ STUDENT PROBLEM SET (homework) ============ -->
+  <sc-if value="{{ showPsolve }}" hint-placeholder-val="{{ false }}">
+  <div style="min-height:100vh;background:#f6f1e7">
+    <div style="background:#0e2a43;color:#dbe6ef;padding:11px 22px">
+      <div style="max-width:720px;margin:0 auto;display:flex;align-items:center;gap:12px">
+        <div onClick="{{ psExit }}" style="font-size:13px;color:#9fb4c7;cursor:pointer">← Today</div>
+        <span style="margin-left:auto;font-size:13px;color:#dbe6ef;font-family:'Spectral',serif">{{ psTitle }}</span>
+      </div>
+    </div>
+
+    <sc-if value="{{ psSubmitted }}" hint-placeholder-val="{{ false }}">
+    <div style="max-width:560px;margin:0 auto;padding:60px 24px">
+      <div style="background:#fff;border:1px solid #d3e0ea;border-radius:16px;padding:34px 30px;text-align:center">
+        <div style="width:56px;height:56px;border-radius:50%;background:#e4edf3;color:#1f4e75;display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 16px">✓</div>
+        <h1 style="font-family:'Spectral',serif;font-size:24px;font-weight:600;color:#0e2a43;margin:0 0 6px">Homework submitted</h1>
+        <p style="margin:0 0 4px;font-size:14px;color:#5c6773;text-wrap:pretty">Sent to Ms. Okafor · {{ psSummary }}</p>
+        <p style="margin:0 0 22px;font-size:12.5px;color:#8a7c63;text-wrap:pretty">You'll see it marked in Sessions once your teacher has reviewed it.</p>
+        <button onClick="{{ psExit }}" style="background:#dd6a2f;color:#fff;border:none;border-radius:10px;padding:13px 26px;font-size:14.5px;font-weight:600;cursor:pointer;font-family:inherit">Back to Today</button>
+      </div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ psInProgress }}" hint-placeholder-val="{{ true }}">
+    <div style="max-width:720px;margin:0 auto;padding:26px 24px 60px">
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#8a7c63">Problem set · homework</div>
+        <span style="display:inline-flex;align-items:center;gap:6px;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:#b6531f;background:#fdf0e6;border:1px solid #f0d3bc;padding:4px 10px;border-radius:20px">🗓 {{ psDue }}</span>
+      </div>
+      <h1 style="font-family:'Spectral',serif;font-weight:600;font-size:25px;margin:0 0 4px;color:#0e2a43">{{ psTitle }}</h1>
+      <p style="margin:0 0 16px;font-size:13px;color:#5c6773">{{ psTopics }} · {{ psAnsweredCount }} of {{ psTotal }} answered</p>
+
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px">
+        <sc-for list="{{ psNav }}" as="n" hint-placeholder-count="6"><button onClick="{{ n.onClick }}" style="{{ n.style }}">{{ n.num }}</button></sc-for>
+      </div>
+
+      <div style="background:#fff;border:1px solid #e4dccb;border-radius:14px;padding:24px 26px;box-shadow:0 1px 3px rgba(20,48,74,.05)">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:#1f4e75;background:#e4edf3;border:1px solid #cddceb;padding:2px 9px;border-radius:20px">{{ psCurTopic }}</span>
+          <span style="margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#a99e88">Q{{ psQNum }} / {{ psTotal }}</span>
+        </div>
+        <div style="font-family:'Spectral',serif;font-size:22px;font-weight:600;color:#0e2a43;line-height:1.4;text-wrap:pretty">{{ psCurQ }}</div>
+        <sc-if value="{{ psHasHint }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:8px;font-size:12.5px;color:#8a7c63;text-wrap:pretty">Hint: {{ psCurHint }}</div>
+        </sc-if>
+
+        <div style="margin-top:18px;font-size:12.5px;color:#8a7c63;margin-bottom:8px">Type your final answer. Use the palette for notation a keyboard can't produce.</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;background:#f6f1e7;border:1px solid #e4dccb;border-radius:10px;padding:10px;margin-bottom:10px">
+          <sc-for list="{{ psPalette }}" as="k" hint-placeholder-count="9"><button onClick="{{ k.onClick }}" style="min-width:38px;height:36px;background:#fff;border:1px solid #ddd2bd;border-radius:8px;font-family:'Spectral',serif;font-size:15px;color:#1a2129;cursor:pointer">{{ k.label }}</button></sc-for>
+        </div>
+        <input value="{{ psAnswer }}" onChange="{{ psOnAnswer }}" placeholder="Your answer…" style="width:100%;box-sizing:border-box;border:1px solid #d8cbb2;border-radius:10px;padding:14px 15px;font-size:18px;font-family:'Spectral',serif;color:#1a2129;background:#fff" />
+
+        <div style="margin-top:16px;border:1px dashed #cdbfa6;border-radius:11px;padding:14px 16px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:13.5px;font-weight:600;color:#0e2a43">Handwritten working</span>
+            <span style="font-size:10.5px;font-weight:600;color:#5c6773;background:#eef0f2;border:1px solid #dfe3e7;padding:2px 9px;border-radius:20px">Optional</span>
+          </div>
+          <sc-if value="{{ psHasAttach }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:10px;display:flex;align-items:center;gap:10px;background:#f6f1e7;border:1px solid #e4dccb;border-radius:8px;padding:8px 12px">
+            <span style="font-size:13px">📎</span><span style="font-size:13px;color:#1a2129;flex:1">{{ psAttachName }}</span>
+            <button onClick="{{ psRemoveFile }}" style="border:none;background:transparent;color:#8a7c63;font-size:12px;cursor:pointer;font-family:inherit">Remove</button>
+          </div>
+          </sc-if>
+          <sc-if value="{{ psNoAttach }}" hint-placeholder-val="{{ true }}">
+          <button onClick="{{ psPickFile }}" style="margin-top:10px;background:#fff;border:1px solid #cdbfa6;border-radius:8px;padding:9px 14px;font-size:13px;font-weight:600;color:#0e2a43;cursor:pointer;font-family:inherit">📎 Add a photo or PDF</button>
+          </sc-if>
+          <input id="ps-file" type="file" accept="image/*,application/pdf" onChange="{{ psOnFile }}" style="display:none" />
+          <p style="margin:10px 0 0;font-size:11.5px;line-height:1.5;color:#8a7c63;text-wrap:pretty">Optional across the whole set — attach a photo of your written working so your teacher can see your method.</p>
+        </div>
+      </div>
+
+      <div style="margin-top:18px;display:flex;gap:10px;align-items:center">
+        <button onClick="{{ psPrev }}" disabled="{{ psPrevDisabled }}" style="background:#fff;color:#0e2a43;border:1px solid #cdbfa6;border-radius:10px;padding:12px 20px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">← Previous</button>
+        <sc-if value="{{ psIsLast }}" hint-placeholder-val="{{ false }}">
+        <button onClick="{{ psSubmit }}" style="margin-left:auto;background:#dd6a2f;color:#fff;border:none;border-radius:10px;padding:13px 28px;font-size:14.5px;font-weight:600;cursor:pointer;font-family:inherit">Submit homework →</button>
+        </sc-if>
+        <sc-if value="{{ psNotLast }}" hint-placeholder-val="{{ true }}">
+        <button onClick="{{ psNext }}" style="margin-left:auto;background:#0e2a43;color:#fff;border:none;border-radius:10px;padding:13px 28px;font-size:14.5px;font-weight:600;cursor:pointer;font-family:inherit">Next question →</button>
+        </sc-if>
+      </div>
+      <p style="margin:16px 4px 0;font-size:11.5px;line-height:1.5;color:#a99e88;text-align:center;text-wrap:pretty">Homework is submitted to your teacher as a whole set — you can move between questions freely before submitting.</p>
+    </div>
+    </sc-if>
+  </div>
+  </sc-if>
+
+  <!-- ============ FREE PLAY: complete knowledge graph ============ -->
+  <sc-if value="{{ showFreeplay }}" hint-placeholder-val="{{ false }}">
+  <div style="min-height:100vh;background:#f6f1e7">
+    <div style="background:#0e2a43;color:#dbe6ef;padding:0 22px">
+      <div style="max-width:840px;margin:0 auto;display:flex;align-items:center;gap:16px;height:56px">
+        <div style="display:flex;align-items:center;gap:9px">
+          <svg width="26" height="26" viewBox="0 0 40 40" aria-hidden="true"><path d="M6 22 C 12 12, 26 12, 33 20 C 27 15, 15 16, 10 24 C 9 22, 7 22, 6 22 Z" fill="#dd6a2f"/><path d="M31 20 l6 -5 l0 10 z" fill="#dd6a2f"/><circle cx="14" cy="20" r="1.6" fill="#0e2a43"/></svg>
+          <span style="font-family:'Spectral',serif;font-weight:600;font-size:17px;color:#fff">Anadromos</span>
+        </div>
+        <div style="margin-left:auto;display:flex;gap:6px"><sc-for list="{{ sNav }}" as="t" hint-placeholder-count="5"><div onClick="{{ t.onClick }}" style="{{ t.style }}">{{ t.label }}</div></sc-for></div>
+        <div style="width:32px;height:32px;border-radius:50%;background:#dd6a2f;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600">AB</div>
+      </div>
+    </div>
+    <div style="max-width:840px;margin:0 auto;padding:30px 24px 60px">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#8a7c63">Free play</div>
+      <h1 style="font-family:'Spectral',serif;font-weight:600;font-size:26px;margin:6px 0 4px;color:#0e2a43">Practise anything you like</h1>
+      <p style="margin:0 0 20px;font-size:13.5px;line-height:1.5;color:#5c6773;max-width:560px;text-wrap:pretty">The complete map of maths. Pick a topic to see its subtopics — you can free-play any subtopic whose lesson you've already done. Free play counts towards how recently you've studied a subtopic.</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px">
+        <sc-for list="{{ fpTopics }}" as="t" hint-placeholder-count="6">
+          <div onClick="{{ t.onOpen }}" style="background:#fff;border:1px solid #e4dccb;border-radius:12px;padding:18px 20px;cursor:pointer">
+            <div style="font-family:'Spectral',serif;font-size:18px;font-weight:600;color:#0e2a43">{{ t.label }}</div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#8a7c63;margin:8px 0 8px">{{ t.count }}</div>
+            <div style="height:6px;background:#efe7d9;border-radius:4px;overflow:hidden"><div style="{{ t.barStyle }}"></div></div>
+            <div style="margin-top:12px;font-size:12.5px;color:#dd6a2f;font-weight:600">Open topic →</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ============ FREE PLAY: subtopics for a topic ============ -->
+  <sc-if value="{{ showFptopic }}" hint-placeholder-val="{{ false }}">
+  <div style="min-height:100vh;background:#f6f1e7">
+    <div style="background:#0e2a43;color:#dbe6ef;padding:11px 22px">
+      <div style="max-width:720px;margin:0 auto;display:flex;align-items:center;gap:12px">
+        <div onClick="{{ fpBackTopics }}" style="font-size:13px;color:#9fb4c7;cursor:pointer">← All topics</div>
+        <span style="margin-left:auto;font-size:13px;color:#dbe6ef;font-family:'Spectral',serif">Free play</span>
+      </div>
+    </div>
+    <div style="max-width:720px;margin:0 auto;padding:26px 24px 60px">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#8a7c63">Free play · subtopics</div>
+      <h1 style="font-family:'Spectral',serif;font-weight:600;font-size:25px;margin:6px 0 4px;color:#0e2a43">{{ fpTopicLabel }}</h1>
+      <p style="margin:0 0 18px;font-size:13px;line-height:1.5;color:#5c6773;max-width:520px;text-wrap:pretty">Each subtopic has unlimited practice problems. Locked subtopics open once you've done their lesson on Home — free play never gives you a lesson you haven't reached yet.</p>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <sc-for list="{{ fpSubs }}" as="su" hint-placeholder-count="5">
+          <div style="{{ su.rowStyle }}">
+            <span style="{{ su.dotStyle }}"></span>
+            <div style="min-width:0">
+              <div style="font-size:14.5px;font-weight:600;color:#1a2129">{{ su.name }}</div>
+              <sc-if value="{{ su.unlocked }}" hint-placeholder-val="{{ true }}"><div style="font-size:12px;color:#8a7c63;margin-top:2px">Last studied: {{ su.last }}</div></sc-if>
+              <sc-if value="{{ su.locked }}" hint-placeholder-val="{{ false }}"><div style="font-size:12px;color:#a99e88;margin-top:2px">Lesson not done yet</div></sc-if>
+            </div>
+            <button onClick="{{ su.onOpen }}" style="{{ su.ctaStyle }}">{{ su.ctaLabel }}</button>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ============ STUDENT PRACTICE MODE ============ -->
+  <sc-if value="{{ showPractice }}" hint-placeholder-val="{{ false }}">
+  <div style="min-height:100vh;background:#f6f1e7;display:flex;flex-direction:column;align-items:center">
+    <!-- slim top bar -->
+    <div style="width:100%;background:#0e2a43;color:#dbe6ef;padding:11px 22px;display:flex;align-items:center;gap:12px">
+      <div onClick="{{ exitPractice }}" style="font-size:13px;color:#9fb4c7;cursor:pointer">{{ practiceBack }}</div>
+      <span style="font-size:13px;color:#dbe6ef;margin-left:auto;font-family:'Spectral',serif">{{ practiceTitle }}</span>
+    </div>
+
+    <sc-if value="{{ isFreeplay }}" hint-placeholder-val="{{ false }}">
+    <div style="width:100%;background:#e4edf3;border-bottom:1px solid #cddceb;padding:9px 22px">
+      <div style="max-width:680px;margin:0 auto;display:flex;align-items:center;gap:9px;font-size:12.5px;color:#1f4e75"><span style="font-weight:700;font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;background:#1f4e75;color:#fff;padding:2px 8px;border-radius:5px">Free play</span> Unlimited practice on {{ fpLabel }} · counts towards your recency, never graded against you.</div>
+    </div>
+    </sc-if>
+
+    <div style="width:100%;max-width:680px;padding:26px 24px 60px">
+      <!-- informational progress (never a score / comparison) -->
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.8px;text-transform:uppercase;color:#8a7c63">Linear equations · frontier</div>
+        <div style="flex:1;height:6px;background:#e4dccb;border-radius:3px;overflow:hidden"><div style="width:64%;height:100%;background:#1f4e75"></div></div>
+        <div style="font-size:12px;color:#8a7c63">8 of the ideas this builds on: mastered</div>
+      </div>
+
+      <!-- PROBLEM CARD -->
+      <div style="background:#fff;border:1px solid #e4dccb;border-radius:14px;padding:26px 28px;box-shadow:0 1px 3px rgba(20,48,74,.05)">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.8px;text-transform:uppercase;color:#8a7c63;margin-bottom:8px">Solve for x</div>
+        <div style="font-family:'Spectral',serif;font-size:30px;font-weight:600;color:#0e2a43;letter-spacing:.5px">3x − 7 = 11</div>
+
+        <!-- SOLVE step -->
+        <sc-if value="{{ pShowSolve }}" hint-placeholder-val="{{ true }}">
+        <div style="margin-top:22px">
+          <div style="font-size:12.5px;color:#8a7c63;margin-bottom:8px">Type your final answer. Use the palette for notation a keyboard can't produce.</div>
+
+          <!-- notation palette -->
+          <div style="display:flex;flex-wrap:wrap;gap:6px;padding:9px;background:#f2ece0;border:1px solid #e4dccb;border-bottom:none;border-radius:10px 10px 0 0">
+            <sc-for list="{{ palette }}" as="p" hint-placeholder-count="14">
+              <button onClick="{{ p.onClick }}" title="{{ p.title }}" style="min-width:36px;height:34px;padding:0 9px;background:#fff;border:1px solid #ddd2bd;border-radius:7px;font-family:'Spectral',serif;font-size:16px;color:#0e2a43;cursor:pointer">{{ p.label }}</button>
+            </sc-for>
+          </div>
+
+          <!-- single final-answer input -->
+          <div style="display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #e4dccb;border-radius:0 0 10px 10px;padding:2px 14px">
+            <span style="font-family:'Spectral',serif;font-size:19px;color:#a99e88;flex:none">x =</span>
+            <input value="{{ answer }}" onInput="{{ onAnswer }}" placeholder="your answer" style="flex:1;min-width:0;border:none;outline:none;background:transparent;font-family:'Spectral',serif;font-size:22px;color:#1a2129;padding:12px 0" />
+          </div>
+
+          <!-- optional handwriting upload -->
+          <div style="margin-top:12px;background:#faf6ee;border:1px dashed #cdbfa6;border-radius:10px;padding:14px 16px">
+            <div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap">
+              <span style="font-size:13px;font-weight:600;color:#0e2a43">Handwritten working</span>
+              <span style="{{ hwBadgeStyle }}">{{ hwBadgeLabel }}</span>
+            </div>
+            <sc-if value="{{ hasAttachment }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:10px;display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #e4dccb;border-radius:8px;padding:8px 12px">
+              <span style="font-size:16px">📄</span>
+              <span style="font-size:13px;color:#1a2129;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ attachName }}</span>
+              <button onClick="{{ removeFile }}" style="border:none;background:transparent;color:#8a7c63;font-size:12px;cursor:pointer;font-family:inherit">Remove</button>
+            </div>
+            </sc-if>
+            <sc-if value="{{ noAttachment }}" hint-placeholder-val="{{ true }}">
+            <button onClick="{{ pickFile }}" style="margin-top:10px;background:#fff;border:1px solid #cdbfa6;border-radius:8px;padding:9px 14px;font-size:13px;font-weight:600;color:#0e2a43;cursor:pointer;font-family:inherit">📎 Add a photo or PDF</button>
+            </sc-if>
+            <input id="hw-file" type="file" accept="image/*,application/pdf" onChange="{{ onFile }}" style="display:none" />
+            <p style="margin:10px 0 0;font-size:11.5px;line-height:1.5;color:#8a7c63;text-wrap:pretty">Not read by the AI and not part of the diagnosis - saved to your record so your teacher can check the working was done by hand.</p>
+          </div>
+
+          <button onClick="{{ check }}" style="{{ checkStyle }}">Check my answer</button>
+          <sc-if value="{{ checkBlocked }}" hint-placeholder-val="{{ false }}">
+          <p style="margin:8px 0 0;text-align:center;font-size:12px;color:#b6531f">Your teacher has asked for a photo of your handwritten working on this assignment.</p>
+          </sc-if>
+          <sc-if value="{{ checkReady }}" hint-placeholder-val="{{ true }}">
+          <p style="margin:12px 0 0;text-align:center;font-size:12px;color:#a99e88">You attempt it on your own first - help only comes after.</p>
+          </sc-if>
+        </div>
+        </sc-if>
+
+        <!-- SOLUTION step: answers side-by-side, worked solution, multi-line select -->
+        <sc-if value="{{ pShowSolution }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:22px">
+          <div style="background:#fbf3ea;border:1px solid #efd9c3;border-radius:10px;padding:12px 16px;margin-bottom:18px;display:flex;gap:10px;align-items:flex-start">
+            <span style="width:8px;height:8px;border-radius:50%;background:#dd6a2f;margin-top:5px;flex:none"></span>
+            <div style="font-size:13.5px;color:#5c3a24;line-height:1.5">Not quite. Compare your answer with the correct one, then read the worked solution.</div>
+          </div>
+          <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:22px">
+            <div style="flex:1;min-width:150px;background:#faf6ee;border:1px solid #e4dccb;border-radius:12px;padding:16px 18px">
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;color:#8a7c63;margin-bottom:8px">Your answer</div>
+              <div style="font-family:'Spectral',serif;font-size:24px;color:#1a2129">x = {{ answer }}</div>
+              <div style="margin-top:4px;font-size:12px;color:#b6531f;font-weight:600">✗ not correct</div>
+            </div>
+            <div style="flex:1;min-width:150px;background:#eef3f7;border:1px solid #d3e0ea;border-radius:12px;padding:16px 18px">
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;color:#1f4e75;margin-bottom:8px">Correct answer</div>
+              <div style="font-family:'Spectral',serif;font-size:24px;color:#0e2a43">x = 6</div>
+              <div style="margin-top:4px;font-size:12px;color:#1f4e75;font-weight:600">✓</div>
+            </div>
+          </div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.6px;text-transform:uppercase;color:#8a7c63;margin-bottom:10px">Worked solution</div>
+          <div style="background:#fff;border:1px solid #e4dccb;border-radius:12px;padding:16px 20px;margin-bottom:22px">
+            <div style="display:flex;flex-direction:column;gap:11px">
+              <sc-for list="{{ workingLines }}" as="l" hint-placeholder-count="4">
+                <div style="display:flex;align-items:baseline;gap:14px">
+                  <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#a99e88;width:16px;flex:none">{{ l.num }}</span>
+                  <span style="font-family:'Spectral',serif;font-size:20px;color:#1a2129">{{ l.tex }}</span>
+                  <sc-if value="{{ l.hasNote }}" hint-placeholder-val="{{ false }}"><span style="font-size:12px;color:#8a7c63">{{ l.note }}</span></sc-if>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="font-size:13.5px;color:#0e2a43;font-weight:600;margin-bottom:4px;font-family:'Spectral',serif">Where did your paper working go wrong?</div>
+          <div style="font-size:12.5px;color:#5c6773;margin-bottom:12px;text-wrap:pretty">Tick every line where you used the wrong technique, or don't understand why it was done. You can pick more than one.</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <sc-for list="{{ workingLines }}" as="l" hint-placeholder-count="4">
+              <div class="wline" onClick="{{ l.onClick }}" style="{{ l.style }}">
+                <span style="{{ l.boxStyle }}">{{ l.boxMark }}</span>
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#a99e88;width:16px;flex:none">{{ l.num }}</span>
+                <div style="flex:1">
+                  <span style="font-family:'Spectral',serif;font-size:19px;color:#1a2129">{{ l.tex }}</span>
+                  <sc-if value="{{ l.hasNote }}" hint-placeholder-val="{{ false }}"><span style="font-size:12px;color:#8a7c63;margin-left:10px">{{ l.note }}</span></sc-if>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+          <sc-if value="{{ hasSelection }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ continueToReason }}" style="margin-top:16px;width:100%;background:#dd6a2f;color:#fff;border:none;border-radius:10px;padding:14px;font-weight:600;font-size:14.5px;cursor:pointer;font-family:inherit">{{ continueLabel }}</button>
+          </sc-if>
+          <button onClick="{{ pickAllWrong }}" style="margin-top:10px;width:100%;background:#fff;color:#0e2a43;border:1.5px dashed #b9a888;border-radius:10px;padding:12px;font-weight:600;font-size:13.5px;cursor:pointer;font-family:inherit">I'm not sure where · I got it all wrong</button>
+        </div>
+        </sc-if>
+
+
+
+        <!-- REASON step -->
+        <sc-if value="{{ pShowReason }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:22px">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.6px;text-transform:uppercase;color:#b6531f;margin-bottom:8px">{{ reasonCounter }}</div>
+          <div style="font-size:13px;color:#5c6773;margin-bottom:4px">{{ reasonPrompt }}</div>
+          <div style="font-size:13.5px;font-weight:600;color:#0e2a43;margin-bottom:14px;font-family:'Spectral',serif">Why do you think that happened?</div>
+          <div style="display:flex;flex-direction:column;gap:9px">
+            <sc-if value="{{ reasonListShown }}" hint-placeholder-val="{{ true }}">
+            <sc-for list="{{ reasons }}" as="r" hint-placeholder-count="4">
+              <button onClick="{{ r.onClick }}" style="text-align:left;background:#faf6ee;border:1px solid #e4dccb;border-radius:10px;padding:14px 16px;font-size:14.5px;color:#1a2129;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:12px">
+                <span style="font-size:20px">{{ r.icon }}</span>{{ r.label }}
+              </button>
+            </sc-for>
+            </sc-if>
+          </div>
+          <sc-if value="{{ otherOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:12px;background:#faf6ee;border:1px solid #e4dccb;border-radius:12px;padding:16px 18px">
+            <div style="font-size:13.5px;font-weight:600;color:#0e2a43;margin-bottom:8px;font-family:'Spectral',serif">In your own words, what went wrong here?</div>
+            <textarea value="{{ otherDraft }}" onChange="{{ onOtherDraft }}" placeholder="e.g. I forgot which way round to move the number, so I never flip the sign..." style="width:100%;box-sizing:border-box;min-height:88px;resize:vertical;border:1px solid #d8cbb2;border-radius:9px;padding:12px 13px;font-size:14px;font-family:inherit;color:#1a2129;background:#fff;line-height:1.5"></textarea>
+            <div style="font-size:11.5px;color:#8a7c63;margin:8px 0 0;text-wrap:pretty">This just gives your teacher extra context - it won't change how the next step is chosen.</div>
+            <div style="margin-top:12px;display:flex;gap:9px">
+              <button onClick="{{ submitOther }}" style="flex:1;background:#dd6a2f;color:#fff;border:none;border-radius:9px;padding:12px;font-weight:600;font-size:14px;cursor:pointer;font-family:inherit">Save and continue →</button>
+              <button onClick="{{ cancelOther }}" style="background:#fff;color:#5c6773;border:1px solid #cdbfa6;border-radius:9px;padding:12px 16px;font-weight:600;font-size:13.5px;cursor:pointer;font-family:inherit">Back</button>
+            </div>
+          </div>
+          </sc-if>
+          <sc-if value="{{ reasonPickAnother }}" hint-placeholder-val="{{ true }}">
+          <div onClick="{{ backToWrong }}" style="margin-top:12px;font-size:12.5px;color:#8a7c63;cursor:pointer;text-align:center">← pick a different line</div>
+          </sc-if>
+        </div>
+        </sc-if>
+
+        <!-- RETEACH step -->
+        <sc-if value="{{ pShowReteach }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:22px">
+          <div style="display:flex;flex-direction:column;gap:16px">
+          <sc-for list="{{ reteachList }}" as="reteach" hint-placeholder-count="1">
+            <div style="border:1px solid #e4dccb;border-radius:12px;padding:18px 20px;background:#fffdf9">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#a99e88">Line {{ reteach.line }}</span>
+                <span style="font-family:'Spectral',serif;font-size:16px;color:#1a2129">{{ reteach.lineTex }}</span>
+              </div>
+              <span style="{{ reteach.scopeStyle }}">{{ reteach.scope }}</span>
+              <sc-if value="{{ reteach.hasNote }}" hint-placeholder-val="{{ false }}">
+              <div style="margin-top:10px;background:#f6f1e7;border:1px solid #e4dccb;border-radius:9px;padding:11px 13px">
+                <div style="font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.5px;text-transform:uppercase;color:#8a7c63;margin-bottom:4px">In your words</div>
+                <div style="font-size:13px;color:#3f4a54;line-height:1.5;text-wrap:pretty">{{ reteach.note }}</div>
+              </div>
+              </sc-if>
+              <h3 style="font-family:'Spectral',serif;font-size:19px;font-weight:600;color:#0e2a43;margin:10px 0 8px">{{ reteach.heading }}</h3>
+              <sc-for list="{{ reteach.body }}" as="para" hint-placeholder-count="2">
+                <p style="margin:0 0 10px;font-size:14px;line-height:1.6;color:#3f4a54;text-wrap:pretty">{{ para }}</p>
+              </sc-for>
+              <sc-if value="{{ reteach.hasExample }}" hint-placeholder-val="{{ false }}">
+              <div style="margin-top:6px;background:#f6f1e7;border:1px solid #e4dccb;border-radius:10px;padding:16px 18px">
+                <div style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.6px;text-transform:uppercase;color:#8a7c63;margin-bottom:10px">{{ reteach.exampleTitle }}</div>
+                <div style="display:flex;flex-direction:column;gap:7px">
+                  <sc-for list="{{ reteach.exampleSteps }}" as="st" hint-placeholder-count="3">
+                    <div style="font-family:'Spectral',serif;font-size:17px;color:#1a2129">{{ st }}</div>
+                  </sc-for>
+                </div>
+              </div>
+              </sc-if>
+              <div style="margin-top:14px;display:flex;gap:9px;align-items:flex-start;background:#eef3f7;border:1px solid #d3e0ea;border-radius:9px;padding:12px 14px">
+                <span style="width:7px;height:7px;border-radius:50%;background:#1f4e75;margin-top:6px;flex:none"></span>
+                <div style="font-size:12.5px;line-height:1.5;color:#2b4a63">{{ reteach.route }}</div>
+              </div>
+            </div>
+          </sc-for>
+          </div>
+          <div style="margin-top:20px;display:flex;gap:10px">
+            <button onClick="{{ tryAnother }}" style="flex:1;background:#dd6a2f;color:#fff;border:none;border-radius:10px;padding:13px;font-weight:600;font-size:14.5px;cursor:pointer;font-family:inherit">{{ reteach.cta }}</button>
+            <button onClick="{{ exitPractice }}" style="background:#fff;color:#0e2a43;border:1px solid #cdbfa6;border-radius:10px;padding:13px 18px;font-weight:600;font-size:14px;cursor:pointer;font-family:inherit">Done</button>
+          </div>
+        </div>
+        </sc-if>
+      </div>
+
+      <p style="margin:18px 4px 0;font-size:11.5px;color:#a99e88;line-height:1.5;text-align:center">No streaks, points, or class rankings - just your own progress. This is the whole diagnostic signal: where it went wrong, and why.</p>
+    </div>
+  </div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;requireHandwriting&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Practice session&quot;,&quot;label&quot;:&quot;Require handwriting upload&quot;}}">
+class Component extends DCLogic {
+  PREFILL = ['3x − 7 = 11', '3x = 11 − 7', '3x = 4', 'x = 4⁄3'];
+  state = {
+    screen: 'shome',
+    smapView: 'focused',
+    pathDone: 2,
+    fpTopic: null,
+    fpLabel: null,
+    psIdx: 0,
+    psAnswers: {},
+    psSubmitted: false,
+    psActive: null,
+    layout: 'attention',
+    expOnTrack: false,
+    expAhead: false,
+    pStep: 'solve',
+    pLines: [],
+    pReasons: {},
+    pNotes: {},
+    pOtherOpen: false,
+    pOtherDraft: '',
+    pIdx: 0,
+    pLine: null,
+    pReason: null,
+    session: 1,
+    answer: '4⁄3',
+    attach: null,
+    graphFilter: 'all',
+    openLog: null,
+    selectedNode: null,
+    selectedLog: null,
+    ovDetail: null,
+    detailReturn: 'student',
+    addressList: [],
+    addSeq: 0,
+    addingNote: false,
+    noteDraft: '',
+    menuOpen: null,
+    activeClass: '8M2',
+    suClass: '8M2',
+    suGrade: 'Year 8',
+    suYear: 'all',
+    suSearch: '',
+    suRoster: ['Aisha Bello','Daniel Kovač','Reuben Clarke','Priya Shah','Tom Weller','Grace Idowu','Elif Demir','Oscar Reid'],
+    suDraft: '',
+    suBasket: {negatives:true, fractions:true, fracpct:true, ratio:true, proportion:true, notation:true, substitution:true, expanding:true, factorising:true, linear:true, coordinates:true, angles:true, averages:true, probability:true},
+  };
+
+  pushAddress(p){
+    this.setState(st=>({addressList:[...st.addressList, {id:'a'+st.addSeq, ...p}], addSeq:st.addSeq+1, addingNote:false, noteDraft:''}));
+  }
+
+  insertSym(ins){
+    this.setState(st=>({answer:(st.answer||'') + ins}));
+  }
+
+  NODES = [
+    {id:'n1', x:24,  y:44,  st:'mastered',   label:'Negatives'},
+    {id:'n2', x:24,  y:134, st:'mastered',   label:'Fractions'},
+    {id:'n3', x:24,  y:224, st:'mastered',   label:'Decimals'},
+    {id:'n4', x:24,  y:314, st:'mastered',   label:'Ratio'},
+    {id:'n5', x:190, y:44,  st:'mastered',   label:'Neg. arithmetic'},
+    {id:'n6', x:190, y:170, st:'inprogress', label:'Fractions → %'},
+    {id:'n7', x:190, y:314, st:'mastered',   label:'Proportion'},
+    {id:'n8', x:356, y:44,  st:'mastered',   label:'Algebra basics'},
+    {id:'n9', x:356, y:170, st:'inprogress', label:'Substitution'},
+    {id:'n10',x:356, y:314, st:'notready',   label:'% change'},
+    {id:'n11',x:522, y:100, st:'frontier',   label:'Linear equations'},
+    {id:'n12',x:522, y:220, st:'frontier',   label:'Expanding ( )'},
+    {id:'n13',x:522, y:334, st:'notready',   label:'Coordinates'},
+    {id:'n14',x:688, y:150, st:'locked',     label:'Bracket eqns'},
+    {id:'n15',x:688, y:290, st:'locked',     label:'Simultaneous'},
+  ];
+  EDGES = [
+    ['n1','n5'],['n1','n9'],['n2','n6'],['n3','n6'],['n2','n7'],['n4','n7'],
+    ['n5','n8'],['n8','n9'],['n8','n11'],['n8','n13'],['n9','n11'],
+    ['n6','n10'],['n7','n10'],['n11','n14'],['n12','n14'],['n11','n15'],['n13','n15'],
+  ];
+  ST = {
+    mastered:  {fill:'#1f4e75', stroke:'#1f4e75', text:'#ffffff', sw:1.5, dash:''},
+    inprogress:{fill:'#7fb0cd', stroke:'#3f82ab', text:'#0e2a43', sw:1.5, dash:''},
+    frontier:  {fill:'#fdf0e6', stroke:'#dd6a2f', text:'#b6531f', sw:2.5, dash:''},
+    notready:  {fill:'#efe7d9', stroke:'#d8cbb2', text:'#8a7c63', sw:1.5, dash:''},
+    locked:    {fill:'#f2ede2', stroke:'#ddd2bd', text:'#a99e88', sw:1.5, dash:'4 4'},
+  };
+
+  chip(status){
+    if(status==='attention') return {background:'#fbe7d8',color:'#b6531f',border:'1px solid #eecab0',fontSize:'11px',fontWeight:600,padding:'3px 10px',borderRadius:'20px',whiteSpace:'nowrap'};
+    if(status==='ahead') return {background:'#e8f0f4',color:'#2f6f92',border:'1px solid #cfe0e9',fontSize:'11px',fontWeight:600,padding:'3px 10px',borderRadius:'20px',whiteSpace:'nowrap'};
+    return {background:'#e4edf3',color:'#1f4e75',border:'1px solid #cddceb',fontSize:'11px',fontWeight:600,padding:'3px 10px',borderRadius:'20px',whiteSpace:'nowrap'};
+  }
+  avatar(color){ return {width:'30px',height:'30px',borderRadius:'50%',background:color||'#0e2a43',color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:600,fontSize:'12px',flex:'none'}; }
+  tierFill(frac, color){ return {width:(frac*100)+'%',height:'100%',background:color,borderRadius:'5px'}; }
+
+  open(id){ this.setState({screen:'student'}); }
+
+  renderVals(){
+    const s = this.state;
+    const open = (id)=>()=>this.open(id);
+
+    // ---- nav ----
+    const navItems = [
+      {key:'dash', label:'Dashboard'},
+      {key:'students', label:'Students'},
+      {key:'oversight', label:'Oversight'},
+      {key:'setup', label:'Class setup'},
+    ];
+    const activeNav = (s.screen==='student'||s.screen==='logdetail'||s.screen==='graphfull'||s.screen==='graphfocused') ? 'students' : (s.screen==='oversight' ? 'oversight' : (s.screen==='setup' ? 'setup' : 'dash'));
+    const navGo = {dash:()=>this.setState({screen:'dashboard'}), students:()=>this.open('aisha'), oversight:()=>this.setState({screen:'oversight'}), setup:()=>this.setState({screen:'setup'})};
+    const nav = navItems.map(n=>{
+      const active = n.key===activeNav;
+      return {
+        label:n.label,
+        onClick: navGo[n.key] || (()=>{}),
+        style:{display:'flex',alignItems:'center',gap:'10px',padding:'9px 12px',borderRadius:'8px',fontSize:'13.5px',fontWeight:active?600:500,cursor:'pointer',color:active?'#fff':'#9fb4c7',background:active?'rgba(221,106,47,.16)':'transparent',marginBottom:'2px'},
+        dotStyle:{width:'6px',height:'6px',borderRadius:'50%',background:active?'#dd6a2f':'transparent',flex:'none'},
+      };
+    });
+
+    // ---- class switcher ----
+    const CLASSES=[{key:'8M2',grade:'Year 8',n:24},{key:'8M4',grade:'Year 8',n:26},{key:'9S1',grade:'Year 9',n:22}];
+    const ac = CLASSES.find(c=>c.key===s.activeClass) || CLASSES[0];
+    const classTabs = CLASSES.map(c=>{
+      const on=c.key===s.activeClass;
+      return {label:c.key, sub:c.grade, onClick:()=>this.setState({activeClass:c.key}),
+        style:{border:'none',cursor:'pointer',fontFamily:'inherit',textAlign:'left',padding:'8px 15px',borderRadius:'9px',
+          background:on?'#0e2a43':'#efe7d9', color:on?'#fff':'#5c6773', border:on?'1px solid #0e2a43':'1px solid #e0d4bd'}};
+    });
+    const dashTitle = ac.key+' · '+ac.grade+' Mathematics';
+    const dashSub = ac.n+' students · Autumn term, week 9 · updated live from practice';
+
+    // ---- layout toggle ----
+    const layoutDefs=[{k:'attention',l:'Attention first'},{k:'lanes',l:'Three lanes'},{k:'roster',l:'Full roster'}];
+    const layouts = layoutDefs.map(d=>{
+      const on=s.layout===d.k;
+      return {label:d.l, onClick:()=>this.setState({layout:d.k}), style:{border:'none',cursor:'pointer',fontFamily:'inherit',fontSize:'12.5px',fontWeight:600,padding:'7px 14px',borderRadius:'8px',background:on?'#fff':'transparent',color:on?'#0e2a43':'#8a7c63',boxShadow:on?'0 1px 2px rgba(20,48,74,.12)':'none'}};
+    });
+
+    // ---- attention students ----
+    const attention = [
+      {id:'aisha', initials:'AB', name:'Aisha Bello', trend:'Stuck 3 sessions', topic:'Linear equations', cause:'Missing foundational knowledge', line:'Rearranges equations as a memorised ritual - the prerequisite, inverse operations, never became solid.'},
+      {id:'daniel', initials:'DK', name:'Daniel Kovač', trend:'Plateaued 2 weeks', topic:'Fractions → percentages', cause:'Ineffective practice method', line:'Clears the easy items, avoids the hard ones - his average looks higher than his real mastery.'},
+      {id:'reuben', initials:'RC', name:'Reuben Clarke', trend:'2 sessions this fortnight', topic:'Substitution', cause:'Not enough practice', line:'Understands it in the moment but has logged too few reps for it to become durable.'},
+    ].map(a=>({...a, onOpen:open(a.id)}));
+
+    // ---- roster / lanes data ----
+    const onTrackNames=[['Priya Shah','Fractions → %'],['Tom Weller','Linear equations'],['Grace Idowu','Proportion'],['Marcus Lin','Expanding ( )'],['Sofia Rossi','Substitution'],['Jack Enright','Linear equations'],['Amara Okoli','Ratio'],['Leo Marsh','Coordinates'],['Hana Ali','Fractions → %'],['Noah Pratt','Substitution'],['Ivy Chen','Proportion'],['Ben Osei','Linear equations'],['Ruth Adeyemi','Expanding ( )'],['Sam Doyle','Coordinates']];
+    const aheadNames=[['Elif Demir','Simultaneous eqns'],['Oscar Reid','Bracket equations'],['Maya Kumar','Coordinates'],['Finn Walsh','Simultaneous eqns'],['Zara Haq','Bracket equations'],['Louis Berger','Coordinates'],['Nina Petrov','Simultaneous eqns']];
+
+    const mkStudent=(name,topic,status,last)=>{
+      const init=name.split(' ').map(w=>w[0]).join('');
+      const color = status==='ahead' ? '#2f6f92' : (status==='attention'?'#dd6a2f':'#1f4e75');
+      return {name, topic, sub:topic, last, initials:init, status, statusLabel: status==='attention'?'Needs attention':(status==='ahead'?'Ahead':'On track'), avatarStyle:this.avatar(color), chipStyle:this.chip(status), onOpen:open('x')};
+    };
+    const onTrackStudents = onTrackNames.map(([n,t])=>mkStudent(n,t,'ontrack','today'));
+    const aheadStudents = aheadNames.map(([n,t])=>mkStudent(n,t,'ahead','today'));
+
+    const lanes=[
+      {title:'Needs attention', count:3, dot:'#dd6a2f', students:attention.map(a=>mkStudent(a.name,a.topic,'attention','stuck'))},
+      {title:'On track', count:14, dot:'#1f4e75', students:onTrackStudents.slice(0,6)},
+      {title:'Ahead', count:7, dot:'#2f6f92', students:aheadStudents.slice(0,5)},
+    ].map(l=>({title:l.title,count:l.count,students:l.students,colStyle:{background:'#faf6ee',border:'1px solid #ece3d2',borderRadius:'12px',padding:'16px'},dotStyle:{width:'9px',height:'9px',borderRadius:'50%',background:l.dot,display:'inline-block',flex:'none'}}));
+
+    const rosterAll=[
+      ...attention.map(a=>mkStudent(a.name,a.topic,'attention','stuck')),
+      ...onTrackStudents,
+      ...aheadStudents,
+    ];
+
+    // ---- collapsed groups ----
+    const collapsed=[
+      {title:'On track', count:14, open:s.expOnTrack, onToggle:()=>this.setState({expOnTrack:!s.expOnTrack}), toggleLabel:s.expOnTrack?'Hide ▲':'Show ▾', dot:'#1f4e75', students:onTrackStudents},
+      {title:'Ahead of pace', count:7, open:s.expAhead, onToggle:()=>this.setState({expAhead:!s.expAhead}), toggleLabel:s.expAhead?'Hide ▲':'Show ▾', dot:'#2f6f92', students:aheadStudents},
+    ].map(g=>({...g, dotStyle:{width:'9px',height:'9px',borderRadius:'50%',background:g.dot,display:'inline-block',flex:'none'}, students:g.students.map(st=>({...st, avatarStyle:this.avatar(g.dot)}))}));
+
+    // ---- class mastery bars ----
+    const T = (f,c,st)=>[{f, color:'#1f4e75'},{f:c, color:'#4a86ad'},{f:st, color:'#e8a06a'}];
+    const classTopicsRaw=[
+      {name:'Negatives', t:T(1,.92,.7)},
+      {name:'Fractions & %', t:T(.95,.6,.25)},
+      {name:'Algebra basics', t:T(.88,.55,.2)},
+      {name:'Linear equations', t:T(.7,.35,.05)},
+      {name:'Ratio & proportion', t:T(.9,.7,.4)},
+    ];
+    const classTopics = classTopicsRaw.map(o=>({name:o.name, tiers:o.t.map(x=>({fillStyle:this.tierFill(x.f,x.color)}))}));
+
+    // ---- student (Aisha) drill-down ----
+    const graphNodes = this.NODES.map(n=>{
+      const st=this.ST[n.st];
+      const sel = s.selectedNode===n.id;
+      return {id:n.id, x:n.x,y:n.y,tx:n.x+66,ty:n.y+22,label:n.label,fill:st.fill,stroke:sel?'#dd6a2f':st.stroke,sw:sel?3:st.sw,dash:st.dash,text:st.text,
+        onClick:()=>this.setState(prev=>({selectedNode: prev.selectedNode===n.id? null : n.id}))};
+    });
+    // spaced-repetition read per subtopic (click a node to see it)
+    const META = {
+      mastered:  {ret:'Strong',   retColor:'#1f4e75'},
+      inprogress:{ret:'Building',  retColor:'#3f82ab'},
+      frontier:  {ret:'Active now',retColor:'#b6531f'},
+      notready:  {ret:'Not started',retColor:'#8a7c63'},
+      locked:    {ret:'Not started',retColor:'#8a7c63'},
+    };
+    const lastMap={n1:'today · free play',n2:'12 days ago',n3:'15 days ago',n4:'7 days ago',n5:'6 days ago',n6:'2 days ago',n7:'8 days ago',n8:'4 days ago',n9:'2 days ago · free play',n10:'—',n11:'today',n12:'today',n13:'—',n14:'—',n15:'—'};
+    const nextMap={n1:'in 11 days',n2:'in 14 days',n3:'in 18 days',n4:'in 9 days',n5:'in 8 days',n6:'tomorrow',n7:'in 10 days',n8:'in 5 days',n9:'tomorrow',n10:'when ready',n11:'today',n12:'today',n13:'when ready',n14:'when ready',n15:'when ready'};
+    const repsMap={n1:16,n2:13,n3:11,n4:12,n5:14,n6:9,n7:10,n8:15,n9:7,n10:0,n11:5,n12:3,n13:0,n14:0,n15:0};
+    const selNode = s.selectedNode ? this.NODES.find(n=>n.id===s.selectedNode) : null;
+    const nodeInfo = selNode ? {
+      label: selNode.label,
+      ret: META[selNode.st].ret, retColor: META[selNode.st].retColor,
+      last: lastMap[selNode.id]||'—', next: nextMap[selNode.id]||'—', reps: repsMap[selNode.id]||0,
+      viaFreeplay: /free play/.test(lastMap[selNode.id]||''),
+      started: (repsMap[selNode.id]||0)>0,
+      close: ()=>this.setState({selectedNode:null}),
+    } : null;
+    const byId={}; this.NODES.forEach(n=>byId[n.id]=n);
+    const graphEdges = this.EDGES.map(([a,b])=>{
+      const A=byId[a],B=byId[b];
+      const fx=A.x+132, fy=A.y+21, tx=B.x, ty=B.y+21;
+      const frontier = B.st==='frontier';
+      return {d:`M ${fx} ${fy} C ${fx+38} ${fy}, ${tx-38} ${ty}, ${tx} ${ty}`, stroke:frontier?'#e8a06a':'#d3c6ab', sw:frontier?2:1.4};
+    });
+
+    // focused (basket) graph + topic filter
+    const baskets=[
+      {key:'number', label:'Number', ids:['n1','n2','n3','n5','n6']},
+      {key:'ratio', label:'Ratio & proportion', ids:['n4','n7','n10']},
+      {key:'algebra', label:'Algebra', ids:['n8','n9','n11','n12','n14']},
+      {key:'geometry', label:'Coordinates & graphs', ids:['n13','n15']},
+    ];
+    const gf = s.graphFilter;
+    const active = gf==='all' ? null : baskets.find(b=>b.key===gf);
+    const inFocus = (id)=> !active || active.ids.indexOf(id)>-1;
+    const focusedNodes = graphNodes.map((n,idx)=>({...n, op: inFocus(this.NODES[idx].id)?1:0.14}));
+    const focusedEdges = graphEdges.map((e,idx)=>{ const [a,b]=this.EDGES[idx]; return {...e, op:(inFocus(a)&&inFocus(b))?1:0.1}; });
+    const filterChips = [{key:'all',label:'All basket topics'}, ...baskets.map(b=>({key:b.key,label:b.label}))].map(c=>({
+      label:c.label, onClick:()=>this.setState({graphFilter:c.key}),
+      style:{border:'none',cursor:'pointer',fontFamily:'inherit',fontSize:'12.5px',fontWeight:600,padding:'7px 13px',borderRadius:'8px',background:gf===c.key?'#0e2a43':'#efe7d9',color:gf===c.key?'#fff':'#5c6773'},
+    }));
+
+    const paceRaw=[
+      {topic:'Ratio & proportion', tag:'Ahead · +1 term', kind:'ahead', a:.88, e:.6},
+      {topic:'Negatives', tag:'Ahead', kind:'ahead', a:1, e:.9},
+      {topic:'Fractions & %', tag:'On pace', kind:'onpace', a:.78, e:.75},
+      {topic:'Algebra basics', tag:'Behind', kind:'behind', a:.55, e:.78},
+      {topic:'Linear equations', tag:'Behind · ½ term', kind:'behind', a:.32, e:.7},
+    ];
+    const tagStyleFor=(k)=>{
+      const base={fontSize:'11px',fontWeight:600,padding:'2px 9px',borderRadius:'20px'};
+      if(k==='ahead') return {...base,color:'#2f6f92',background:'#e8f0f4'};
+      if(k==='behind') return {...base,color:'#b6531f',background:'#fbe7d8'};
+      return {...base,color:'#1f4e75',background:'#e4edf3'};
+    };
+    const paceItems = paceRaw.map(p=>({
+      topic:p.topic, tag:p.tag, tagStyle:tagStyleFor(p.kind),
+      fillStyle:{position:'absolute',left:0,top:0,height:'100%',width:(p.a*100)+'%',background:p.kind==='behind'?'#c98a63':'#1f4e75',borderRadius:'7px'},
+      markStyle:{position:'absolute',top:'-3px',left:`calc(${p.e*100}% - 1px)`,width:'2px',height:'20px',background:'#0e2a43',borderRadius:'1px'},
+    }));
+
+    const masteryRaw=[
+      {name:'Negatives', t:T(1,.9,.6)},
+      {name:'Substitution', t:T(.8,.4,0)},
+      {name:'Linear equations', t:T(.5,.15,0)},
+      {name:'Fractions & %', t:T(.95,.75,.4)},
+    ];
+    const masteryTopics = masteryRaw.map(o=>({name:o.name, tiers:o.t.map(x=>({fillStyle:this.tierFill(x.f,x.color)}))}));
+
+    const logRaw=[
+      {kind:'Review', date:'Today', title:'Linear equations · spaced review', result:'2 of 5 correct', flag:'attention', summary:'Sign errors when moving a term across the equals sign.', detail:['3 of 5 items failed on the same step: moving a term across = without flipping its sign.','She flagged two as "silly mistake"; the pattern says otherwise - third time this fortnight.','Routed a focused re-teach of inverse operations before the next review.'], upload:true,
+        items:[
+          {label:'Q1', q:'Solve 3x − 7 = 11', hit:true, note:'Wrote 3x = 11 − 7. Sign not flipped when moving −7 across =.'},
+          {label:'Q2', q:'Solve 2x + 5 = 13', hit:false, note:'Correct.'},
+          {label:'Q3', q:'Solve 5x − 4 = 16', hit:true, note:'Wrote 5x = 16 − 4. Same sign error as Q1.'},
+          {label:'Q4', q:'Solve 4x + 9 = 1', hit:false, note:'Correct.'},
+          {label:'Q5', q:'Solve 7 − 2x = 3', hit:true, note:'Lost the sign on −2x. Flagged as "silly mistake".'},
+        ]},
+      {kind:'Problem set', date:'Yesterday', title:'Substitution into expressions', result:'6 of 10 correct', flag:'attention', summary:'Substituted values into the wrong term on the harder items.', detail:['First 5 (single-term) items correct; last 5 (two-term) items mostly wrong.','Consistent with a shaky grasp of the prerequisite, not carelessness.','This is the likely root cause feeding the linear-equations struggle.'], upload:true,
+        items:[
+          {label:'Q6', q:'Evaluate 3a + 2b when a=4, b=5', hit:true, note:'Computed 3×4 + 2×4. Substituted a into both terms.'},
+          {label:'Q7', q:'Evaluate 5m − n when m=3, n=8', hit:true, note:'Swapped m and n.'},
+          {label:'Q8', q:'Evaluate 2x + 7 when x=6', hit:false, note:'Correct (single term).'},
+          {label:'Q9', q:'Evaluate ab + c when a=2, b=3, c=4', hit:true, note:'Left c out of the sum.'},
+          {label:'Q10', q:'Evaluate 4p when p=9', hit:false, note:'Correct (single term).'},
+        ]},
+      {kind:'Lesson', date:'Mon', title:'Solving two-step equations', result:'Completed', flag:'ok', summary:'Worked through cleanly; no misconceptions surfaced.', detail:['Attempted every check-in before revealing the worked step.','No repeated errors within the lesson.','Frontier advanced to two-step equations with the unknown on one side.'], upload:false,
+        items:[
+          {label:'Check 1', q:'Undo the +3 in x + 3 = 10', hit:false, note:'Correct on first attempt.'},
+          {label:'Check 2', q:'Undo the ×4 in 4x = 20', hit:false, note:'Correct on first attempt.'},
+          {label:'Check 3', q:'Solve 2x + 1 = 9', hit:false, note:'Correct; attempted before revealing the step.'},
+        ]},
+      {kind:'Problem set', date:'Last wk', title:'Fractions to percentages', result:'9 of 10 correct', flag:'ok', summary:'One method slip, corroborated as a genuine one-off.', detail:['Single error on a conversion; her wider pattern is strong here.','No re-teach needed - logged and closed.'], upload:false,
+        items:[
+          {label:'Q4', q:'Write 3/8 as a percentage', hit:true, note:'Divided 8 by 3 instead of 3 by 8. One-off; corroborated against strong history.'},
+          {label:'Q1–3, 5–10', q:'Remaining conversions', hit:false, note:'All correct.'},
+        ]},
+      {kind:'Review', date:'2 wks', title:'Negatives · spaced review', result:'5 of 5 correct', flag:'ok', summary:'Fully retained across sessions.', detail:['Held up on delayed, cross-session retrieval, not just same-session accuracy.','Trickle-down credit applied to dependent topics.'], upload:false,
+        items:[
+          {label:'Q1–5', q:'Adding and subtracting negatives', hit:false, note:'All correct on delayed retrieval.'},
+        ]},
+    ];
+    const logFlag=(f)=> f==='attention'
+      ? {background:'#fbe7d8',color:'#b6531f',border:'1px solid #eecab0'}
+      : {background:'#e4edf3',color:'#1f4e75',border:'1px solid #cddceb'};
+    const kindStyle=(k)=>({fontFamily:"'IBM Plex Mono',monospace",fontSize:'10px',letterSpacing:'.5px',textTransform:'uppercase',fontWeight:600,padding:'2px 7px',borderRadius:'5px',background:'#efe7d9',color:'#8a7c63',flex:'none'});
+    const activityLog = logRaw.map((it,i)=>({
+      ...it,
+      open: s.openLog===i,
+      onToggle: ()=>this.setState(st=>({openLog: st.openLog===i? null : i})),
+      onOpenDetail: ()=>this.setState({screen:'logdetail', selectedLog:i, ovDetail:null, detailReturn:'student', selectedNode:null}),
+      onAddress: ()=>this.pushAddress({student:'Aisha Bello', context:it.kind+' · '+it.title, note:it.summary}),
+      kindStyle: kindStyle(it.kind),
+      dotStyle: {width:'8px',height:'8px',borderRadius:'50%',flex:'none',background: it.flag==='attention'?'#dd6a2f':'#1f4e75'},
+      resultStyle: {...logFlag(it.flag), fontSize:'11px',fontWeight:600,padding:'2px 9px',borderRadius:'20px',whiteSpace:'nowrap'},
+      caret: s.openLog===i ? '▾' : '▸',
+    }));
+    const ld = s.ovDetail ? s.ovDetail : ((s.selectedLog!=null) ? logRaw[s.selectedLog] : null);
+    const logDetail = ld ? {
+      kind: ld.kind, kindStyle: kindStyle(ld.kind), title: ld.title, date: ld.date, result: ld.result,
+      resultStyle: {...logFlag(ld.flag), fontSize:'12px',fontWeight:600,padding:'3px 11px',borderRadius:'20px',whiteSpace:'nowrap'},
+      hasUpload: !!ld.upload,
+      items: ld.items.map(it=>({
+        label: it.label, q: it.q, hit: it.hit, note: it.note,
+        rowStyle: {display:'grid',gridTemplateColumns:'64px 1fr',gap:'14px',padding:'13px 14px',borderRadius:'9px',background: it.hit?'#fdf0e6':'#faf6ee',border:`1px solid ${it.hit?'#f0d3bc':'#ece3d2'}`},
+        tagStyle: {fontFamily:"'IBM Plex Mono',monospace",fontSize:'11px',fontWeight:600,color: it.hit?'#b6531f':'#8a7c63'},
+        badge: it.hit?'Hiccup here':'OK',
+        badgeStyle: it.hit
+          ? {fontSize:'10.5px',fontWeight:600,color:'#b6531f',background:'#fbe7d8',border:'1px solid #eecab0',padding:'2px 8px',borderRadius:'20px'}
+          : {fontSize:'10.5px',fontWeight:600,color:'#1f4e75',background:'#e4edf3',border:'1px solid #cddceb',padding:'2px 8px',borderRadius:'20px'},
+      })),
+    } : null;
+
+    const chipStyle=(bg,col,bd)=>({background:bg,color:col,border:`1px solid ${bd}`,fontSize:'12px',fontWeight:500,padding:'5px 11px',borderRadius:'7px'});
+    const frontierGroups=[
+      {label:'Mastered', color:'#1f4e75', chips:['Negatives','Fractions','Algebra basics','Neg. arithmetic'].map(n=>({name:n,style:chipStyle('#e4edf3','#1f4e75','#cddceb')}))},
+      {label:'Ready to learn now', color:'#b6531f', chips:['Linear equations','Expanding ( )'].map(n=>({name:n,style:chipStyle('#fdf0e6','#b6531f','#f0d3bc')}))},
+      {label:'Not ready yet', color:'#8a7c63', chips:['Coordinates','Bracket eqns','Simultaneous'].map(n=>({name:n,style:chipStyle('#f2ede2','#8a7c63','#ddd2bd')}))},
+    ];
+
+    // ---- practice ----
+    // student types only a final answer (4⁄3); the worked solution is what they read + pinpoint against
+    const lines=['3x − 7 = 11','3x = 11 + 7','3x = 18','x = 6'];
+    const solNotes=['','−7 crosses the =, so it becomes +7','','divide both sides by 3'];
+    const errIdx=1;
+
+    // typed line-by-line input + notation palette
+    const paletteDefs=[['x²','²','Square'],['xⁿ','^','Power'],['√','√','Square root'],['∛','∛','Cube root'],['a⁄b','⁄','Fraction'],['( )','()','Brackets'],['π','π','Pi'],['θ','θ','Theta'],['×','×','Multiply'],['÷','÷','Divide'],['≤','≤','Less or equal'],['≥','≥','Greater or equal'],['±','±','Plus-minus'],['[ ]','[  ]','Matrix']];
+    const palette = paletteDefs.map(([label,ins,title])=>({label,title,onClick:()=>this.insertSym(ins)}));
+    const onAnswer = (e)=>{ const v=e.target.value; this.setState({answer:v}); };
+
+    const requireHw = this.props.requireHandwriting ?? false;
+    const blocked = requireHw && !s.attach;
+    const hwBadgeStyle = requireHw
+      ? {fontSize:'10.5px',fontWeight:600,padding:'2px 9px',borderRadius:'20px',color:'#b6531f',background:'#fbe7d8',border:'1px solid #eecab0'}
+      : {fontSize:'10.5px',fontWeight:600,padding:'2px 9px',borderRadius:'20px',color:'#5c6773',background:'#eef0f2',border:'1px solid #dfe3e7'};
+    const checkStyle = {marginTop:'18px',width:'100%',color:'#fff',border:'none',borderRadius:'10px',padding:'13px',fontWeight:600,fontSize:'15px',fontFamily:'inherit',background:blocked?'#e7c3ab':'#dd6a2f',cursor:blocked?'not-allowed':'pointer'};
+    const clickable = s.pStep==='solution';
+    const sel = s.pLines||[];
+    const workingLines = lines.map((tex,i)=>{
+      const selected = sel.includes(i);
+      let bg='#fff', border='1px solid #e4dccb';
+      if(clickable){ border='1px solid #d8cbb2'; }
+      if(selected){ bg='#fdf0e6'; border='2px solid #dd6a2f'; }
+      return {
+        num:i+1, tex, note: solNotes[i]||'',
+        hasNote: !!(solNotes[i]),
+        selected,
+        boxStyle:{width:'20px',height:'20px',borderRadius:'6px',flex:'none',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'13px',fontWeight:700,color:'#fff',background:selected?'#dd6a2f':'#fff',border:selected?'2px solid #dd6a2f':'2px solid #cdbfa6'},
+        boxMark: selected?'✓':'',
+        onClick: ()=>{ if(this.state.pStep!=='solution') return; this.setState(st=>{ const cur=st.pLines||[]; const has=cur.includes(i); return {pLines: has?cur.filter(x=>x!==i):[...cur,i].sort((a,b)=>a-b)}; }); },
+        pickHint: '',
+        style:{display:'flex',alignItems:'center',gap:'14px',padding:'12px 16px',borderRadius:'10px',background:bg,border,cursor:clickable?'pointer':'default',transition:'border-color .12s'},
+      };
+    });
+
+    const curLine = (s.pLines&&s.pLines.length) ? s.pLines[Math.min(s.pIdx, s.pLines.length-1)] : 0;
+    const advanceReason = (st, patch)=>{
+      const last = st.pIdx >= (st.pLines.length-1);
+      return last ? {...patch, pStep:'reteach', pOtherOpen:false, pOtherDraft:''} : {...patch, pIdx:st.pIdx+1, pOtherOpen:false, pOtherDraft:''};
+    };
+    const reasons=[
+      {key:'slip', icon:'⌨', label:'A typing or clicking slip'},
+      {key:'silly', icon:'🙂', label:'A silly mistake - I actually know this'},
+      {key:'hard', icon:'⛰', label:'The question was genuinely too hard'},
+      {key:'notlearned', icon:'🌱', label:"I haven't really learned this yet"},
+      {key:'other', icon:'✎', label:'Something else - let me explain'},
+    ].map(r=>({...r, onClick:()=>{
+      if(r.key==='other'){ this.setState({pOtherOpen:true}); return; }
+      this.setState(st=>advanceReason(st, {pReasons:{...(st.pReasons||{}), [curLine]:r.key}}));
+    }}));
+
+    const otherOpen = !!s.pOtherOpen;
+    const otherDraft = s.pOtherDraft||'';
+    const onOtherDraft = (e)=>this.setState({pOtherDraft:e.target.value});
+    const submitOther = ()=>{ const txt=(this.state.pOtherDraft||'').trim(); if(!txt) return; this.setState(st=>advanceReason(st, {pReasons:{...(st.pReasons||{}), [curLine]:'notlearned'}, pNotes:{...(st.pNotes||{}), [curLine]:txt}})); };
+    const cancelOther = ()=>this.setState({pOtherOpen:false, pOtherDraft:''});
+
+    const reasonPrompt = `Line ${curLine+1}: ${lines[curLine]||''}`;
+    const reasonCounter = (s.pLines&&s.pLines.length>1) ? `Line ${Math.min(s.pIdx,s.pLines.length-1)+1} of ${s.pLines.length} you flagged` : 'The line you flagged';
+
+    const reteachList = (s.pLines&&s.pLines.length ? s.pLines : [0]).map(li=>({ line:li+1, lineTex:lines[li], note:(s.pNotes||{})[li]||'', hasNote:!!((s.pNotes||{})[li]), ...this.buildReteach(li, (s.pReasons||{})[li], errIdx) }));
+    const reteach = reteachList[reteachList.length-1];
+    const selCount = (s.pLines||[]).length;
+    const continueLabel = selCount>1 ? `Continue with ${selCount} lines →` : 'Continue →';
+
+    return {
+      teacherMode: ['dashboard','student','logdetail','graphfull','graphfocused','oversight','setup'].indexOf(s.screen)>-1,
+      showPractice: s.screen==='practice',
+      showShome: s.screen==='shome',
+      showSprogress: s.screen==='sprogress',
+      showSsessions: s.screen==='ssessions',
+      showSsessiondetail: s.screen==='ssessiondetail',
+      showSmap: s.screen==='smap',
+      goShome: ()=>this.setState({screen:'shome'}),
+      goSprogress: ()=>this.setState({screen:'sprogress'}),
+      goSsessions: ()=>this.setState({screen:'ssessions'}),
+      goSmap: ()=>this.setState({screen:'smap'}),
+      sBackSessions: ()=>this.setState({screen:'ssessions', ovDetail:null}),
+      sNav: [['Home','shome'],['Free play','freeplay'],['Sessions','ssessions'],['My map','smap'],['Progress','sprogress']].map(([label,scr])=>{
+        const cur={shome:'shome',freeplay:'freeplay',fptopic:'freeplay',ssessions:'ssessions',ssessiondetail:'ssessions',smap:'smap',sprogress:'sprogress',practice: (s.fpLabel?'freeplay':'shome'), psolve:'shome'}[s.screen]||'shome';
+        const on=cur===scr;
+        return {label, onClick:()=>this.setState({screen:scr}),
+          style:{fontSize:'13px',fontWeight:on?600:500,color:on?'#fff':'#9fb4c7',background:on?'rgba(221,106,47,.16)':'transparent',padding:'7px 13px',borderRadius:'8px',cursor:'pointer'}};
+      }),
+      mapFocused: s.smapView!=='full',
+      mapFull: s.smapView==='full',
+      setMapFocused: ()=>this.setState({smapView:'focused'}),
+      setMapFull: ()=>this.setState({smapView:'full'}),
+      mapFocusStyle: {border:'none',cursor:'pointer',fontFamily:'inherit',fontSize:'12.5px',fontWeight:600,padding:'8px 15px',borderRadius:'8px',background:s.smapView!=='full'?'#0e2a43':'#efe7d9',color:s.smapView!=='full'?'#fff':'#5c6773',border:s.smapView!=='full'?'1px solid #0e2a43':'1px solid #e0d4bd'},
+      mapFullStyle: {border:'none',cursor:'pointer',fontFamily:'inherit',fontSize:'12.5px',fontWeight:600,padding:'8px 15px',borderRadius:'8px',background:s.smapView==='full'?'#0e2a43':'#efe7d9',color:s.smapView==='full'?'#fff':'#5c6773',border:s.smapView==='full'?'1px solid #0e2a43':'1px solid #e0d4bd'},
+      startSession: ()=>this.setState({screen:'practice', pStep:'solve', pLines:[], pReasons:{}, pNotes:{}, pOtherOpen:false, pOtherDraft:'', pIdx:0, answer:'4⁄3', attach:null}),
+      pathItems: (()=>{
+        const done = s.pathDone||0;
+        const raw=[
+          {kind:'Lesson', subtopic:'Inverse operations', detail:'Moving a term across the ='},
+          {kind:'Lesson', subtopic:'One-step equations', detail:'Undoing + and −'},
+          {kind:'Review', subtopic:'Negatives', detail:'Spaced review'},
+          {kind:'Lesson', subtopic:'Two-step equations', detail:'Undo in the right order'},
+          {kind:'Review', subtopic:'Fractions → %', detail:'Spaced review'},
+          {kind:'Lesson', subtopic:'Equations with brackets', detail:'Expand, then solve'},
+        ];
+        const isReview=(k)=>k==='Review';
+        return raw.map((it,i)=>{
+          const complete = i<done;
+          const isNext = i===done;
+          return {...it,
+            complete, isNext,
+            mins: isReview(it.kind)?'~4 min':'~10 min',
+            onOpen: ()=>this.setState(st=>({screen:'practice', pStep:'solve', pLines:[], pReasons:{}, pNotes:{}, pOtherOpen:false, pOtherDraft:'', pIdx:0, answer:'4⁄3', attach:null, pathDone: i===(st.pathDone||0) ? Math.min(6,(st.pathDone||0)+1) : (st.pathDone||0)})),
+            kindStyle: {fontFamily:"'IBM Plex Mono',monospace",fontSize:'10px',letterSpacing:'.5px',textTransform:'uppercase',fontWeight:600,padding:'2px 8px',borderRadius:'5px',flex:'none',background: isReview(it.kind)?'#e4edf3':'#fdf0e6', color: isReview(it.kind)?'#1f4e75':'#b6531f'},
+            dotStyle: {width:'26px',height:'26px',borderRadius:'50%',flex:'none',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'13px',fontWeight:700, background: complete?'#1f4e75':(isNext?'#dd6a2f':'#efe7d9'), color: (complete||isNext)?'#fff':'#a99e88'},
+            dotMark: complete?'✓':(i+1),
+            rowStyle: {display:'flex',alignItems:'center',gap:'14px',background:'#fff',border:`1px solid ${isNext?'#f0d3bc':'#e4dccb'}`,borderRadius:'11px',padding:'14px 16px',cursor:'pointer',opacity: complete?0.6:1},
+            cta: complete?'Done':(isNext?'Start →':'Open'),
+            ctaStyle: {marginLeft:'auto',fontSize:'12.5px',fontWeight:600,whiteSpace:'nowrap',color: complete?'#8a7c63':'#dd6a2f'},
+          };
+        });
+      })(),
+      pathDoneCount: s.pathDone||0,
+      pathAllDone: (s.pathDone||0)>=6,
+      refreshPath: ()=>this.setState({pathDone:0, session:(s.session||1)+1}),
+      problemSets: [
+        {title:'Linear equations mixed set', topics:'Linear equations · Substitution', qs:'12 questions', due:'Due Mon 21 Jul', urgency:'soon', locked:true, lockNote:'Unlocks when you finish “Inverse operations” and “Two-step equations”.'},
+        {title:'Fractions & percentages', topics:'Fractions · Percentages', qs:'10 questions', due:'Due Fri 25 Jul', urgency:'later', locked:false, lockNote:''},
+        {title:'Ratio recap', topics:'Ratio & proportion', qs:'8 questions', due:'Due today', urgency:'urgent', locked:true, lockNote:'Unlocks when you finish “Ratio basics”.'},
+      ].map(p=>({...p,
+        onOpen: p.locked ? (()=>{}) : (()=>this.setState({screen:'psolve', psActive:0, psIdx:0, psAnswers:{}, psSubmitted:false})),
+        cardStyle: {background:'#fff',border:`1px solid ${p.locked?'#e4dccb':'#d3e0ea'}`,borderRadius:'12px',padding:'16px 18px',opacity: p.locked?0.92:1},
+        dueStyle: {display:'inline-flex',alignItems:'center',gap:'6px',fontFamily:"'IBM Plex Mono',monospace",fontSize:'11px',fontWeight:600,padding:'4px 10px',borderRadius:'20px',whiteSpace:'nowrap',
+          background: p.urgency==='urgent'?'#fbe7d8':(p.urgency==='soon'?'#fdf0e6':'#eef3f7'),
+          color: p.urgency==='urgent'?'#b6531f':(p.urgency==='soon'?'#b6531f':'#1f4e75'),
+          border: `1px solid ${p.urgency==='urgent'?'#eecab0':(p.urgency==='soon'?'#f0d3bc':'#d3e0ea')}`},
+        locked:p.locked, unlocked:!p.locked,
+        ctaStyle: {marginTop:'12px',background: p.locked?'#f2ece0':'#dd6a2f', color:p.locked?'#a99e88':'#fff', border:'none',borderRadius:'9px',padding:'11px 16px',fontSize:'13.5px',fontWeight:600,cursor:p.locked?'not-allowed':'pointer',fontFamily:'inherit'},
+        ctaLabel: p.locked?'🔒 Locked':'Start homework →',
+      })),
+      sReviews: [
+        {topic:'Negatives', due:'Due today', reps:'held strong'},
+        {topic:'Fractions → %', due:'Due today', reps:'building'},
+        {topic:'Substitution', due:'Due tomorrow', reps:'needs a look'},
+      ],
+      sProgressTopics: [
+        {name:'Negatives', pct:96, label:'Mastered'},
+        {name:'Fractions & %', pct:78, label:'Strong'},
+        {name:'Substitution', pct:52, label:'Building'},
+        {name:'Linear equations', pct:34, label:'Learning now'},
+      ].map(t=>({name:t.name, label:t.label, barStyle:{width:t.pct+'%',height:'100%',background: t.pct>=85?'#1f4e75':(t.pct>=60?'#4a86ad':'#dd6a2f'),borderRadius:'6px'}})),
+      showDashboard: s.screen==='dashboard',
+      showStudent: s.screen==='student',
+      showOversight: s.screen==='oversight',
+      oversight: this.buildOversight(),
+      showSetup: s.screen==='setup',
+      ...this.buildSetup(),
+      goDashboard: ()=>this.setState({screen:'dashboard'}),
+
+      nav, layouts, classTabs, dashTitle, dashSub,
+      isAttention: s.layout==='attention',
+      isLanes: s.layout==='lanes',
+      isRoster: s.layout==='roster',
+      attention, lanes, roster:rosterAll, collapsed, classTopics,
+
+      openPractice: ()=>this.setState({screen:'practice', pStep:'solve', pLines:[], pReasons:{}, pNotes:{}, pOtherOpen:false, pOtherDraft:'', pIdx:0, answer:'4⁄3', attach:null, fpLabel:null}),
+      exitPractice: ()=>this.setState({screen: s.fpLabel?'fptopic':'shome', fpLabel:null}),
+      isFreeplay: !!s.fpLabel, fpLabel: s.fpLabel,
+      practiceBack: s.fpLabel ? '← Free play' : '← Home',
+      practiceTitle: s.fpLabel || 'Linear equations',
+
+      // ---- problem set (homework) ----
+      showPsolve: s.screen==='psolve',
+      showFreeplay: s.screen==='freeplay',
+      showFptopic: s.screen==='fptopic',
+      goFreeplay: ()=>this.setState({screen:'freeplay', fpTopic:null}),
+      fpBackTopics: ()=>this.setState({screen:'freeplay', fpTopic:null}),
+      ...(function(){
+        const TOPICS=[
+          {key:'number', label:'Number', subs:[
+            {name:'Negatives', unlocked:true, last:'today · free play'},
+            {name:'Fractions', unlocked:true, last:'12 days ago'},
+            {name:'Decimals', unlocked:true, last:'15 days ago'},
+            {name:'Percentages', unlocked:false},
+          ]},
+          {key:'algebra', label:'Algebra', subs:[
+            {name:'Algebra basics', unlocked:true, last:'8 days ago'},
+            {name:'Inverse operations', unlocked:true, last:'today'},
+            {name:'One-step equations', unlocked:true, last:'today'},
+            {name:'Substitution', unlocked:true, last:'2 days ago · free play'},
+            {name:'Linear equations', unlocked:false},
+            {name:'Expanding brackets', unlocked:false},
+          ]},
+          {key:'ratio', label:'Ratio & proportion', subs:[
+            {name:'Ratio', unlocked:true, last:'7 days ago'},
+            {name:'Proportion', unlocked:true, last:'10 days ago'},
+            {name:'Percentage change', unlocked:false},
+          ]},
+          {key:'geometry', label:'Geometry & measures', subs:[
+            {name:'Area & perimeter', unlocked:true, last:'20 days ago'},
+            {name:'Angles', unlocked:false},
+            {name:'Coordinates', unlocked:false},
+          ]},
+          {key:'stats', label:'Statistics', subs:[
+            {name:'Averages', unlocked:true, last:'18 days ago'},
+            {name:'Charts & tables', unlocked:false},
+          ]},
+          {key:'probability', label:'Probability', subs:[
+            {name:'Basic probability', unlocked:false},
+          ]},
+        ];
+        const openFP=(name)=>this.setState({screen:'practice', pStep:'solve', pLines:[], pReasons:{}, pNotes:{}, pOtherOpen:false, pOtherDraft:'', pIdx:0, answer:'4⁄3', attach:null, fpLabel:name});
+        const fpTopics = TOPICS.map(t=>{
+          const unlocked=t.subs.filter(su=>su.unlocked).length;
+          return {label:t.label, key:t.key, count:`${unlocked} of ${t.subs.length} unlocked`,
+            onOpen:()=>this.setState({screen:'fptopic', fpTopic:t.key, selectedNode:null}),
+            barStyle:{width:(unlocked/t.subs.length*100)+'%',height:'100%',background:'#1f4e75',borderRadius:'4px'}};
+        });
+        const curT = TOPICS.find(t=>t.key===s.fpTopic) || TOPICS[0];
+        const fpTopicLabel = curT.label;
+        const fpSubs = curT.subs.map(su=>({
+          name:su.name, unlocked:su.unlocked, locked:!su.unlocked,
+          last: su.unlocked ? su.last : '',
+          onOpen: su.unlocked ? (()=>openFP(su.name)) : (()=>{}),
+          rowStyle:{display:'flex',alignItems:'center',gap:'14px',background:'#fff',border:`1px solid ${su.unlocked?'#d3e0ea':'#e4dccb'}`,borderRadius:'11px',padding:'15px 17px',opacity:su.unlocked?1:0.85},
+          dotStyle:{width:'10px',height:'10px',borderRadius:'50%',flex:'none',background:su.unlocked?'#1f4e75':'#cdbfa6'},
+          ctaStyle:{marginLeft:'auto',border:'none',borderRadius:'9px',padding:'9px 15px',fontSize:'13px',fontWeight:600,fontFamily:'inherit',whiteSpace:'nowrap',cursor:su.unlocked?'pointer':'not-allowed',background:su.unlocked?'#dd6a2f':'#f2ece0',color:su.unlocked?'#fff':'#a99e88'},
+          ctaLabel: su.unlocked?'Free play →':'🔒 Do the lesson first',
+        }));
+        return {fpTopics, fpTopicLabel, fpSubs};
+      }).call(this),
+      ...(function(){
+        const set={title:'Fractions & percentages', topics:'Fractions · Percentages', due:'Due Fri 25 Jul',
+          questions:[
+            {topic:'Fractions', q:'Simplify 12⁄18 to its lowest terms.', hint:'Divide top and bottom by their highest common factor.'},
+            {topic:'Fractions', q:'Work out 2⁄3 + 1⁄6.', hint:'Use a common denominator first.'},
+            {topic:'Percentages', q:'Find 15% of 240.', hint:''},
+            {topic:'Percentages', q:'Write 0.45 as a percentage.', hint:''},
+            {topic:'Fractions → %', q:'Write 3⁄8 as a percentage.', hint:'Divide, then multiply by 100.'},
+            {topic:'Percentages', q:'A £60 coat is reduced by 20%. What is the new price?', hint:''},
+          ]};
+        const self=this;
+        const idx=s.psIdx||0;
+        const ans=s.psAnswers||{};
+        const answeredCount=set.questions.filter((_,i)=>((ans[i]||'').trim())).length;
+        const cur=set.questions[idx]||set.questions[0];
+        return {
+          psSet:set, psTitle:set.title, psTopics:set.topics, psDue:set.due,
+          psTotal:set.questions.length, psAnsweredCount:answeredCount,
+          psIdxNum: idx, psQNum: idx+1,
+          psCurTopic: cur.topic, psCurQ: cur.q, psCurHint: cur.hint, psHasHint: !!cur.hint,
+          psAnswer: ans[idx]||'',
+          psOnAnswer: (e)=>{ const v=e.target.value; this.setState(st=>({psAnswers:{...(st.psAnswers||{}), [idx]:v}})); },
+          psPalette: [['x²','²'],['xⁿ','^'],['√','√'],['a⁄b','⁄'],['( )','()'],['π','π'],['×','×'],['÷','÷'],['%','%']].map(([label,ins])=>({label, onClick:()=>this.setState(st=>({psAnswers:{...(st.psAnswers||{}), [idx]:(st.psAnswers&&st.psAnswers[idx]||'')+ins}}))})),
+          psNav: set.questions.map((qq,i)=>({
+            num:i+1,
+            style:{width:'32px',height:'32px',borderRadius:'8px',border:'none',cursor:'pointer',fontFamily:'inherit',fontSize:'13px',fontWeight:700,
+              background: i===idx?'#0e2a43':((ans[i]||'').trim()?'#dbe6ef':'#efe7d9'),
+              color: i===idx?'#fff':((ans[i]||'').trim()?'#1f4e75':'#a99e88')},
+            onClick: ()=>this.setState({psIdx:i}),
+          })),
+          psPrevDisabled: idx===0,
+          psIsLast: idx===set.questions.length-1,
+          psNotLast: idx!==set.questions.length-1,
+          psInProgress: !s.psSubmitted,
+          psPrev: ()=>this.setState(st=>({psIdx:Math.max(0,(st.psIdx||0)-1)})),
+          psNext: ()=>this.setState(st=>({psIdx:Math.min(set.questions.length-1,(st.psIdx||0)+1)})),
+          psSubmit: ()=>this.setState({psSubmitted:true}),
+          psSubmitted: !!s.psSubmitted,
+          psAllAnswered: answeredCount===set.questions.length,
+          psSummary: `${answeredCount} of ${set.questions.length} answered`,
+          psExit: ()=>this.setState({screen:'shome', psSubmitted:false}),
+          psAttachName: (s.psAttach||null), psHasAttach: !!s.psAttach, psNoAttach: !s.psAttach,
+          psPickFile: ()=>{ const el=document.getElementById('ps-file'); if(el) el.click(); },
+          psOnFile: (e)=>{ const f=e.target.files&&e.target.files[0]; if(f) this.setState({psAttach:f.name}); },
+          psRemoveFile: ()=>this.setState({psAttach:null}),
+        };
+      }).call(this),
+
+      graphNodes, graphEdges, paceItems, masteryTopics, activityLog, frontierGroups,
+      sSessions: activityLog.map((a,i)=>({...a, onOpen:()=>this.setState({screen:'ssessiondetail', selectedLog:i, ovDetail:null})})),
+      logDetail, showLogDetail: s.screen==='logdetail', noLogUpload: !!(logDetail && !logDetail.hasUpload),
+      logBack: ()=>this.setState({screen: s.detailReturn||'student', ovDetail:null}),
+      logBackLabel: (s.detailReturn==='oversight') ? '← Oversight' : "← Aisha's profile",
+      addressCards: s.addressList.map(a=>({
+        ...a,
+        menuOpen: s.menuOpen===a.id,
+        onMenu: ()=>this.setState(st=>({menuOpen: st.menuOpen===a.id?null:a.id})),
+        onRemove: ()=>this.setState(st=>({addressList: st.addressList.filter(x=>x.id!==a.id), menuOpen:null})),
+      })),
+      hasAddress: s.addressList.length>0,
+      noAddress: s.addressList.length===0,
+      addCount: s.addressList.length,
+      addingNote: s.addingNote,
+      noteDraft: s.noteDraft,
+      onNoteInput: (e)=>{ const v=e.target.value; this.setState({noteDraft:v}); },
+      toggleAddNote: ()=>this.setState(st=>({addingNote:!st.addingNote, noteDraft:''})),
+      saveNote: ()=>{ const d=(this.state.noteDraft||'').trim(); if(d) this.pushAddress({student:'General', context:'Note to self', note:d}); },
+      nodeInfo, nodeSel: !!nodeInfo,
+      showGraphFull: s.screen==='graphfull',
+      showGraphFocused: s.screen==='graphfocused',
+      openFullGraph: ()=>this.setState({screen:'graphfull'}),
+      openFocusedGraph: ()=>this.setState({screen:'graphfocused', graphFilter:'all'}),
+      backToProfile: ()=>this.setState({screen:'student'}),
+      fullNodes: graphNodes, fullEdges: graphEdges,
+      focusedNodes, focusedEdges, filterChips,
+
+      // practice
+      pShowSolve: s.pStep==='solve',
+      pShowSolution: s.pStep==='solution',
+      pShowWrong: s.pStep==='wrong',
+      pShowReason: s.pStep==='reason',
+      pShowReteach: s.pStep==='reteach',
+      check: ()=>{ if(!blocked) this.setState({pStep:'solution'}); },
+      checkStyle, checkBlocked:blocked, checkReady:!blocked,
+      pickAllWrong: ()=>this.setState({pLines: lines.map((_,i)=>i), pStep:'reason', pIdx:0, pReasons:{}, pNotes:{}, pOtherOpen:false, pOtherDraft:''}),
+      continueToReason: ()=>{ if((this.state.pLines||[]).length) this.setState({pStep:'reason', pIdx:0, pReasons:{}, pNotes:{}, pOtherOpen:false, pOtherDraft:''}); },
+      hasSelection: (s.pLines||[]).length>0, selCount, continueLabel,
+      backToWrong: ()=>this.setState({pStep:'solution', pIdx:0}),
+      workingLines, reasons, reasonPrompt, reasonCounter, reteach, reteachList,
+      otherOpen, otherDraft, onOtherDraft, submitOther, cancelOther,
+      reasonListShown: !otherOpen, reasonPickAnother: !otherOpen,
+      palette, answer: s.answer, onAnswer,
+      hwBadgeStyle, hwBadgeLabel: requireHw?'Required for this assignment':'Optional',
+      hasAttachment: !!s.attach, noAttachment: !s.attach, attachName: s.attach,
+      pickFile: ()=>{ const el=document.getElementById('hw-file'); if(el) el.click(); },
+      onFile: (e)=>{ const f=e.target.files&&e.target.files[0]; if(f) this.setState({attach:f.name}); },
+      removeFile: ()=>this.setState({attach:null}),
+      tryAnother: ()=>this.setState({pStep:'solve', pLines:[], pReasons:{}, pNotes:{}, pOtherOpen:false, pOtherDraft:'', pIdx:0, session:s.session+1, answer:'4⁄3', attach:null}),
+    };
+  }
+
+  buildSetup(){
+    const s=this.state;
+    const CURRIC=[
+      {group:'Number', topics:[['negatives','Negatives','Year 7'],['fractions','Fractions','Year 7'],['decimals','Decimals','Year 7'],['rounding','Rounding & estimation','Year 7'],['primes','Primes & factors','Year 7'],['fracpct','Fractions → %','Year 8'],['ratio','Ratio','Year 8'],['proportion','Proportion','Year 8'],['percentchange','Percentage change','Year 8'],['standardform','Standard form','Year 9'],['surds','Surds','Year 9']]},
+      {group:'Algebra', topics:[['notation','Algebraic notation','Year 7'],['substitution','Substitution','Year 7'],['simplifying','Simplifying expressions','Year 7'],['expanding','Expanding brackets','Year 8'],['factorising','Factorising','Year 8'],['linear','Linear equations','Year 8'],['sequences','Sequences','Year 8'],['brackets','Equations with brackets','Year 9'],['simultaneous','Simultaneous eqns','Year 9'],['inequalities','Inequalities','Year 9'],['quadratics','Quadratics','Year 9']]},
+      {group:'Geometry & graphs', topics:[['angles','Angles','Year 7'],['area','Area & perimeter','Year 7'],['coordinates','Coordinates','Year 8'],['lineargraphs','Linear graphs','Year 8'],['polygons','Polygons','Year 8'],['volume','Volume & surface area','Year 8'],['transformations','Transformations','Year 8'],['pythagoras','Pythagoras','Year 9'],['circles','Circles','Year 9']]},
+      {group:'Statistics & probability', topics:[['charts','Charts & tables','Year 7'],['averages','Averages','Year 8'],['spread','Range & spread','Year 8'],['probability','Probability','Year 8'],['scatter','Scatter graphs','Year 9'],['trees','Tree diagrams','Year 9']]},
+    ];
+    const grades=['Year 7','Year 8','Year 9'];
+    const yr=s.suYear, q=(s.suSearch||'').toLowerCase();
+    const match=(t)=> (yr==='all'||t[2]===yr) && (!q || t[1].toLowerCase().indexOf(q)>-1);
+    const basketGroups = CURRIC.map(g=>({
+      group:g.group,
+      topics:g.topics.filter(match).map(([key,label,year])=>{
+        const on=!!s.suBasket[key];
+        return {label, onClick:()=>this.setState(st=>({suBasket:{...st.suBasket,[key]:!st.suBasket[key]}})),
+          style:{border:'none',cursor:'pointer',fontFamily:'inherit',fontSize:'13px',fontWeight:on?600:500,padding:'8px 13px',borderRadius:'8px',display:'flex',alignItems:'center',gap:'7px',
+            background:on?'#0e2a43':'#f2ece0', color:on?'#fff':'#5c6773', border:on?'1px solid #0e2a43':'1px solid #e0d4bd'},
+          mark:on?'✓':'+', markStyle:{fontSize:'12px',opacity:on?1:0.6}};
+      }),
+    })).filter(g=>g.topics.length>0);
+    const anyResults = basketGroups.length>0;
+    const basketCount = Object.values(s.suBasket).filter(Boolean).length;
+    const yearChips = [{k:'all',l:'All years'},...grades.map(g=>({k:g,l:g}))].map(o=>({label:o.l, onClick:()=>this.setState({suYear:o.k}),
+      style:{border:'none',cursor:'pointer',fontFamily:'inherit',fontSize:'12.5px',fontWeight:600,padding:'7px 13px',borderRadius:'8px',
+        background:s.suYear===o.k?'#dd6a2f':'#f2ece0', color:s.suYear===o.k?'#fff':'#5c6773', border:s.suYear===o.k?'1px solid #dd6a2f':'1px solid #e0d4bd'}}));
+    const gradeChips = grades.map(g=>({label:g, onClick:()=>this.setState({suGrade:g}),
+      style:{border:'none',cursor:'pointer',fontFamily:'inherit',fontSize:'13px',fontWeight:600,padding:'8px 16px',borderRadius:'8px',
+        background:s.suGrade===g?'#0e2a43':'#f2ece0', color:s.suGrade===g?'#fff':'#5c6773', border:s.suGrade===g?'1px solid #0e2a43':'1px solid #e0d4bd'}}));
+    const roster = s.suRoster.map((name,i)=>({name, initials:name.split(' ').map(w=>w[0]).join('').slice(0,2),
+      onRemove:()=>this.setState(st=>({suRoster:st.suRoster.filter((_,j)=>j!==i)}))}));
+    return {
+      suClass:s.suClass, suGrade:s.suGrade, suDraft:s.suDraft,
+      onClassInput:(e)=>{const v=e.target.value; this.setState({suClass:v});},
+      onDraftInput:(e)=>{const v=e.target.value; this.setState({suDraft:v});},
+      gradeChips, basketGroups, basketCount, yearChips, anyResults, noResults:!anyResults,
+      suSearch:s.suSearch, onSearchInput:(e)=>{const v=e.target.value; this.setState({suSearch:v});},
+      suRosterList: roster, suRosterCount:s.suRoster.length,
+      addStudent:()=>{const d=(this.state.suDraft||'').trim(); if(d) this.setState(st=>({suRoster:[...st.suRoster,d], suDraft:''}));},
+      importRoster:()=>this.setState(st=>({suRoster:[...st.suRoster,'Maya Kumar','Finn Walsh','Zara Haq','Noah Pratt']})),
+    };
+  }
+
+  buildOversight(){
+    const kindMeta={
+      uncertain: {label:'Uncertain diagnosis', color:'#b6531f', bg:'#fbe7d8', bd:'#eecab0'},
+      gaming:    {label:'Possible gaming',      color:'#b6531f', bg:'#fbe7d8', bd:'#eecab0'},
+      probe:     {label:'Worth a look',         color:'#1f4e75', bg:'#e4edf3', bd:'#cddceb'},
+    };
+    const raw=[
+      {kind:'uncertain', student:'Aisha Bello', context:'Linear equations · review, today', title:'Diagnosis confidence is low', body:'The model isn\u2019t sure whether the repeated sign error is a genuine misconception or a careless slip. Her self-reported reason ("silly mistake") conflicts with a three-time pattern. Your read would settle it.', asks:'Is this a real gap or a slip?',
+        detail:{kind:'Review', title:'Linear equations · spaced review', date:'Today', result:'2 of 5 correct', flag:'attention', upload:true, items:[
+          {label:'Q1', q:'Solve 3x − 7 = 11', hit:true, note:'Wrote 3x = 11 − 7. Sign not flipped when moving −7 across =.'},
+          {label:'Q3', q:'Solve 5x − 4 = 16', hit:true, note:'Wrote 5x = 16 − 4. Same sign error as Q1.'},
+          {label:'Q5', q:'Solve 7 − 2x = 3', hit:true, note:'Lost the sign on −2x. Flagged as "silly mistake" — the point of contention.'},
+        ]}},
+      {kind:'gaming', student:'Daniel Kovač', context:'Fractions to % · problem set, today', title:'Answering "I don\u2019t know" to skip', body:'Daniel selected "I don\u2019t know" on 4 of 6 diagnostic prompts in a row, which reads as skipping the diagnostic rather than engaging with it. Credit has been withheld pending your view.', asks:'Nudge in person, or let the system re-prompt?',
+        detail:{kind:'Problem set', title:'Fractions to percentages · Daniel Kovač', date:'Today', result:'flagged', flag:'attention', upload:false, items:[
+          {label:'P2', q:'Diagnostic: why is 3/8 not 30%?', hit:true, note:'Selected "I don\u2019t know" without an attempt.'},
+          {label:'P3', q:'Diagnostic: convert 1/4 to a percentage', hit:true, note:'"I don\u2019t know" again — 2nd in a row.'},
+          {label:'P4', q:'Diagnostic: explain your method', hit:true, note:'"I don\u2019t know" — 3rd.'},
+          {label:'P5', q:'Diagnostic: check a worked example', hit:true, note:'"I don\u2019t know" — 4th. Reads as skipping, not stuck.'},
+        ]}},
+      {kind:'probe', student:'Reuben Clarke', context:'Substitution · lesson, yesterday', title:'Probe may have cued the answer', body:'A probe-mode question was phrased in a way that could have hinted the correct step, so the "understood" result here may be softer than it looks. Flagged so it isn\u2019t over-weighted.', asks:'Re-assess without the cue?',
+        detail:{kind:'Lesson', title:'Substitution · Reuben Clarke', date:'Yesterday', result:'review', flag:'attention', upload:false, items:[
+          {label:'Probe', q:'"You multiplied first here, didn\u2019t you?"', hit:true, note:'The phrasing itself hints the correct order — the "yes" may not reflect real understanding.'},
+          {label:'Check', q:'Evaluate 2 + 3 × 4', hit:false, note:'Correct, but immediately after the cue.'},
+        ]}},
+      {kind:'uncertain', student:'Priya Shah', context:'Expanding brackets · review, yesterday', title:'Mastery vs. retention mismatch', body:'Same-session accuracy is high, but delayed retrieval two weeks on dropped sharply. The model is unsure whether to keep this topic marked mastered.', asks:'Hold at mastered, or schedule extra review?',
+        detail:{kind:'Review', title:'Expanding brackets · Priya Shah', date:'Yesterday', result:'3 of 5 correct', flag:'attention', upload:false, items:[
+          {label:'Then', q:'Same-session accuracy (2 wks ago)', hit:false, note:'5 of 5 — looked mastered.'},
+          {label:'Now', q:'Delayed retrieval (yesterday)', hit:true, note:'3 of 5 — the drop the model is unsure how to weight.'},
+        ]}},
+    ];
+    return raw.map((it,i)=>{
+      const m=kindMeta[it.kind];
+      return {...it,
+        tagLabel:m.label, tagStyle:{fontSize:'10.5px',fontWeight:600,color:m.color,background:m.bg,border:`1px solid ${m.bd}`,padding:'3px 10px',borderRadius:'20px',whiteSpace:'nowrap'},
+        dotStyle:{width:'8px',height:'8px',borderRadius:'50%',flex:'none',background:m.color},
+        onOpenContention: ()=>this.setState({screen:'logdetail', ovDetail:it.detail, selectedLog:null, detailReturn:'oversight', selectedNode:null}),
+        onAddress: ()=>this.pushAddress({student:it.student, context:it.context, note:it.title}),
+      };
+    });
+  }
+
+  buildReteach(line, reason, errIdx){
+    const scope=(txt)=>{
+      const focus = txt==='Focused re-teach' || txt==='Full walk-back';
+      return {
+        scope:txt,
+        scopeStyle:{display:'inline-block',fontFamily:"'IBM Plex Mono',monospace",fontSize:'10.5px',letterSpacing:'.6px',textTransform:'uppercase',padding:'4px 10px',borderRadius:'20px',fontWeight:600,color:focus?'#b6531f':'#1f4e75',background:focus?'#fbe7d8':'#e4edf3',border:`1px solid ${focus?'#eecab0':'#cddceb'}`},
+      };
+    };
+    let o;
+    if(reason==='slip'){
+      o={...scope('No re-teach needed'), heading:'Looks like a slip', body:['We\u2019ve fixed the line you flagged and kept the rest of your working. A slip like this won\u2019t count against your mastery of linear equations.'], hasExample:false, route:'Logged as a slip - your knowledge profile is unchanged.', cta:'Next problem →'};
+    } else if(line==='all'){
+      o={...scope('Full walk-back'), heading:'Let\u2019s rebuild this from the start', body:['An equation is a balance: whatever you do to one side, you do to the other. To get x on its own, undo what\u2019s around it - one balanced step at a time.'], hasExample:true, exampleTitle:'Solve 3x − 7 = 11, balanced', exampleSteps:['3x − 7 = 11','Add 7 to both sides → 3x = 18','Divide both sides by 3 → x = 6'], route:'Routed to: keeping an equation balanced - the idea underneath this whole topic.', cta:'Walk through a similar one →'};
+    } else if(line!==errIdx){
+      o={...scope('Focused re-teach'), heading:'That line is actually fine', body:['The line you picked is correct. The step that slipped is line 2, where −7 crossed the equals sign but kept its sign instead of flipping.','That\u2019s useful to know - we check what you tell us against your wider pattern, and here the real error is one line down.'], hasExample:true, exampleTitle:'The step that actually slipped', exampleSteps:['3x − 7 = 11','−7 crosses the = and becomes +7','3x = 11 + 7 = 18'], route:'Routed to: inverse operations - moving a term across the equals sign.', cta:'Try that step again →'};
+    } else if(reason==='silly'){
+      o={...scope('Quick reminder'), heading:'Watch the sign when a term crosses the =', body:['You found the right line. A term that moves across the equals sign flips its sign: −7 becomes +7.','Your profile shows you usually get this - so we\u2019ll treat it as a reminder, not a re-teach.'], hasExample:true, exampleTitle:'The corrected step', exampleSteps:['3x − 7 = 11','3x = 11 + 7','3x = 18 → x = 6'], route:'Logged - but noted: this is the third sign error this fortnight, so your teacher sees the pattern.', cta:'Next problem →'};
+    } else {
+      o={...scope('Focused re-teach'), heading:'Moving a term to the other side', body:['Moving a term across the equals sign is really doing the same thing to both sides. Subtracting 7 on the left means adding 7 on the right - so −7 becomes +7.','We\u2019ll give you a couple of these before returning to the full problem.'], hasExample:true, exampleTitle:'Same idea, one step', exampleSteps:['x − 4 = 9','Add 4 to both sides','x = 13'], route:'Routed to: inverse operations - the prerequisite for linear equations on your map.', cta:'Practise this step →'};
+    }
+    return o;
+  }
+}
+</script>
+</body>
+</html>

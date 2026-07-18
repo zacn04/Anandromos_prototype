@@ -1,0 +1,32 @@
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+body {
+  font-family: 'Public Sans', system-ui, sans-serif;
+  background: #fbf9f5;
+  color: #1a2129;
+  -webkit-font-smoothing: antialiased;
+}
+a {
+  color: #dd6a2f;
+  text-decoration: none;
+}
+a:hover {
+  color: #b6531f;
+}
+.wline:hover {
+  border-color: #dd6a2f !important;
+}
+::selection {
+  background: #fbe7d8;
+}
+input,
+textarea,
+button {
+  font-family: inherit;
+}

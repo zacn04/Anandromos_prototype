@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body{margin:0;font-family:'Public Sans',system-ui,sans-serif;background:#f6f1e7;color:#1a2129}
+  a{color:#1f4e75}a:hover{color:#dd6a2f}
+  *{box-sizing:border-box}
+</style>
+</helmet>
+
+<div>
+  <!-- top bar (shared) -->
+  <div style="background:#0e2a43;color:#dbe6ef;padding:0 22px">
+    <div style="max-width:880px;margin:0 auto;display:flex;align-items:center;gap:16px;height:56px">
+      <div style="display:flex;align-items:center;gap:9px">
+        <svg width="26" height="26" viewBox="0 0 40 40" aria-hidden="true"><path d="M6 22 C 12 12, 26 12, 33 20 C 27 15, 15 16, 10 24 C 9 22, 7 22, 6 22 Z" fill="#dd6a2f"></path><path d="M31 20 l6 -5 l0 10 z" fill="#dd6a2f"></path><circle cx="14" cy="20" r="1.6" fill="#0e2a43"></circle></svg>
+        <span style="font-family:'Spectral',serif;font-weight:600;font-size:17px;color:#fff">Anadromos</span>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.5px;text-transform:uppercase;color:#9fb4c7;background:rgba(255,255,255,.08);padding:2px 7px;border-radius:5px;margin-left:2px">Parent</span>
+      </div>
+      <div style="margin-left:auto;display:flex;gap:6px"><sc-for list="{{ nav }}" as="t" hint-placeholder-count="3"><div onClick="{{ t.onClick }}" style="{{ t.style }}">{{ t.label }}</div></sc-for></div>
+      <div style="width:32px;height:32px;border-radius:50%;background:#1f4e75;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600">MB</div>
+    </div>
+  </div>
+
+  <!-- ============ OVERVIEW ============ -->
+  <sc-if value="{{ showOverview }}" hint-placeholder-val="{{ true }}">
+  <div style="max-width:880px;margin:0 auto;padding:30px 24px 60px">
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#8a7c63">Your child</div>
+    <div style="display:flex;align-items:center;gap:16px;margin:8px 0 6px;flex-wrap:wrap">
+      <div style="width:52px;height:52px;border-radius:50%;background:#dd6a2f;color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:600;flex:none">AB</div>
+      <div>
+        <h1 style="font-family:'Spectral',serif;font-weight:600;font-size:26px;margin:0;color:#0e2a43">Aisha Bello</h1>
+        <div style="font-size:13px;color:#5c6773">Year 8 · class 8M2 · maths with Ms. Okafor</div>
+      </div>
+    </div>
+    <div style="background:#eef3f7;border:1px solid #d3e0ea;border-radius:11px;padding:13px 16px;margin:16px 0 26px;display:flex;gap:10px;align-items:flex-start">
+      <span style="width:7px;height:7px;border-radius:50%;background:#1f4e75;margin-top:6px;flex:none"></span>
+      <div style="font-size:12.5px;line-height:1.5;color:#2b4a63;text-wrap:pretty">You can see where Aisha is growing, what she's found tricky and why, and what's coming up. To keep the focus on learning rather than marks, individual scores aren't shown here — those stay between Aisha and her teacher.</div>
+    </div>
+
+    <!-- mastery -->
+    <div style="background:#fff;border:1px solid #e4dccb;border-radius:14px;padding:22px 24px;margin-bottom:22px">
+      <h2 style="font-family:'Spectral',serif;font-size:17px;font-weight:600;margin:0 0 4px;color:#0e2a43">Where she's growing</h2>
+      <p style="margin:0 0 18px;font-size:12.5px;color:#8a7c63;text-wrap:pretty">How secure each topic is, weighted by difficulty — not a test score. Longer bars mean the harder ideas are holding, too.</p>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <sc-for list="{{ masteryTopics }}" as="t" hint-placeholder-count="5">
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
+              <span style="font-size:14px;font-weight:500;color:#1a2129">{{ t.name }}</span>
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:{{ t.labelColor }}">{{ t.label }}</span>
+            </div>
+            <div style="height:9px;background:#efe7d9;border-radius:5px;overflow:hidden"><div style="{{ t.barStyle }}"></div></div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <!-- coming up -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start">
+      <div style="background:#fff;border:1px solid #e4dccb;border-radius:14px;padding:20px 22px">
+        <h2 style="font-family:'Spectral',serif;font-size:16px;font-weight:600;margin:0 0 4px;color:#0e2a43">Lessons coming up</h2>
+        <p style="margin:0 0 14px;font-size:12px;color:#8a7c63;text-wrap:pretty">On her learning path this week.</p>
+        <div style="display:flex;flex-direction:column;gap:9px">
+          <sc-for list="{{ dueLessons }}" as="l" hint-placeholder-count="3">
+            <div style="display:flex;align-items:center;gap:11px;background:#faf6ee;border:1px solid #ece3d2;border-radius:10px;padding:11px 13px">
+              <span style="{{ l.kindStyle }}">{{ l.kind }}</span>
+              <span style="font-size:13.5px;font-weight:500;color:#1a2129;min-width:0">{{ l.name }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      <div style="background:#fff;border:1px solid #d3e0ea;border-radius:14px;padding:20px 22px">
+        <h2 style="font-family:'Spectral',serif;font-size:16px;font-weight:600;margin:0 0 4px;color:#0e2a43">Homework due</h2>
+        <p style="margin:0 0 14px;font-size:12px;color:#8a7c63;text-wrap:pretty">Problem sets from Ms. Okafor.</p>
+        <div style="display:flex;flex-direction:column;gap:9px">
+          <sc-for list="{{ dueHomework }}" as="h" hint-placeholder-count="2">
+            <div style="background:#faf6ee;border:1px solid #ece3d2;border-radius:10px;padding:11px 13px">
+              <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                <span style="font-size:13.5px;font-weight:600;color:#1a2129;min-width:0">{{ h.title }}</span>
+                <span style="{{ h.dueStyle }}">🗓 {{ h.due }}</span>
+              </div>
+              <div style="font-size:12px;color:#8a7c63;margin-top:3px">{{ h.topics }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ============ SESSIONS ============ -->
+  <sc-if value="{{ showSessions }}" hint-placeholder-val="{{ false }}">
+  <div style="max-width:760px;margin:0 auto;padding:30px 24px 60px">
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#8a7c63">Previous sessions</div>
+    <h1 style="font-family:'Spectral',serif;font-weight:600;font-size:26px;margin:6px 0 4px;color:#0e2a43">What Aisha has been doing</h1>
+    <p style="margin:0 0 22px;font-size:13.5px;line-height:1.5;color:#5c6773;max-width:560px;text-wrap:pretty">Every lesson, problem set and review she's completed. Open one to see what she found tricky and why — so you can support her at home. Marks aren't shown.</p>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <sc-for list="{{ sessions }}" as="a" hint-placeholder-count="5">
+        <div style="background:#fff;border:1px solid #e4dccb;border-radius:12px;padding:15px 18px">
+          <div onClick="{{ a.onToggle }}" style="display:flex;align-items:center;gap:12px;cursor:pointer">
+            <span style="{{ a.dotStyle }}"></span>
+            <span style="{{ a.kindStyle }}">{{ a.kind }}</span>
+            <div style="min-width:0;flex:1">
+              <div style="font-size:14px;font-weight:600;color:#1a2129">{{ a.title }}</div>
+              <div style="font-size:12.5px;color:#8a7c63;text-wrap:pretty">{{ a.parentSummary }}</div>
+            </div>
+            <span style="{{ a.tagStyle }}">{{ a.tag }}</span>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#a99e88;white-space:nowrap">{{ a.date }}</span>
+            <span style="color:#a99e88;font-size:13px">{{ a.caret }}</span>
+          </div>
+          <sc-if value="{{ a.open }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:14px;border-top:1px solid #f0eadd;padding-top:14px">
+            <sc-if value="{{ a.hasStruggles }}" hint-placeholder-val="{{ true }}">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.5px;text-transform:uppercase;color:#b6531f;margin-bottom:10px">What she found tricky</div>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <sc-for list="{{ a.struggles }}" as="st" hint-placeholder-count="2">
+                <div style="border-left:3px solid #dd6a2f;padding:2px 0 2px 12px">
+                  <div style="font-size:13.5px;font-weight:600;color:#0e2a43">{{ st.what }}</div>
+                  <div style="font-size:12.5px;color:#5c6773;margin-top:3px;text-wrap:pretty">{{ st.why }}</div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="margin-top:12px;font-size:11.5px;color:#8a7c63;text-wrap:pretty">Anadromos has already built the follow-up practice she needs into her path. You don't need to do anything — but talking it through can help.</div>
+            </sc-if>
+            <sc-if value="{{ a.noStruggles }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;gap:9px;align-items:flex-start;background:#eef3f7;border:1px solid #d3e0ea;border-radius:9px;padding:12px 14px">
+              <span style="width:7px;height:7px;border-radius:50%;background:#1f4e75;margin-top:6px;flex:none"></span>
+              <div style="font-size:12.5px;color:#2b4a63;line-height:1.5">Nothing tricky came up here — this one went smoothly.</div>
+            </div>
+            </sc-if>
+          </div>
+          </sc-if>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ============ CHILD'S MAP ============ -->
+  <sc-if value="{{ showMap }}" hint-placeholder-val="{{ false }}">
+  <div style="max-width:880px;margin:0 auto;padding:30px 24px 60px">
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#8a7c63">Knowledge profile</div>
+    <h1 style="font-family:'Spectral',serif;font-weight:600;font-size:26px;margin:6px 0 4px;color:#0e2a43">Aisha's map of maths</h1>
+    <p style="margin:0 0 12px;font-size:13.5px;line-height:1.5;color:#5c6773;max-width:600px;text-wrap:pretty">What she's mastered and what's next. Tap a topic to see how secure it is and when she last worked on it — including her own free-play practice.</p>
+    <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:11.5px;color:#8a7c63;margin-bottom:10px">
+      <span style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:12px;border-radius:3px;background:#1f4e75;display:inline-block"></span>Mastered</span>
+      <span style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:12px;border-radius:3px;background:#7fb0cd;display:inline-block"></span>Building</span>
+      <span style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:12px;border-radius:3px;background:#fdf0e6;border:2px solid #dd6a2f;display:inline-block"></span>Learning now</span>
+      <span style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:12px;border-radius:3px;background:#efe7d9;border:1px solid #d8cbb2;display:inline-block"></span>Not yet</span>
+    </div>
+    <div style="background:#fff;border:1px solid #e4dccb;border-radius:12px;padding:16px;overflow-x:auto">
+      <svg viewBox="0 0 820 420" width="100%" style="min-width:760px;display:block">
+        <sc-for list="{{ mapEdges }}" as="e" hint-placeholder-count="14"><path d="{{ e.d }}" fill="none" stroke="{{ e.stroke }}" stroke-width="{{ e.sw }}"></path></sc-for>
+        <sc-for list="{{ mapNodes }}" as="n" hint-placeholder-count="15">
+          <g onClick="{{ n.onClick }}" style="cursor:pointer">
+            <rect x="{{ n.x }}" y="{{ n.y }}" width="132" height="42" rx="9" fill="{{ n.fill }}" stroke="{{ n.stroke }}" stroke-width="{{ n.sw }}" stroke-dasharray="{{ n.dash }}"></rect>
+            <text x="{{ n.tx }}" y="{{ n.ty }}" text-anchor="middle" dominant-baseline="middle" font-family="Public Sans, sans-serif" font-size="11" font-weight="600" fill="{{ n.text }}">{{ n.label }}</text>
+          </g>
+        </sc-for>
+      </svg>
+    </div>
+    <sc-if value="{{ nodeSel }}" hint-placeholder-val="{{ false }}">
+    <div style="margin-top:14px;background:#fff;border:1px solid #dd6a2f;border-radius:12px;padding:16px 18px;display:flex;align-items:center;gap:26px;flex-wrap:wrap">
+      <div style="min-width:150px">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.5px;text-transform:uppercase;color:#8a7c63">Topic</div>
+        <div style="font-family:'Spectral',serif;font-size:17px;font-weight:600;color:#0e2a43">{{ nodeInfo.label }}</div>
+      </div>
+      <div><div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.5px;text-transform:uppercase;color:#8a7c63;margin-bottom:3px">How secure</div><div style="font-size:14px;font-weight:600;color:{{ nodeInfo.retColor }}">{{ nodeInfo.ret }}</div></div>
+      <div><div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.5px;text-transform:uppercase;color:#8a7c63;margin-bottom:3px">Last worked</div><div style="font-size:14px;font-weight:600;color:#1a2129">{{ nodeInfo.last }}</div></div>
+      <div><div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.5px;text-transform:uppercase;color:#8a7c63;margin-bottom:3px">Next review</div><div style="font-size:14px;font-weight:600;color:#1a2129">{{ nodeInfo.next }}</div></div>
+      <button onClick="{{ nodeInfo.close }}" style="margin-left:auto;background:#f2ece0;border:1px solid #ddd2bd;border-radius:8px;padding:8px 14px;font-size:12.5px;font-weight:600;color:#5c6773;cursor:pointer;font-family:inherit">Close</button>
+    </div>
+    </sc-if>
+    <p style="margin:14px 4px 0;font-size:11.5px;color:#a99e88;line-height:1.5;text-wrap:pretty">Free play sessions count towards how recently a subtopic was studied, so this stays current with everything Aisha does.</p>
+  </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { screen:'overview', selectedNode:null, openSession:null };
+
+  NODES = [
+    {id:'n1', x:24,  y:44,  st:'mastered',   label:'Negatives'},
+    {id:'n2', x:24,  y:134, st:'mastered',   label:'Fractions'},
+    {id:'n3', x:24,  y:224, st:'mastered',   label:'Decimals'},
+    {id:'n4', x:24,  y:314, st:'mastered',   label:'Ratio'},
+    {id:'n5', x:190, y:44,  st:'mastered',   label:'Neg. arithmetic'},
+    {id:'n6', x:190, y:170, st:'inprogress', label:'Fractions → %'},
+    {id:'n7', x:190, y:314, st:'mastered',   label:'Proportion'},
+    {id:'n8', x:356, y:44,  st:'mastered',   label:'Algebra basics'},
+    {id:'n9', x:356, y:170, st:'inprogress', label:'Substitution'},
+    {id:'n10',x:356, y:314, st:'notready',   label:'% change'},
+    {id:'n11',x:522, y:100, st:'frontier',   label:'Linear equations'},
+    {id:'n12',x:522, y:220, st:'frontier',   label:'Expanding ( )'},
+    {id:'n13',x:522, y:334, st:'notready',   label:'Coordinates'},
+    {id:'n14',x:688, y:150, st:'locked',     label:'Bracket eqns'},
+    {id:'n15',x:688, y:290, st:'locked',     label:'Simultaneous'},
+  ];
+  EDGES = [
+    ['n1','n5'],['n1','n9'],['n2','n6'],['n3','n6'],['n2','n7'],['n4','n7'],
+    ['n5','n8'],['n8','n9'],['n8','n11'],['n8','n13'],['n9','n11'],
+    ['n6','n10'],['n7','n10'],['n11','n14'],['n12','n14'],['n11','n15'],['n13','n15'],
+  ];
+  ST = {
+    mastered:  {fill:'#1f4e75', stroke:'#1f4e75', text:'#ffffff', sw:1.5, dash:''},
+    inprogress:{fill:'#7fb0cd', stroke:'#3f82ab', text:'#0e2a43', sw:1.5, dash:''},
+    frontier:  {fill:'#fdf0e6', stroke:'#dd6a2f', text:'#b6531f', sw:2.5, dash:''},
+    notready:  {fill:'#efe7d9', stroke:'#d8cbb2', text:'#8a7c63', sw:1.5, dash:''},
+    locked:    {fill:'#f2ede2', stroke:'#ddd2bd', text:'#a99e88', sw:1.5, dash:'4 4'},
+  };
+
+  renderVals(){
+    const s = this.state;
+    const go = (scr)=>()=>this.setState({screen:scr, selectedNode:null});
+    const navRaw = [['Overview','overview'],['Sessions','psessions'],['Map','pmap']];
+    const cur = {overview:'overview', psessions:'psessions', pmap:'pmap'}[s.screen]||'overview';
+    const nav = navRaw.map(([label,scr])=>{
+      const on = cur===scr;
+      return {label, onClick: go(scr),
+        style:{fontSize:'13px',fontWeight:on?600:500,color:on?'#fff':'#9fb4c7',background:on?'rgba(221,106,47,.16)':'transparent',padding:'7px 13px',borderRadius:'8px',cursor:'pointer'}};
+    });
+
+    // mastery bars
+    const mRaw = [
+      {name:'Negatives', pct:96, label:'Mastered', c:'#1f4e75'},
+      {name:'Fractions & percentages', pct:78, label:'Strong', c:'#1f4e75'},
+      {name:'Substitution', pct:52, label:'Building', c:'#3f82ab'},
+      {name:'Linear equations', pct:34, label:'Learning now', c:'#dd6a2f'},
+      {name:'Ratio & proportion', pct:71, label:'Strong', c:'#1f4e75'},
+    ];
+    const masteryTopics = mRaw.map(t=>({name:t.name, label:t.label, labelColor:t.c,
+      barStyle:{width:t.pct+'%',height:'100%',background:t.c,borderRadius:'5px'}}));
+
+    const kindStyle=(k)=>({fontFamily:"'IBM Plex Mono',monospace",fontSize:'10px',letterSpacing:'.5px',textTransform:'uppercase',fontWeight:600,padding:'2px 8px',borderRadius:'5px',flex:'none',
+      background: k==='Review'?'#e4edf3':(k==='Problem set'?'#f0e6d4':'#fdf0e6'),
+      color: k==='Review'?'#1f4e75':(k==='Problem set'?'#8a6d3f':'#b6531f')});
+
+    const dueLessons = [
+      {kind:'Lesson', name:'Two-step equations'},
+      {kind:'Review', name:'Negatives'},
+      {kind:'Lesson', name:'Equations with brackets'},
+    ].map(l=>({...l, kindStyle:kindStyle(l.kind)}));
+
+    const dueHomework = [
+      {title:'Fractions & percentages', topics:'Fractions · Percentages', due:'Fri 25 Jul', urgency:'later'},
+      {title:'Ratio recap', topics:'Ratio & proportion', due:'today', urgency:'urgent'},
+    ].map(h=>({...h, dueStyle:{display:'inline-flex',alignItems:'center',gap:'5px',fontFamily:"'IBM Plex Mono',monospace",fontSize:'10.5px',fontWeight:600,padding:'3px 9px',borderRadius:'20px',whiteSpace:'nowrap',
+      background:h.urgency==='urgent'?'#fbe7d8':'#eef3f7', color:h.urgency==='urgent'?'#b6531f':'#1f4e75', border:`1px solid ${h.urgency==='urgent'?'#eecab0':'#d3e0ea'}`}}));
+
+    // sessions — struggles + why only, NEVER marks
+    const sRaw = [
+      {kind:'Review', title:'Linear equations · spaced review', date:'Today',
+        parentSummary:'Found rearranging equations tricky.', tag:'Found tricky', flag:'attention',
+        struggles:[
+          {what:'Moving a term across the equals sign', why:'She kept the sign the same instead of flipping it (−7 should become +7). This points to inverse operations needing another look.'},
+        ]},
+      {kind:'Problem set', title:'Substitution into expressions', date:'Yesterday',
+        parentSummary:'The harder two-term questions were a stretch.', tag:'Found tricky', flag:'attention',
+        struggles:[
+          {what:'Substituting into two-term expressions', why:'She put the same value into both terms. The single-term questions were comfortable — it is the multi-term step that needs practice.'},
+        ]},
+      {kind:'Lesson', title:'Solving two-step equations', date:'Mon',
+        parentSummary:'Worked through it smoothly.', tag:'Went well', flag:'ok', struggles:[]},
+      {kind:'Problem set', title:'Fractions to percentages', date:'Last wk',
+        parentSummary:'One small slip, nothing to worry about.', tag:'Went well', flag:'ok',
+        struggles:[
+          {what:'One conversion slip', why:'A one-off — her wider record on this is strong, so no follow-up was needed.'},
+        ]},
+      {kind:'Review', title:'Negatives · spaced review', date:'2 wks',
+        parentSummary:'Held up well over time.', tag:'Went well', flag:'ok', struggles:[]},
+    ];
+    const sessions = sRaw.map((it,i)=>({
+      kind:it.kind, title:it.title, date:it.date, parentSummary:it.parentSummary,
+      struggles: it.struggles, hasStruggles: it.struggles.length>0, noStruggles: it.struggles.length===0,
+      open: s.openSession===i,
+      onToggle: ()=>this.setState(st=>({openSession: st.openSession===i? null : i})),
+      caret: s.openSession===i ? '▾' : '▸',
+      kindStyle: kindStyle(it.kind),
+      dotStyle: {width:'8px',height:'8px',borderRadius:'50%',flex:'none',background: it.flag==='attention'?'#dd6a2f':'#1f4e75'},
+      tag: it.tag,
+      tagStyle: it.flag==='attention'
+        ? {fontSize:'11px',fontWeight:600,color:'#b6531f',background:'#fbe7d8',border:'1px solid #eecab0',padding:'3px 10px',borderRadius:'20px',whiteSpace:'nowrap'}
+        : {fontSize:'11px',fontWeight:600,color:'#1f4e75',background:'#e4edf3',border:'1px solid #cddceb',padding:'3px 10px',borderRadius:'20px',whiteSpace:'nowrap'},
+    }));
+
+    // map
+    const byId={}; this.NODES.forEach(n=>byId[n.id]=n);
+    const mapNodes = this.NODES.map(n=>{ const st=this.ST[n.st];
+      return {x:n.x,y:n.y,tx:n.x+66,ty:n.y+21,label:n.label,fill:st.fill,stroke:st.stroke,text:st.text,sw:st.sw,dash:st.dash,
+        onClick:()=>this.setState({selectedNode:n.id})}; });
+    const mapEdges = this.EDGES.map(([a,b])=>{ const A=byId[a],B=byId[b];
+      return {d:`M ${A.x+132} ${A.y+21} C ${A.x+170} ${A.y+21}, ${B.x-38} ${B.y+21}, ${B.x} ${B.y+21}`, stroke:'#d8cbb2', sw:1.5}; });
+
+    const META = {
+      mastered:{ret:'Mastered',retColor:'#1f4e75'}, inprogress:{ret:'Building',retColor:'#3f82ab'},
+      frontier:{ret:'Learning now',retColor:'#b6531f'}, notready:{ret:'Not started yet',retColor:'#8a7c63'},
+      locked:{ret:'Not started yet',retColor:'#8a7c63'},
+    };
+    const lastMap={n1:'today · free play',n2:'12 days ago',n3:'15 days ago',n4:'7 days ago',n5:'6 days ago',n6:'2 days ago',n7:'8 days ago',n8:'4 days ago',n9:'2 days ago · free play',n10:'—',n11:'today',n12:'today',n13:'—',n14:'—',n15:'—'};
+    const nextMap={n1:'in 11 days',n2:'in 14 days',n3:'in 18 days',n4:'in 9 days',n5:'in 8 days',n6:'tomorrow',n7:'in 10 days',n8:'in 5 days',n9:'tomorrow',n10:'when ready',n11:'today',n12:'today',n13:'when ready',n14:'when ready',n15:'when ready'};
+    const selNode = s.selectedNode ? this.NODES.find(n=>n.id===s.selectedNode) : null;
+    const nodeInfo = selNode ? {
+      label: selNode.label, ret: META[selNode.st].ret, retColor: META[selNode.st].retColor,
+      last: lastMap[selNode.id]||'—', next: nextMap[selNode.id]||'—',
+      close: ()=>this.setState({selectedNode:null}),
+    } : null;
+
+    return {
+      nav,
+      showOverview: s.screen==='overview',
+      showSessions: s.screen==='psessions',
+      showMap: s.screen==='pmap',
+      masteryTopics, dueLessons, dueHomework, sessions,
+      mapNodes, mapEdges, nodeSel: !!selNode, nodeInfo,
+    };
+  }
+}
+</script>
+</body>
+</html>
