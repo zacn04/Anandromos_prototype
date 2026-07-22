@@ -180,3 +180,91 @@ export const LOG_RAW: LogActivity[] = [
     ],
   },
 ]
+
+/**
+ * Per-student activity logs for the Teacher POV's drill-down, keyed by the
+ * same id `TeacherApp.tsx`'s `mkStudent()` derives. Aisha's is `LOG_RAW`
+ * itself; Daniel's and Reuben's are lighter (2 entries each) and consistent
+ * with their `data/oversight.ts` flags - the first entry in each is the
+ * same activity their Oversight card is about, seen from the log-detail
+ * side, and the second shows the rest of their pattern (Daniel comfortable
+ * on the easy end, Reuben accurate but under-practised).
+ */
+export const LOG_BY_STUDENT: Record<string, LogActivity[]> = {
+  aisha: LOG_RAW,
+  daniel: [
+    {
+      kind: 'Problem set',
+      date: 'Today',
+      title: 'Fractions to percentages',
+      result: 'flagged',
+      flag: 'attention',
+      summary: 'Answered "I don’t know" on 4 of 6 diagnostic prompts in a row.',
+      detail: [
+        'Cleared the first two items, then selected "I don’t know" four times running.',
+        'Reads as skipping the diagnostic rather than being genuinely stuck - flagged for you in Oversight.',
+        'Credit withheld pending your read.',
+      ],
+      upload: false,
+      items: [
+        { label: 'P1', q: 'Convert 1/2 to a percentage', hit: false, note: 'Correct.' },
+        { label: 'P2', q: 'Diagnostic: why is 3/8 not 30%?', hit: true, note: 'Selected "I don’t know" without an attempt.' },
+        { label: 'P3', q: 'Diagnostic: convert 1/4 to a percentage', hit: true, note: '"I don’t know" again - 2nd in a row.' },
+        { label: 'P4', q: 'Diagnostic: explain your method', hit: true, note: '"I don’t know" - 3rd.' },
+        { label: 'P5', q: 'Diagnostic: check a worked example', hit: true, note: '"I don’t know" - 4th. Reads as skipping, not stuck.' },
+      ],
+    },
+    {
+      kind: 'Review',
+      date: 'Yesterday',
+      title: 'Negatives · spaced review',
+      result: '5 of 5 correct',
+      flag: 'ok',
+      summary: 'Comfortable, well within his range.',
+      detail: [
+        'All five correct on delayed retrieval - this one is genuinely solid.',
+        'Consistent with his pattern: strong on foundational number work.',
+      ],
+      upload: false,
+      items: [
+        { label: 'Q1–5', q: 'Adding and subtracting negatives', hit: false, note: 'All correct on delayed retrieval.' },
+      ],
+    },
+  ],
+  reuben: [
+    {
+      kind: 'Lesson',
+      date: 'Yesterday',
+      title: 'Substitution',
+      result: 'review',
+      flag: 'attention',
+      summary: 'A probe question may have hinted the correct step.',
+      detail: [
+        'Got the check-in right, but immediately after a probe phrased in a way that could have cued the order of operations.',
+        'Flagged in Oversight so the "understood" result here isn’t over-weighted.',
+      ],
+      upload: false,
+      items: [
+        { label: 'Probe', q: '"You multiplied first here, didn’t you?"', hit: true, note: 'The phrasing itself hints the correct order - the "yes" may not reflect real understanding.' },
+        { label: 'Check', q: 'Evaluate 2 + 3 × 4', hit: false, note: 'Correct, but immediately after the cue.' },
+      ],
+    },
+    {
+      kind: 'Review',
+      date: '2 wks',
+      title: 'Substitution · spaced review',
+      result: '4 of 5 correct',
+      flag: 'ok',
+      summary: 'Solid when he’s doing it - the gap is how rarely that is.',
+      detail: [
+        'Accurate in the moment; only 2 sessions logged on this subtopic in the last fortnight.',
+        'Not a misconception - a volume problem. Durability is the open question, not understanding.',
+      ],
+      upload: false,
+      items: [
+        { label: 'Q1–4', q: 'Substituting into one- and two-term expressions', hit: false, note: 'All correct.' },
+        { label: 'Q5', q: 'Substitute into a three-term expression', hit: true, note: 'One slip on the least-practised item type.' },
+      ],
+    },
+  ],
+}

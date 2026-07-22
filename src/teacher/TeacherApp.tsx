@@ -1,16 +1,25 @@
 import { useState } from 'react'
 import type { CSSProperties } from 'react'
+import { Link } from 'react-router-dom'
 import { Logo } from '../components/Logo'
 import { GraphSvg } from '../components/GraphSvg'
 import { NodeInfoCard } from '../components/NodeInfoCard'
 import { PracticeLoop } from '../components/PracticeLoop'
-import { BASKETS, EDGES, NODES, ST, edgePath } from '../data/knowledgeGraph'
-import { LOG_RAW } from '../data/activityLog'
+import { BASKETS, EDGES, NODES, ST, edgePath, statsFor, statusFor } from '../data/knowledgeGraph'
+import { LOG_BY_STUDENT } from '../data/activityLog'
 import type { LogQuestion } from '../data/activityLog'
 import { CURRIC, DEFAULT_BASKET, DEFAULT_ROSTER, GRADES } from '../data/curriculum'
 import { OVERSIGHT_KIND_META, OVERSIGHT_RAW } from '../data/oversight'
 import type { OversightDetail } from '../data/oversight'
+import { getLiveFlags } from '../data/liveOversight'
+import { getLiveSessions } from '../data/liveSessions'
+import { PROFILE_BY_ID } from '../data/studentProfiles'
+import { problemAt } from '../data/problems'
+import { addProblemSet, getProblemSets } from '../data/teacherProblemSets'
+import type { AuthoredQuestion } from '../data/teacherProblemSets'
 import { FONT_MONO, FONT_SERIF } from '../theme'
+
+const PREVIEW_PROBLEM = problemAt('linear', 0)!
 
 /**
  * Teacher POV — triage a class, drill into a student's knowledge profile,
@@ -26,6 +35,7 @@ type Screen =
   | 'logdetail'
   | 'oversight'
   | 'setup'
+  | 'homework'
   | 'practice'
 
 interface AddressItem {
@@ -51,6 +61,7 @@ interface TeacherState {
   expOnTrack: boolean
   expAhead: boolean
   activeClass: string
+  selectedStudentId: string
   graphFilter: string
   openLog: number | null
   selectedNode: string | null
@@ -71,6 +82,20 @@ interface TeacherState {
   suRoster: string[]
   suDraft: string
   suBasket: Record<string, boolean>
+  // ---- Homework (teacher problem-set authoring) ----
+  hwTitle: string
+  hwDue: string
+  hwSearch: string
+  hwBasket: Record<string, boolean>
+  /** Topic label the next drafted question will be tagged with - one of the currently-checked hwBasket labels. */
+  hwQTopic: string
+  hwQText: string
+  hwQHint: string
+  hwQuestions: AuthoredQuestion[]
+  /** Whole-set "require handwriting" gate - see data/teacherProblemSets.ts's AuthoredProblemSet.requireHandwriting and StudentApp.tsx's psolve submit-gating. */
+  hwRequireHandwriting: boolean
+  /** Which already-created set (see data/teacherProblemSets.ts) has its questions expanded open. */
+  hwExpandedId: string | null
 }
 
 const monoCap = (extra: CSSProperties = {}): CSSProperties => ({
@@ -89,6 +114,9 @@ const chip = (status: string): CSSProperties => {
     return { background: '#e8f0f4', color: '#2f6f92', border: '1px solid #cfe0e9', fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 20, whiteSpace: 'nowrap' }
   return { background: '#e4edf3', color: '#1f4e75', border: '1px solid #cddceb', fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 20, whiteSpace: 'nowrap' }
 }
+
+/** Same id convention `mkStudent()` derives from a roster name — lowercase first name. */
+const idForName = (name: string): string => name.split(' ')[0].toLowerCase()
 
 const avatar = (color?: string): CSSProperties => ({
   width: 30,
@@ -193,21 +221,6 @@ const CLASS_TOPICS = [
   { name: 'Ratio & proportion', t: T(0.9, 0.7, 0.4) },
 ]
 
-const PACE_RAW = [
-  { topic: 'Ratio & proportion', tag: 'Ahead · +1 term', kind: 'ahead', a: 0.88, e: 0.6 },
-  { topic: 'Negatives', tag: 'Ahead', kind: 'ahead', a: 1, e: 0.9 },
-  { topic: 'Fractions & %', tag: 'On pace', kind: 'onpace', a: 0.78, e: 0.75 },
-  { topic: 'Algebra basics', tag: 'Behind', kind: 'behind', a: 0.55, e: 0.78 },
-  { topic: 'Linear equations', tag: 'Behind · ½ term', kind: 'behind', a: 0.32, e: 0.7 },
-]
-
-const MASTERY_RAW = [
-  { name: 'Negatives', t: T(1, 0.9, 0.6) },
-  { name: 'Substitution', t: T(0.8, 0.4, 0) },
-  { name: 'Linear equations', t: T(0.5, 0.15, 0) },
-  { name: 'Fractions & %', t: T(0.95, 0.75, 0.4) },
-]
-
 const NODE_META: Record<string, { ret: string; retColor: string }> = {
   mastered: { ret: 'Strong', retColor: '#1f4e75' },
   inprogress: { ret: 'Building', retColor: '#3f82ab' },
@@ -215,15 +228,17 @@ const NODE_META: Record<string, { ret: string; retColor: string }> = {
   notready: { ret: 'Not started', retColor: '#8a7c63' },
   locked: { ret: 'Not started', retColor: '#8a7c63' },
 }
-const LAST_MAP: Record<string, string> = { n1: '9 days ago', n2: '12 days ago', n3: '15 days ago', n4: '7 days ago', n5: '6 days ago', n6: '2 days ago', n7: '8 days ago', n8: '4 days ago', n9: '2 days ago', n10: '—', n11: 'today', n12: 'today', n13: '—', n14: '—', n15: '—' }
-const NEXT_MAP: Record<string, string> = { n1: 'in 11 days', n2: 'in 14 days', n3: 'in 18 days', n4: 'in 9 days', n5: 'in 8 days', n6: 'tomorrow', n7: 'in 10 days', n8: 'in 5 days', n9: 'tomorrow', n10: 'when ready', n11: 'today', n12: 'today', n13: 'when ready', n14: 'when ready', n15: 'when ready' }
-const REPS_MAP: Record<string, number> = { n1: 16, n2: 13, n3: 11, n4: 12, n5: 14, n6: 9, n7: 10, n8: 15, n9: 7, n10: 0, n11: 5, n12: 3, n13: 0, n14: 0, n15: 0 }
 
-const FRONTIER_GROUPS = [
-  { label: 'Mastered', color: '#1f4e75', chips: ['Negatives', 'Fractions', 'Algebra basics', 'Neg. arithmetic'].map((n) => ({ name: n, style: chipStyle('#e4edf3', '#1f4e75', '#cddceb') })) },
-  { label: 'Ready to learn now', color: '#b6531f', chips: ['Linear equations', 'Expanding ( )'].map((n) => ({ name: n, style: chipStyle('#fdf0e6', '#b6531f', '#f0d3bc') })) },
-  { label: 'Not ready yet', color: '#8a7c63', chips: ['Coordinates', 'Bracket eqns', 'Simultaneous'].map((n) => ({ name: n, style: chipStyle('#f2ede2', '#8a7c63', '#ddd2bd') })) },
-]
+/** Derives the Frontier panel's three buckets from live per-student node status, instead of hand-curating them per student. */
+function buildFrontierGroups(studentId: string) {
+  const chipsFor = (pred: (st: string) => boolean, color: string, bg: string, bd: string) =>
+    NODES.filter((n) => pred(statusFor(studentId, n.id))).map((n) => ({ name: n.label, style: chipStyle(bg, color, bd) }))
+  return [
+    { label: 'Mastered', color: '#1f4e75', chips: chipsFor((st) => st === 'mastered', '#1f4e75', '#e4edf3', '#cddceb') },
+    { label: 'Ready to learn now', color: '#b6531f', chips: chipsFor((st) => st === 'frontier', '#b6531f', '#fdf0e6', '#f0d3bc') },
+    { label: 'Not ready yet', color: '#8a7c63', chips: chipsFor((st) => st === 'notready' || st === 'locked', '#8a7c63', '#f2ede2', '#ddd2bd') },
+  ]
+}
 
 const INITIAL: TeacherState = {
   screen: 'dashboard',
@@ -231,6 +246,7 @@ const INITIAL: TeacherState = {
   expOnTrack: false,
   expAhead: false,
   activeClass: '8M2',
+  selectedStudentId: 'aisha',
   graphFilter: 'all',
   openLog: null,
   selectedNode: null,
@@ -251,6 +267,16 @@ const INITIAL: TeacherState = {
   suRoster: [...DEFAULT_ROSTER],
   suDraft: '',
   suBasket: { ...DEFAULT_BASKET },
+  hwTitle: '',
+  hwDue: '',
+  hwSearch: '',
+  hwBasket: {},
+  hwQTopic: '',
+  hwQText: '',
+  hwQHint: '',
+  hwQuestions: [],
+  hwRequireHandwriting: false,
+  hwExpandedId: null,
 }
 
 export default function TeacherApp() {
@@ -266,12 +292,16 @@ export default function TeacherApp() {
       noteDraft: '',
     }))
 
-  const openStudent = () => setState({ screen: 'student' })
+  const openStudent = (id: string) =>
+    setState({ screen: 'student', selectedStudentId: id, selectedNode: null, selectedLog: null, openLog: null })
 
   const dismissOv = (id: string) => setState((st) => ({ dismissedOv: [...st.dismissedOv, id] }))
 
   // Both Resolve and Address in person dismiss a flag; prototype-local, resets on reload.
-  const ovList = OVERSIGHT_RAW.map((it, i) => ({ ...it, id: `ov${i}` })).filter(
+  // getLiveFlags() (data/liveOversight.ts) is real, session-detected flags added to - never
+  // replacing - the static OVERSIGHT_RAW sample narrative; see that module's comment for the
+  // cross-route caveat (this only sees a flag pushed from /student on this screen's next mount).
+  const ovList = [...OVERSIGHT_RAW.map((it, i) => ({ ...it, id: `ov${i}` })), ...getLiveFlags()].filter(
     (it) => !s.dismissedOv.includes(it.id),
   )
 
@@ -279,8 +309,10 @@ export default function TeacherApp() {
     return (
       <PracticeLoop
         variant="preview"
+        problem={PREVIEW_PROBLEM}
         backLabel="← Exit preview"
         onExit={() => setState({ screen: 'student' })}
+        onComplete={() => setState({ screen: 'student' })}
       />
     )
   }
@@ -289,14 +321,17 @@ export default function TeacherApp() {
   const activeNav =
     s.screen === 'student' || s.screen === 'logdetail' || s.screen === 'graphfull' || s.screen === 'graphfocused'
       ? 'students'
-      : s.screen === 'oversight'
-        ? 'oversight'
-        : s.screen === 'setup'
-          ? 'setup'
-          : 'dash'
+      : s.screen === 'homework'
+        ? 'homework'
+        : s.screen === 'oversight'
+          ? 'oversight'
+          : s.screen === 'setup'
+            ? 'setup'
+            : 'dash'
   const navItems: Array<{ key: string; label: string; go: () => void }> = [
     { key: 'dash', label: 'Dashboard', go: () => setState({ screen: 'dashboard' }) },
-    { key: 'students', label: 'Students', go: openStudent },
+    { key: 'students', label: 'Students', go: () => openStudent(s.selectedStudentId) },
+    { key: 'homework', label: 'Homework', go: () => setState({ screen: 'homework' }) },
     { key: 'oversight', label: 'Oversight', go: () => setState({ screen: 'oversight' }) },
     { key: 'setup', label: 'Class setup', go: () => setState({ screen: 'setup' }) },
   ]
@@ -312,6 +347,7 @@ export default function TeacherApp() {
       .join('')
     const color = status === 'ahead' ? '#2f6f92' : status === 'attention' ? '#dd6a2f' : '#1f4e75'
     return {
+      id: idForName(name),
       name,
       topic,
       sub: topic,
@@ -341,9 +377,18 @@ export default function TeacherApp() {
     { title: 'Ahead of pace', count: 7, open: s.expAhead, toggle: () => setState({ expAhead: !s.expAhead }), dot: '#2f6f92', students: aheadStudents },
   ]
 
+  // ---- selected student (drill-down) ----
+  // Every one of the 24 roster names resolves to a summary card (name, topic, status, insight);
+  // only Aisha/Daniel/Reuben additionally have a full profile (pace, mastery, activity log).
+  // A name without a profile shows the summary plus an honest "not built out yet" note —
+  // never another student's data relabeled.
+  const selectedRoster = rosterAll.find((r) => r.id === s.selectedStudentId) ?? rosterAll[0]
+  const selectedProfile = PROFILE_BY_ID[s.selectedStudentId]
+  const frontierGroups = buildFrontierGroups(s.selectedStudentId)
+
   // ---- knowledge graph (student drill-down) ----
   const graphNodes = NODES.map((n) => {
-    const st = ST[n.st]
+    const st = ST[statusFor(s.selectedStudentId, n.id)]
     const sel = s.selectedNode === n.id
     return {
       id: n.id,
@@ -361,7 +406,7 @@ export default function TeacherApp() {
     }
   })
   const graphEdges = EDGES.map(([a, b]) => {
-    const frontier = NODES.find((n) => n.id === b)!.st === 'frontier'
+    const frontier = statusFor(s.selectedStudentId, b) === 'frontier'
     return { d: edgePath(a, b), stroke: frontier ? '#e8a06a' : '#d3c6ab', sw: frontier ? 2 : 1.4 }
   })
   const gf = s.graphFilter
@@ -380,10 +425,14 @@ export default function TeacherApp() {
       heading="Subtopic"
       title={selNode.label}
       fields={[
-        { label: 'Last worked', value: LAST_MAP[selNode.id] || '—' },
-        { label: 'Next review', value: NEXT_MAP[selNode.id] || '—' },
-        { label: 'Times practised', value: REPS_MAP[selNode.id] || 0 },
-        { label: 'Retention', value: NODE_META[selNode.st].ret, color: NODE_META[selNode.st].retColor },
+        { label: 'Last worked', value: statsFor(s.selectedStudentId, selNode.id).last },
+        { label: 'Next review', value: statsFor(s.selectedStudentId, selNode.id).next },
+        { label: 'Times practised', value: statsFor(s.selectedStudentId, selNode.id).reps },
+        {
+          label: 'Retention',
+          value: NODE_META[statusFor(s.selectedStudentId, selNode.id)].ret,
+          color: NODE_META[statusFor(s.selectedStudentId, selNode.id)].retColor,
+        },
       ]}
       onClose={() => setState({ selectedNode: null })}
     />
@@ -397,7 +446,12 @@ export default function TeacherApp() {
   }
 
   // ---- log detail (shared with oversight "Go to the question") ----
-  const ld: LogDetailSource | null = s.ovDetail ? s.ovDetail : s.selectedLog != null ? LOG_RAW[s.selectedLog] : null
+  // Live Lesson/Review sessions (data/liveSessions.ts) only ever come from StudentApp, which is
+  // always Aisha - so they're only merged in for her, ahead of her static sample history. Same
+  // merge-live-in pattern as ovList's getLiveFlags() below.
+  const studentLog =
+    s.selectedStudentId === 'aisha' ? [...getLiveSessions(), ...(LOG_BY_STUDENT.aisha ?? [])] : (LOG_BY_STUDENT[s.selectedStudentId] ?? [])
+  const ld: LogDetailSource | null = s.ovDetail ? s.ovDetail : s.selectedLog != null ? (studentLog[s.selectedLog] ?? null) : null
 
   // ---- class setup ----
   const q = s.suSearch.toLowerCase()
@@ -408,15 +462,68 @@ export default function TeacherApp() {
   )
   const basketCount = Object.values(s.suBasket).filter(Boolean).length
 
+  // ---- homework (teacher problem-set authoring) ----
+  // Reuses Class setup's grouped topic-chip picker pattern above (same CURRIC groups, same
+  // toggle-chip look) rather than a fresh widget - see Homework screen render below.
+  const hq = s.hwSearch.toLowerCase()
+  const hwBasketGroups = CURRIC.map((g) => ({
+    group: g.group,
+    topics: g.topics.filter(([, label]) => !hq || label.toLowerCase().indexOf(hq) > -1),
+  })).filter((g) => g.topics.length > 0)
+  const hwBasketCount = Object.values(s.hwBasket).filter(Boolean).length
+  const hwSelectedTopics = CURRIC.flatMap((g) => g.topics).filter(([key]) => s.hwBasket[key])
+  const hwQuestionTopicOptions = hwSelectedTopics.map(([, label]) => label)
+  const hwCanCreate = s.hwTitle.trim().length > 0 && hwBasketCount > 0 && s.hwQuestions.length > 0
+  const createdProblemSets = getProblemSets()
+
+  const toggleHwTopic = (key: string) =>
+    setState((st) => {
+      const hwBasket = { ...st.hwBasket, [key]: !st.hwBasket[key] }
+      const remainingLabels = CURRIC.flatMap((g) => g.topics)
+        .filter(([k]) => hwBasket[k])
+        .map(([, label]) => label)
+      // Keep the per-question topic selector pointed at a still-selected topic - never left
+      // referencing one that was just unchecked.
+      const hwQTopic = remainingLabels.includes(st.hwQTopic) ? st.hwQTopic : (remainingLabels[0] ?? '')
+      return { hwBasket, hwQTopic }
+    })
+
+  const addHwQuestion = () => {
+    const text = s.hwQText.trim()
+    if (!text || !s.hwQTopic) return
+    setState((st) => ({
+      hwQuestions: [...st.hwQuestions, { topic: st.hwQTopic, q: text, hint: st.hwQHint.trim() }],
+      hwQText: '',
+      hwQHint: '',
+    }))
+  }
+  const removeHwQuestion = (idx: number) => setState((st) => ({ hwQuestions: st.hwQuestions.filter((_, i) => i !== idx) }))
+
+  const createHwSet = () => {
+    if (!hwCanCreate) return
+    addProblemSet({
+      title: s.hwTitle.trim(),
+      topics: hwSelectedTopics.map(([, label]) => label).join(' · '),
+      due: s.hwDue.trim() || 'No due date set',
+      questions: s.hwQuestions,
+      requireHandwriting: s.hwRequireHandwriting,
+    })
+    setState({ hwTitle: '', hwDue: '', hwSearch: '', hwBasket: {}, hwQTopic: '', hwQText: '', hwQHint: '', hwQuestions: [], hwRequireHandwriting: false })
+  }
+  const toggleHwExpanded = (id: string) => setState((st) => ({ hwExpandedId: st.hwExpandedId === id ? null : id }))
+
   return (
     <div style={{ minHeight: '100vh', background: '#fbf9f5' }}>
       <div style={{ display: 'flex', minHeight: '100vh' }}>
         {/* Left nav rail */}
         <nav style={{ width: 212, flex: 'none', background: '#0e2a43', color: '#dbe6ef', display: 'flex', flexDirection: 'column', padding: '22px 14px', position: 'sticky', top: 0, height: '100vh' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '4px 8px 24px' }}>
+          <Link
+            to="/"
+            style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '4px 8px 24px', textDecoration: 'none' }}
+          >
             <Logo size={30} />
             <span style={{ fontFamily: FONT_SERIF, fontWeight: 600, fontSize: 19, color: '#fff', letterSpacing: '.2px' }}>Anadromos</span>
-          </div>
+          </Link>
           {navItems.map((n) => {
             const active = n.key === activeNav
             return (
@@ -433,6 +540,9 @@ export default function TeacherApp() {
           <div style={{ marginTop: 'auto', padding: '14px 10px 4px', borderTop: '1px solid rgba(255,255,255,.1)' }}>
             <div style={{ fontSize: 12, color: '#9fb4c7' }}>Ms. Okafor</div>
             <div style={{ fontSize: 11, color: '#6f8aa2', marginTop: 2 }}>Maths · 8M2, 8M4, 9S1</div>
+            <Link to="/admin" style={{ display: 'inline-block', marginTop: 10, fontSize: 10.5, color: '#6f8aa2', textDecoration: 'none' }}>
+              School admin →
+            </Link>
           </div>
         </nav>
 
@@ -587,7 +697,7 @@ export default function TeacherApp() {
                           <p style={{ margin: '4px 0 0', fontSize: 13, lineHeight: 1.5, color: '#5c6773', textWrap: 'pretty' }}>{a.line}</p>
                         </div>
                         <button
-                          onClick={openStudent}
+                          onClick={() => openStudent(a.id)}
                           style={{ marginTop: 15, width: '100%', background: '#dd6a2f', color: '#fff', border: 'none', borderRadius: 9, padding: 10, fontWeight: 600, fontSize: 13.5, cursor: 'pointer' }}
                         >
                           Open profile →
@@ -610,7 +720,7 @@ export default function TeacherApp() {
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                         {lane.students.map((st) => (
-                          <div key={st.name} onClick={openStudent} style={{ background: '#fff', border: '1px solid #e4dccb', borderRadius: 9, padding: '10px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10 }}>
+                          <div key={st.name} onClick={() => openStudent(st.id)} style={{ background: '#fff', border: '1px solid #e4dccb', borderRadius: 9, padding: '10px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10 }}>
                             <div style={st.avatarStyle}>{st.initials}</div>
                             <div style={{ minWidth: 0, flex: 1 }}>
                               <div style={{ fontWeight: 600, fontSize: 13.5, color: '#1a2129', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{st.name}</div>
@@ -634,7 +744,7 @@ export default function TeacherApp() {
                     <div style={{ textAlign: 'right' }}>Last active</div>
                   </div>
                   {rosterAll.map((st) => (
-                    <div key={st.name} onClick={openStudent} style={{ display: 'grid', gridTemplateColumns: '1.6fr 1.4fr 1fr 0.8fr', gap: 12, padding: '12px 18px', borderTop: '1px solid #f0e9dc', cursor: 'pointer', alignItems: 'center' }}>
+                    <div key={st.name} onClick={() => openStudent(st.id)} style={{ display: 'grid', gridTemplateColumns: '1.6fr 1.4fr 1fr 0.8fr', gap: 12, padding: '12px 18px', borderTop: '1px solid #f0e9dc', cursor: 'pointer', alignItems: 'center' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                         <div style={st.avatarStyle}>{st.initials}</div>
                         <span style={{ fontWeight: 600, fontSize: 13.5 }}>{st.name}</span>
@@ -666,7 +776,7 @@ export default function TeacherApp() {
                       {grp.open && (
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, padding: '2px 18px 18px' }}>
                           {grp.students.map((st) => (
-                            <div key={st.name} onClick={openStudent} style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#faf6ee', border: '1px solid #ece3d2', borderRadius: 20, padding: '5px 12px 5px 5px', cursor: 'pointer' }}>
+                            <div key={st.name} onClick={() => openStudent(st.id)} style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#faf6ee', border: '1px solid #ece3d2', borderRadius: 20, padding: '5px 12px 5px 5px', cursor: 'pointer' }}>
                               <div style={avatar(grp.dot)}>{st.initials}</div>
                               <span style={{ fontSize: 13, fontWeight: 500 }}>{st.name}</span>
                             </div>
@@ -725,17 +835,19 @@ export default function TeacherApp() {
                 ← 8M2 class overview
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
-                <div style={{ width: 52, height: 52, borderRadius: '50%', background: '#0e2a43', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 600, fontSize: 19, flex: 'none' }}>AB</div>
-                <div>
-                  <h1 style={{ fontFamily: FONT_SERIF, fontWeight: 600, fontSize: 27, margin: 0, color: '#0e2a43' }}>Aisha Bello</h1>
-                  <div style={{ fontSize: 13.5, color: '#5c6773' }}>Year 8 · 8M2 · joined September</div>
+                <div style={{ width: 52, height: 52, borderRadius: '50%', background: selectedRoster.avatarStyle.background, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 600, fontSize: 19, flex: 'none' }}>
+                  {selectedRoster.initials}
                 </div>
-                <span style={{ fontSize: 12, fontWeight: 600, color: '#b6531f', background: '#fbe7d8', border: '1px solid #eecab0', padding: '5px 12px', borderRadius: 20 }}>Needs attention</span>
+                <div>
+                  <h1 style={{ fontFamily: FONT_SERIF, fontWeight: 600, fontSize: 27, margin: 0, color: '#0e2a43' }}>{selectedRoster.name}</h1>
+                  <div style={{ fontSize: 13.5, color: '#5c6773' }}>Year 8 · 8M2</div>
+                </div>
+                <span style={selectedRoster.chipStyle}>{selectedRoster.statusLabel}</span>
                 <button
                   onClick={() => setState({ screen: 'practice' })}
                   style={{ marginLeft: 'auto', background: '#0e2a43', color: '#fff', border: 'none', borderRadius: 9, padding: '11px 18px', fontWeight: 600, fontSize: 13.5, cursor: 'pointer' }}
                 >
-                  Preview her practice view →
+                  Preview practice view →
                 </button>
               </div>
 
@@ -746,11 +858,7 @@ export default function TeacherApp() {
                   <span style={{ fontSize: 12.5, fontWeight: 700, letterSpacing: '.4px', textTransform: 'uppercase', color: '#b6531f', fontFamily: FONT_MONO }}>Where to start</span>
                 </div>
                 <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  {[
-                    'At the linear-equations frontier, but rearranging is a memorised ritual, not understood.',
-                    'Likely root cause: the prerequisite - inverse operations (substitution) - never became solid.',
-                    'Best next move: a short re-teach of that step, not more equation practice.',
-                  ].map((b, i) => (
+                  {(selectedProfile?.whereToStart ?? [selectedRoster.insight || `${selectedRoster.name} hasn't got a detailed diagnostic history yet.`]).map((b, i) => (
                     <li key={i} style={{ display: 'flex', gap: 10, fontSize: 13.5, lineHeight: 1.5, color: '#5c3a24' }}>
                       <span style={{ color: '#dd6a2f', flex: 'none' }}>•</span>
                       <span>{b}</span>
@@ -759,59 +867,67 @@ export default function TeacherApp() {
                 </ul>
               </div>
 
-              <div style={{ marginTop: 22, display: 'grid', gridTemplateColumns: '1.15fr 0.85fr', gap: 20, alignItems: 'start' }}>
-                {/* Pace ribbon */}
-                <div style={{ background: '#fff', border: '1px solid #e4dccb', borderRadius: 12, padding: '20px 22px' }}>
-                  <h2 style={{ fontFamily: FONT_SERIF, fontSize: 16, fontWeight: 600, margin: '0 0 3px', color: '#0e2a43' }}>Against expected pace</h2>
-                  <p style={{ margin: '0 0 16px', fontSize: 12.5, color: '#8a7c63' }}>
-                    Where a Year 8 is expected to be by week 9 (marker) vs. where Aisha actually is. Mixed is normal - she's ahead on some, behind on others.
-                  </p>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 15 }}>
-                    {PACE_RAW.map((p) => (
-                      <div key={p.topic}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>
-                          <span style={{ fontSize: 13, fontWeight: 500, color: '#1a2129' }}>{p.topic}</span>
-                          <span style={tagStyleFor(p.kind)}>{p.tag}</span>
+              {selectedProfile ? (
+                <div style={{ marginTop: 22, display: 'grid', gridTemplateColumns: '1.15fr 0.85fr', gap: 20, alignItems: 'start' }}>
+                  {/* Pace ribbon */}
+                  <div style={{ background: '#fff', border: '1px solid #e4dccb', borderRadius: 12, padding: '20px 22px' }}>
+                    <h2 style={{ fontFamily: FONT_SERIF, fontSize: 16, fontWeight: 600, margin: '0 0 3px', color: '#0e2a43' }}>Against expected pace</h2>
+                    <p style={{ margin: '0 0 16px', fontSize: 12.5, color: '#8a7c63' }}>
+                      Where a Year 8 is expected to be by week 9 (marker) vs. where {selectedRoster.name.split(' ')[0]} actually is. Mixed is normal - ahead on some, behind on others.
+                    </p>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 15 }}>
+                      {selectedProfile.pace.map((p) => (
+                        <div key={p.topic}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>
+                            <span style={{ fontSize: 13, fontWeight: 500, color: '#1a2129' }}>{p.topic}</span>
+                            <span style={tagStyleFor(p.kind)}>{p.tag}</span>
+                          </div>
+                          <div style={{ position: 'relative', height: 14, background: '#f0e9dc', borderRadius: 7 }}>
+                            <div style={{ position: 'absolute', left: 0, top: 0, height: '100%', width: `${p.actual * 100}%`, background: p.kind === 'behind' ? '#c98a63' : '#1f4e75', borderRadius: 7 }} />
+                            <div title="expected" style={{ position: 'absolute', top: -3, left: `calc(${p.expected * 100}% - 1px)`, width: 2, height: 20, background: '#0e2a43', borderRadius: 1 }} />
+                          </div>
                         </div>
-                        <div style={{ position: 'relative', height: 14, background: '#f0e9dc', borderRadius: 7 }}>
-                          <div style={{ position: 'absolute', left: 0, top: 0, height: '100%', width: `${p.a * 100}%`, background: p.kind === 'behind' ? '#c98a63' : '#1f4e75', borderRadius: 7 }} />
-                          <div title="expected" style={{ position: 'absolute', top: -3, left: `calc(${p.e * 100}% - 1px)`, width: 2, height: 20, background: '#0e2a43', borderRadius: 1 }} />
-                        </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
+                    <div style={{ marginTop: 14, display: 'flex', gap: 18, fontSize: 11.5, color: '#8a7c63' }}>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span style={{ width: 20, height: 8, borderRadius: 2, background: '#1f4e75', display: 'inline-block' }} />
+                        {selectedRoster.name.split(' ')[0]} now
+                      </span>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span style={{ width: 2, height: 14, background: '#0e2a43', display: 'inline-block' }} />
+                        Expected by wk 9
+                      </span>
+                    </div>
                   </div>
-                  <div style={{ marginTop: 14, display: 'flex', gap: 18, fontSize: 11.5, color: '#8a7c63' }}>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <span style={{ width: 20, height: 8, borderRadius: 2, background: '#1f4e75', display: 'inline-block' }} />
-                      Aisha now
-                    </span>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <span style={{ width: 2, height: 14, background: '#0e2a43', display: 'inline-block' }} />
-                      Expected by wk 9
-                    </span>
-                  </div>
-                </div>
 
-                {/* Difficulty-weighted mastery */}
-                <div style={{ background: '#fff', border: '1px solid #e4dccb', borderRadius: 12, padding: '20px 22px' }}>
-                  <h2 style={{ fontFamily: FONT_SERIF, fontSize: 16, fontWeight: 600, margin: '0 0 3px', color: '#0e2a43' }}>Mastery, difficulty-weighted</h2>
-                  <p style={{ margin: '0 0 16px', fontSize: 12.5, color: '#8a7c63' }}>No place to hide: solid on the easy items, thin where it gets hard.</p>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                    {MASTERY_RAW.map((t) => (
-                      <div key={t.name}>
-                        <div style={{ fontSize: 13, fontWeight: 500, color: '#1a2129', marginBottom: 6 }}>{t.name}</div>
-                        <div style={{ display: 'flex', gap: 6 }}>
-                          {t.t.map((tier, i) => (
-                            <div key={i} style={{ flex: 1, height: 20, borderRadius: 5, background: '#f0e9dc', overflow: 'hidden' }}>
-                              <div style={tierFill(tier.f, tier.color)} />
-                            </div>
-                          ))}
+                  {/* Difficulty-weighted mastery */}
+                  <div style={{ background: '#fff', border: '1px solid #e4dccb', borderRadius: 12, padding: '20px 22px' }}>
+                    <h2 style={{ fontFamily: FONT_SERIF, fontSize: 16, fontWeight: 600, margin: '0 0 3px', color: '#0e2a43' }}>Mastery, difficulty-weighted</h2>
+                    <p style={{ margin: '0 0 16px', fontSize: 12.5, color: '#8a7c63' }}>No place to hide: solid on the easy items, thin where it gets hard.</p>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                      {selectedProfile.mastery.map((t) => (
+                        <div key={t.name}>
+                          <div style={{ fontSize: 13, fontWeight: 500, color: '#1a2129', marginBottom: 6 }}>{t.name}</div>
+                          <div style={{ display: 'flex', gap: 6 }}>
+                            {T(t.foundations, t.core, t.stretch).map((tier, i) => (
+                              <div key={i} style={{ flex: 1, height: 20, borderRadius: 5, background: '#f0e9dc', overflow: 'hidden' }}>
+                                <div style={tierFill(tier.f, tier.color)} />
+                              </div>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
                 </div>
-              </div>
+              ) : (
+                <div style={{ marginTop: 22, background: '#fff', border: '1px dashed #d8cfbb', borderRadius: 12, padding: '20px 22px' }}>
+                  <p style={{ margin: 0, fontSize: 13, color: '#8a7c63', textWrap: 'pretty' }}>
+                    A fuller profile — pace, difficulty-weighted mastery, and activity log — isn't built out for {selectedRoster.name} in this prototype yet. Aisha Bello, Daniel Kovač and Reuben Clarke have full profiles.
+                  </p>
+                </div>
+              )}
 
               {/* Knowledge graph access (opened on purpose, never auto-loaded) */}
               <div style={{ marginTop: 20, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
@@ -832,7 +948,7 @@ export default function TeacherApp() {
                   <div style={monoCap({ letterSpacing: '.6px', color: '#1f4e75' })}>Full picture</div>
                   <div style={{ fontFamily: FONT_SERIF, fontSize: 17, fontWeight: 600, color: '#0e2a43', margin: '5px 0 5px' }}>All of mathematics →</div>
                   <p style={{ margin: 0, fontSize: 12.5, lineHeight: 1.5, color: '#5c6773', textWrap: 'pretty' }}>
-                    Every topic Anadromos has assessed Aisha on, across all years, not just this class.
+                    Every topic Anadromos has assessed {selectedRoster.name.split(' ')[0]} on, across all years, not just this class.
                   </p>
                 </button>
               </div>
@@ -842,10 +958,13 @@ export default function TeacherApp() {
                 <div style={{ background: '#fff', border: '1px solid #e4dccb', borderRadius: 12, padding: '20px 22px' }}>
                   <h2 style={{ fontFamily: FONT_SERIF, fontSize: 16, fontWeight: 600, margin: '0 0 4px', color: '#0e2a43' }}>Activity log</h2>
                   <p style={{ margin: '0 0 12px', fontSize: 12.5, color: '#8a7c63' }}>
-                    Every lesson, problem set and review she's completed. Click one for the detail behind the summary.
+                    Every lesson, problem set and review completed. Click one for the detail behind the summary.
                   </p>
+                  {studentLog.length === 0 && (
+                    <p style={{ margin: 0, fontSize: 13, color: '#8a7c63' }}>No activity logged yet for {selectedRoster.name}.</p>
+                  )}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-                    {LOG_RAW.map((a, i) => {
+                    {studentLog.map((a, i) => {
                       const open = s.openLog === i
                       return (
                         <div key={i} style={{ borderTop: '1px solid #f0e9dc' }}>
@@ -881,7 +1000,7 @@ export default function TeacherApp() {
                                   Open where it happened →
                                 </button>
                                 <button
-                                  onClick={() => pushAddress({ student: 'Aisha Bello', context: `${a.kind} · ${a.title}`, note: a.summary })}
+                                  onClick={() => pushAddress({ student: selectedRoster.name, context: `${a.kind} · ${a.title}`, note: a.summary })}
                                   style={{ background: '#fff', color: '#b6531f', border: '1px solid #eecab0', borderRadius: 8, padding: '9px 14px', fontSize: 12.5, fontWeight: 600, cursor: 'pointer' }}
                                 >
                                   + Address in person
@@ -900,28 +1019,32 @@ export default function TeacherApp() {
                   <div style={{ background: '#fff', border: '1px solid #e4dccb', borderRadius: 12, padding: '20px 22px' }}>
                     <h2 style={{ fontFamily: FONT_SERIF, fontSize: 16, fontWeight: 600, margin: '0 0 14px', color: '#0e2a43' }}>Frontier</h2>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                      {FRONTIER_GROUPS.map((g) => (
+                      {frontierGroups.map((g) => (
                         <div key={g.label}>
                           <div style={monoCap({ letterSpacing: '.6px', marginBottom: 8, color: g.color })}>{g.label}</div>
                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
-                            {g.chips.map((c) => (
-                              <span key={c.name} style={c.style}>
-                                {c.name}
-                              </span>
-                            ))}
+                            {g.chips.length > 0 ? (
+                              g.chips.map((c) => (
+                                <span key={c.name} style={c.style}>
+                                  {c.name}
+                                </span>
+                              ))
+                            ) : (
+                              <span style={{ fontSize: 12, color: '#a99e88' }}>None yet</span>
+                            )}
                           </div>
                         </div>
                       ))}
                     </div>
                   </div>
-                  <div style={{ background: '#fdf0e6', border: '1px solid #f0d3bc', borderRadius: 12, padding: '18px 20px' }}>
-                    <div style={monoCap({ letterSpacing: '.6px', color: '#b6531f' })}>Working on now</div>
-                    <div style={{ fontFamily: FONT_SERIF, fontSize: 18, fontWeight: 600, color: '#0e2a43', margin: '6px 0 4px' }}>Linear equations</div>
-                    <p style={{ margin: '0 0 10px', fontSize: 13, color: '#5c3a24' }}>Two-step equations with the unknown on one side.</p>
-                    <p style={{ margin: 0, fontSize: 12.5, lineHeight: 1.5, color: '#8a6b4f', textWrap: 'pretty' }}>
-                      Scaffolding is still high here - hints show full worked steps, and will fade automatically as her mastery of this topic rises.
-                    </p>
-                  </div>
+                  {selectedProfile && (
+                    <div style={{ background: '#fdf0e6', border: '1px solid #f0d3bc', borderRadius: 12, padding: '18px 20px' }}>
+                      <div style={monoCap({ letterSpacing: '.6px', color: '#b6531f' })}>Working on now</div>
+                      <div style={{ fontFamily: FONT_SERIF, fontSize: 18, fontWeight: 600, color: '#0e2a43', margin: '6px 0 4px' }}>{selectedProfile.workingOnNow.topic}</div>
+                      <p style={{ margin: '0 0 10px', fontSize: 13, color: '#5c3a24' }}>{selectedProfile.workingOnNow.detail}</p>
+                      <p style={{ margin: 0, fontSize: 12.5, lineHeight: 1.5, color: '#8a6b4f', textWrap: 'pretty' }}>{selectedProfile.workingOnNow.note}</p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -931,14 +1054,14 @@ export default function TeacherApp() {
           {s.screen === 'graphfull' && (
             <div style={{ padding: '26px 40px 60px' }}>
               <div onClick={() => setState({ screen: 'student' })} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 13, color: '#5c6773', cursor: 'pointer', marginBottom: 14 }}>
-                ← Aisha's profile
+                ← {selectedRoster.name}'s profile
               </div>
               <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: 14 }}>
                 <div>
                   <div style={monoCap({ fontSize: 11, letterSpacing: '1.5px' })}>Full picture</div>
-                  <h1 style={{ fontFamily: FONT_SERIF, fontWeight: 600, fontSize: 26, margin: '5px 0 3px', color: '#0e2a43' }}>Aisha Bello · all of mathematics</h1>
+                  <h1 style={{ fontFamily: FONT_SERIF, fontWeight: 600, fontSize: 26, margin: '5px 0 3px', color: '#0e2a43' }}>{selectedRoster.name} · all of mathematics</h1>
                   <div style={{ fontSize: 13, color: '#5c6773' }}>
-                    Every topic Anadromos has assessed her on, across all years. Scroll to explore; click a subtopic for its last-worked and review dates.
+                    Every topic Anadromos has assessed {selectedRoster.name.split(' ')[0]} on, across all years. Scroll to explore; click a subtopic for its last-worked and review dates.
                   </div>
                 </div>
                 <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', fontSize: 11.5, color: '#8a7c63' }}>
@@ -971,7 +1094,7 @@ export default function TeacherApp() {
           {s.screen === 'graphfocused' && (
             <div style={{ padding: '26px 40px 60px' }}>
               <div onClick={() => setState({ screen: 'student' })} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 13, color: '#5c6773', cursor: 'pointer', marginBottom: 14 }}>
-                ← Aisha's profile
+                ← {selectedRoster.name}'s profile
               </div>
               <div>
                 <div style={monoCap({ fontSize: 11, letterSpacing: '1.5px' })}>Day to day</div>
@@ -993,7 +1116,7 @@ export default function TeacherApp() {
                 ))}
               </div>
               <div style={{ marginTop: 12, fontSize: 12, color: '#8a7c63' }}>
-                Click a subtopic to see when Aisha last worked on it and when it's next due for review.
+                Click a subtopic to see when {selectedRoster.name.split(' ')[0]} last worked on it and when it's next due for review.
               </div>
               <div style={{ marginTop: 8, background: '#fff', border: '1px solid #e4dccb', borderRadius: 12, padding: 16, overflowX: 'auto' }}>
                 <GraphSvg edges={focusedEdges} nodes={focusedNodes} width="100%" style={{ minWidth: 760 }} />
@@ -1009,7 +1132,7 @@ export default function TeacherApp() {
                 onClick={() => setState({ screen: s.detailReturn || 'student', ovDetail: null })}
                 style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 13, color: '#5c6773', cursor: 'pointer', marginBottom: 14 }}
               >
-                {s.detailReturn === 'oversight' ? '← Oversight' : "← Aisha's profile"}
+                {s.detailReturn === 'oversight' ? '← Oversight' : `← ${selectedRoster.name}'s profile`}
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
                 <span style={kindStyle}>{ld.kind}</span>
@@ -1088,7 +1211,7 @@ export default function TeacherApp() {
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation()
-                                  pushAddress({ student: 'Aisha Bello', context: `${ld.kind} · ${ld.title} · ${it.label}`, note: (it.why && it.why[0]) || it.note })
+                                  pushAddress({ student: selectedRoster.name, context: `${ld.kind} · ${ld.title} · ${it.label}`, note: (it.why && it.why[0]) || it.note })
                                 }}
                                 style={{ marginTop: 14, background: '#fff', color: '#b6531f', border: '1px solid #eecab0', borderRadius: 8, padding: '8px 14px', fontSize: 12.5, fontWeight: 600, cursor: 'pointer' }}
                               >
@@ -1165,7 +1288,17 @@ export default function TeacherApp() {
                             + Address in person
                           </button>
                           <button
-                            onClick={() => setState({ screen: 'logdetail', ovDetail: o.detail, selectedLog: null, detailReturn: 'oversight', selectedNode: null, qOpen: null })}
+                            onClick={() =>
+                              setState({
+                                screen: 'logdetail',
+                                ovDetail: o.detail,
+                                selectedLog: null,
+                                detailReturn: 'oversight',
+                                selectedNode: null,
+                                qOpen: null,
+                                selectedStudentId: idForName(o.student),
+                              })
+                            }
                             style={{ background: '#fff', border: '1px solid #cdbfa6', borderRadius: 8, padding: '8px 13px', fontSize: 12.5, fontWeight: 600, color: '#0e2a43', cursor: 'pointer' }}
                           >
                             Go to the question →
@@ -1358,6 +1491,276 @@ export default function TeacherApp() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap', marginTop: 20 }}>
                 <button style={{ background: '#dd6a2f', color: '#fff', border: 'none', borderRadius: 9, padding: '12px 22px', fontSize: 14.5, fontWeight: 600, cursor: 'pointer' }}>Create class</button>
                 <span style={{ fontSize: 12.5, color: '#8a7c63' }}>You can change the roster and basket any time, the graph updates with them.</span>
+              </div>
+            </div>
+          )}
+
+          {/* ---------- HOMEWORK (teacher problem-set authoring) ---------- */}
+          {s.screen === 'homework' && (
+            <div style={{ padding: '30px 40px 60px', maxWidth: 880 }}>
+              <div style={monoCap({ fontSize: 11, letterSpacing: '1.5px' })}>Homework</div>
+              <h1 style={{ fontFamily: FONT_SERIF, fontWeight: 600, fontSize: 28, margin: '6px 0 4px', color: '#0e2a43' }}>Set a problem set</h1>
+              <p style={{ margin: '0 0 24px', fontSize: 13.5, lineHeight: 1.5, color: '#5c6773', maxWidth: 620, textWrap: 'pretty' }}>
+                Name it, pick the topics it covers, and add questions one at a time, each with an optional hint. A manual
+                form is the simplest real option for a prototype, scan/upload and AI-assisted authoring aren't built out
+                here.
+              </p>
+
+              {/* 1. Basics */}
+              <div style={{ background: '#fff', border: '1px solid #e4dccb', borderRadius: 12, padding: '22px 24px', marginBottom: 16 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+                  <span style={{ fontFamily: FONT_MONO, fontSize: 12, fontWeight: 600, color: '#fff', background: '#0e2a43', width: 22, height: 22, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }}>1</span>
+                  <h2 style={{ fontFamily: FONT_SERIF, fontSize: 17, fontWeight: 600, margin: 0, color: '#0e2a43' }}>Set basics</h2>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 220px', gap: 20, alignItems: 'start' }}>
+                  <div>
+                    <label style={{ display: 'block', ...monoCap({ marginBottom: 7 }) }}>Title</label>
+                    <input
+                      value={s.hwTitle}
+                      onChange={(e) => setState({ hwTitle: e.target.value })}
+                      placeholder="e.g. Fractions & percentages"
+                      style={{ width: '100%', boxSizing: 'border-box', border: '1px solid #e0d4bd', borderRadius: 8, background: '#faf6ee', padding: '10px 12px', fontSize: 14, color: '#1a2129', outline: 'none' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', ...monoCap({ marginBottom: 7 }) }}>Due date</label>
+                    <input
+                      value={s.hwDue}
+                      onChange={(e) => setState({ hwDue: e.target.value })}
+                      placeholder="e.g. Fri 25 Jul"
+                      style={{ width: '100%', boxSizing: 'border-box', border: '1px solid #e0d4bd', borderRadius: 8, background: '#faf6ee', padding: '10px 12px', fontSize: 14, color: '#1a2129', outline: 'none' }}
+                    />
+                  </div>
+                </div>
+                <button
+                  onClick={() => setState((st) => ({ hwRequireHandwriting: !st.hwRequireHandwriting }))}
+                  style={{
+                    marginTop: 16,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 10,
+                    cursor: 'pointer',
+                    background: s.hwRequireHandwriting ? '#fdf0e6' : '#faf6ee',
+                    border: `1px solid ${s.hwRequireHandwriting ? '#f0d3bc' : '#e4dccb'}`,
+                    borderRadius: 9,
+                    padding: '11px 14px',
+                    textAlign: 'left',
+                    width: '100%',
+                  }}
+                >
+                  <span
+                    style={{
+                      width: 18,
+                      height: 18,
+                      borderRadius: 5,
+                      flex: 'none',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: 12,
+                      fontWeight: 700,
+                      background: s.hwRequireHandwriting ? '#dd6a2f' : '#fff',
+                      border: `1px solid ${s.hwRequireHandwriting ? '#dd6a2f' : '#cdbfa6'}`,
+                      color: '#fff',
+                    }}
+                  >
+                    {s.hwRequireHandwriting ? '✓' : ''}
+                  </span>
+                  <span>
+                    <span style={{ display: 'block', fontSize: 13.5, fontWeight: 600, color: '#0e2a43' }}>Require a photo of working</span>
+                    <span style={{ display: 'block', fontSize: 12, color: '#8a7c63', marginTop: 1 }}>
+                      Blocks submission until the student attaches a photo or PDF of their handwritten working for this whole set.
+                    </span>
+                  </span>
+                </button>
+              </div>
+
+              {/* 2. Topics - same grouped topic-chip picker pattern as Class setup's basket of topics */}
+              <div style={{ background: '#fff', border: '1px solid #e4dccb', borderRadius: 12, padding: '22px 24px', marginBottom: 16 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+                  <span style={{ fontFamily: FONT_MONO, fontSize: 12, fontWeight: 600, color: '#fff', background: '#0e2a43', width: 22, height: 22, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }}>2</span>
+                  <h2 style={{ fontFamily: FONT_SERIF, fontSize: 17, fontWeight: 600, margin: 0, color: '#0e2a43' }}>Topics this set covers</h2>
+                  <span style={{ fontFamily: FONT_MONO, fontSize: 12, color: '#b6531f' }}>{hwBasketCount} selected</span>
+                </div>
+                <p style={{ margin: '0 0 14px', fontSize: 12.5, color: '#8a7c63', maxWidth: 600, textWrap: 'pretty' }}>
+                  Every question you add below gets tagged with one of these.
+                </p>
+                <input
+                  value={s.hwSearch}
+                  onChange={(e) => setState({ hwSearch: e.target.value })}
+                  placeholder="Search topics…"
+                  style={{ marginBottom: 16, width: '100%', maxWidth: 280, border: '1px solid #e0d4bd', borderRadius: 8, background: '#faf6ee', padding: '9px 12px', fontSize: 13.5, color: '#1a2129', outline: 'none' }}
+                />
+                {hwBasketGroups.length > 0 ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                    {hwBasketGroups.map((grp) => (
+                      <div key={grp.group}>
+                        <div style={monoCap({ marginBottom: 8 })}>{grp.group}</div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                          {grp.topics.map(([key, label]) => {
+                            const on = !!s.hwBasket[key]
+                            return (
+                              <button
+                                key={key}
+                                onClick={() => toggleHwTopic(key)}
+                                style={{ cursor: 'pointer', fontSize: 13, fontWeight: on ? 600 : 500, padding: '8px 13px', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 7, background: on ? '#0e2a43' : '#f2ece0', color: on ? '#fff' : '#5c6773', border: on ? '1px solid #0e2a43' : '1px solid #e0d4bd' }}
+                              >
+                                <span style={{ fontSize: 12, opacity: on ? 1 : 0.6 }}>{on ? '✓' : '+'}</span>
+                                {label}
+                              </button>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p style={{ margin: 0, fontSize: 13, color: '#8a7c63' }}>No topics match that search.</p>
+                )}
+              </div>
+
+              {/* 3. Questions, added one at a time */}
+              <div style={{ background: '#fff', border: '1px solid #e4dccb', borderRadius: 12, padding: '22px 24px', marginBottom: 16 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+                  <span style={{ fontFamily: FONT_MONO, fontSize: 12, fontWeight: 600, color: '#fff', background: '#0e2a43', width: 22, height: 22, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }}>3</span>
+                  <h2 style={{ fontFamily: FONT_SERIF, fontSize: 17, fontWeight: 600, margin: 0, color: '#0e2a43' }}>Questions</h2>
+                  <span style={{ fontFamily: FONT_MONO, fontSize: 12, color: '#8a7c63' }}>{s.hwQuestions.length} added</span>
+                </div>
+                {hwQuestionTopicOptions.length === 0 ? (
+                  <p style={{ margin: 0, fontSize: 13, color: '#8a7c63' }}>Pick at least one topic above first.</p>
+                ) : (
+                  <>
+                    <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: 10, marginBottom: 10, alignItems: 'start' }}>
+                      <div>
+                        <label style={{ display: 'block', ...monoCap({ marginBottom: 7 }) }}>Topic</label>
+                        <select
+                          value={s.hwQTopic}
+                          onChange={(e) => setState({ hwQTopic: e.target.value })}
+                          style={{ width: '100%', boxSizing: 'border-box', border: '1px solid #e0d4bd', borderRadius: 8, background: '#faf6ee', padding: '10px 12px', fontSize: 13.5, color: '#1a2129', outline: 'none' }}
+                        >
+                          {hwQuestionTopicOptions.map((label) => (
+                            <option key={label} value={label}>
+                              {label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', ...monoCap({ marginBottom: 7 }) }}>Question</label>
+                        <input
+                          value={s.hwQText}
+                          onChange={(e) => setState({ hwQText: e.target.value })}
+                          placeholder="e.g. Simplify 12⁄18 to its lowest terms."
+                          style={{ width: '100%', boxSizing: 'border-box', border: '1px solid #e0d4bd', borderRadius: 8, background: '#faf6ee', padding: '10px 12px', fontSize: 14, color: '#1a2129', outline: 'none' }}
+                        />
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: 10, marginBottom: 18, alignItems: 'center' }}>
+                      <input
+                        value={s.hwQHint}
+                        onChange={(e) => setState({ hwQHint: e.target.value })}
+                        placeholder="Hint (optional)"
+                        style={{ flex: 1, minWidth: 0, border: '1px solid #e0d4bd', borderRadius: 8, background: '#faf6ee', padding: '10px 12px', fontSize: 13.5, color: '#1a2129', outline: 'none' }}
+                      />
+                      <button
+                        onClick={addHwQuestion}
+                        disabled={!s.hwQText.trim()}
+                        style={{ background: s.hwQText.trim() ? '#0e2a43' : '#f2ece0', color: s.hwQText.trim() ? '#fff' : '#a99e88', border: 'none', borderRadius: 8, padding: '10px 16px', fontSize: 13, fontWeight: 600, cursor: s.hwQText.trim() ? 'pointer' : 'not-allowed', whiteSpace: 'nowrap' }}
+                      >
+                        + Add question
+                      </button>
+                    </div>
+                  </>
+                )}
+                {s.hwQuestions.length > 0 && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    {s.hwQuestions.map((qq, i) => (
+                      <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, background: '#faf6ee', border: '1px solid #ece3d2', borderRadius: 9, padding: '10px 12px' }}>
+                        <span style={{ fontFamily: FONT_MONO, fontSize: 10.5, letterSpacing: '.4px', textTransform: 'uppercase', fontWeight: 600, color: '#1f4e75', background: '#e4edf3', border: '1px solid #cddceb', padding: '3px 9px', borderRadius: 20, flex: 'none', marginTop: 1 }}>
+                          {qq.topic}
+                        </span>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: 13.5, color: '#1a2129', textWrap: 'pretty' }}>{qq.q}</div>
+                          {!!qq.hint && <div style={{ fontSize: 12, color: '#8a7c63', marginTop: 2, textWrap: 'pretty' }}>Hint: {qq.hint}</div>}
+                        </div>
+                        <button
+                          onClick={() => removeHwQuestion(i)}
+                          style={{ border: 'none', background: 'transparent', color: '#a99e88', fontSize: 16, lineHeight: 1, cursor: 'pointer', flex: 'none' }}
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap', marginTop: 20, marginBottom: 40 }}>
+                <button
+                  onClick={createHwSet}
+                  disabled={!hwCanCreate}
+                  style={{ background: hwCanCreate ? '#dd6a2f' : '#f2ece0', color: hwCanCreate ? '#fff' : '#a99e88', border: 'none', borderRadius: 9, padding: '12px 22px', fontSize: 14.5, fontWeight: 600, cursor: hwCanCreate ? 'pointer' : 'not-allowed' }}
+                >
+                  Create problem set →
+                </button>
+                <span style={{ fontSize: 12.5, color: '#8a7c63' }}>Needs a title, at least one topic, and at least one question.</span>
+              </div>
+
+              {/* Already-created */}
+              <div>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 4 }}>
+                  <h2 style={{ fontFamily: FONT_SERIF, fontSize: 19, fontWeight: 600, margin: 0, color: '#0e2a43' }}>Problem sets you've created</h2>
+                  <span style={{ fontFamily: FONT_MONO, fontSize: 12, color: '#8a7c63' }}>{createdProblemSets.length}</span>
+                </div>
+                <p style={{ margin: '0 0 14px', fontSize: 13, lineHeight: 1.5, color: '#5c6773', maxWidth: 560, textWrap: 'pretty' }}>
+                  Visible on Aisha's Home screen the next time she opens it - this list doesn't live-sync into an
+                  already-open student view.
+                </p>
+                {createdProblemSets.length === 0 ? (
+                  <div style={{ background: '#fff', border: '1px dashed #d8cfbb', borderRadius: 12, padding: '26px 20px', textAlign: 'center' }}>
+                    <p style={{ margin: 0, fontSize: 13, color: '#8a7c63', textWrap: 'pretty' }}>Nothing created yet - fill in the form above to set your first one.</p>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    {createdProblemSets.map((t) => {
+                      const open = s.hwExpandedId === t.id
+                      return (
+                        <div key={t.id} style={{ background: '#fff', border: '1px solid #e4dccb', borderRadius: 12, overflow: 'hidden' }}>
+                          <div onClick={() => toggleHwExpanded(t.id)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 18px', cursor: 'pointer' }}>
+                            <div style={{ minWidth: 0, flex: 1 }}>
+                              <div style={{ fontSize: 14.5, fontWeight: 600, color: '#1a2129' }}>{t.title}</div>
+                              <div style={{ fontSize: 12, color: '#8a7c63', marginTop: 2 }}>
+                                {t.topics} · {t.questions.length} question{t.questions.length === 1 ? '' : 's'}
+                              </div>
+                            </div>
+                            {t.requireHandwriting && (
+                              <span style={{ fontFamily: FONT_MONO, fontSize: 11, fontWeight: 600, color: '#b6531f', background: '#fbe7d8', border: '1px solid #eecab0', padding: '3px 10px', borderRadius: 20, whiteSpace: 'nowrap' }}>
+                                📎 photo required
+                              </span>
+                            )}
+                            <span style={{ fontFamily: FONT_MONO, fontSize: 11, fontWeight: 600, color: '#1f4e75', background: '#e4edf3', border: '1px solid #cddceb', padding: '3px 10px', borderRadius: 20, whiteSpace: 'nowrap' }}>
+                              🗓 {t.due}
+                            </span>
+                            <span style={{ color: '#b1a58c', fontSize: 12, width: 14, flex: 'none', textAlign: 'center' }}>{open ? '▾' : '▸'}</span>
+                          </div>
+                          {open && (
+                            <div style={{ padding: '0 18px 16px 18px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                              {t.questions.map((qq, i) => (
+                                <div key={i} style={{ display: 'flex', gap: 9, fontSize: 12.5, lineHeight: 1.5, color: '#5c6773' }}>
+                                  <span style={{ fontFamily: FONT_MONO, fontSize: 10.5, color: '#a99e88', flex: 'none', width: 22 }}>Q{i + 1}</span>
+                                  <span style={{ textWrap: 'pretty' }}>
+                                    <strong style={{ color: '#1a2129', fontWeight: 600 }}>{qq.topic}:</strong> {qq.q}
+                                    {!!qq.hint && <span style={{ color: '#8a7c63' }}> — Hint: {qq.hint}</span>}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
               </div>
             </div>
           )}
