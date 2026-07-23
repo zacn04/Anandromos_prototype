@@ -1,5 +1,7 @@
 import type { CSSProperties } from 'react'
 import { FONT_MONO } from '../theme'
+import type { Problem } from './problems'
+import { topicLabel } from './curriculum'
 
 export interface ReteachCard {
   scope: string
@@ -36,18 +38,26 @@ function scope(txt: string): Pick<ReteachCard, 'scope' | 'scopeStyle'> {
 /**
  * Chooses the re-teach card for one flagged line: scoped to a focused
  * re-teach, quick reminder, full walk-back — or no re-teach for a slip.
+ *
+ * The worked-example steps always come from `problem.lines` - the actual
+ * problem the student just attempted - never a hardcoded equation, so the
+ * card can't show a walk-back for a different problem than the one on
+ * screen. The specific "what went wrong" sentence is pulled from
+ * `problem.solNotes[problem.errIdx]` where the original had it hand-written;
+ * elsewhere the prose stays generic rather than guessing a per-problem moral
+ * ("watch the sign", "isolate the term"...) that would need its own content
+ * pass to get right for every family in the problem bank.
  */
-export function buildReteach(
-  line: number | 'all',
-  reason: string | undefined,
-  errIdx: number,
-): ReteachCard {
+export function buildReteach(line: number | 'all', reason: string | undefined, problem: Problem): ReteachCard {
+  const topic = topicLabel(problem.topic)
+  const errNote = problem.solNotes[problem.errIdx] || 'that step is where it slipped'
+
   if (reason === 'slip') {
     return {
       ...scope('No re-teach needed'),
       heading: 'Looks like a slip',
       body: [
-        'We’ve fixed the line you flagged and kept the rest of your working. A slip like this won’t count against your mastery of linear equations.',
+        `We’ve fixed the line you flagged and kept the rest of your working. A slip like this won’t count against your mastery of ${topic}.`,
       ],
       hasExample: false,
       route: 'Logged as a slip - your knowledge profile is unchanged.',
@@ -59,56 +69,54 @@ export function buildReteach(
       ...scope('Full walk-back'),
       heading: 'Let’s rebuild this from the start',
       body: [
-        'An equation is a balance: whatever you do to one side, you do to the other. To get x on its own, undo what’s around it - one balanced step at a time.',
+        'Go through it one balanced step at a time - whatever is done to one side of the problem is done to the other, all the way to the answer.',
       ],
       hasExample: true,
-      exampleTitle: 'Solve 3x − 7 = 11, balanced',
-      exampleSteps: ['3x − 7 = 11', 'Add 7 to both sides → 3x = 18', 'Divide both sides by 3 → x = 6'],
-      route: 'Routed to: keeping an equation balanced - the idea underneath this whole topic.',
+      exampleTitle: `${problem.prompt}: ${problem.statement}, worked through`,
+      exampleSteps: problem.lines,
+      route: `Routed to: ${topic} - the foundation this builds on.`,
       cta: 'Walk through a similar one →',
     }
   }
-  if (line !== errIdx) {
+  if (line !== problem.errIdx) {
     return {
       ...scope('Focused re-teach'),
       heading: 'That line is actually fine',
       body: [
-        'The line you picked is correct. The step that slipped is line 2, where −7 crossed the equals sign but kept its sign instead of flipping.',
-        'That’s useful to know - we check what you tell us against your wider pattern, and here the real error is one line down.',
+        `The line you picked is correct. The step that slipped is line ${problem.errIdx + 1} - ${errNote}.`,
+        'That’s useful to know - we check what you tell us against your wider pattern, and here the real error is elsewhere.',
       ],
       hasExample: true,
-      exampleTitle: 'The step that actually slipped',
-      exampleSteps: ['3x − 7 = 11', '−7 crosses the = and becomes +7', '3x = 11 + 7 = 18'],
-      route: 'Routed to: inverse operations - moving a term across the equals sign.',
+      exampleTitle: 'The full worked solution',
+      exampleSteps: problem.lines,
+      route: `Routed to: ${topic} - line ${problem.errIdx + 1} is the step to revisit.`,
       cta: 'Try that step again →',
     }
   }
   if (reason === 'silly') {
     return {
       ...scope('Quick reminder'),
-      heading: 'Watch the sign when a term crosses the =',
+      heading: 'Quick reminder on that step',
       body: [
-        'You found the right line. A term that moves across the equals sign flips its sign: −7 becomes +7.',
-        'Your profile shows you usually get this - so we’ll treat it as a reminder, not a re-teach.',
+        `You found the right line - ${errNote}. Your profile shows you usually get this, so we’ll treat it as a reminder, not a re-teach.`,
       ],
       hasExample: true,
       exampleTitle: 'The corrected step',
-      exampleSteps: ['3x − 7 = 11', '3x = 11 + 7', '3x = 18 → x = 6'],
-      route: 'Logged - but noted: this is the third sign error this fortnight, so your teacher sees the pattern.',
+      exampleSteps: problem.lines,
+      route: 'Logged - your teacher can still see the pattern if it repeats.',
       cta: 'Next problem →',
     }
   }
   return {
     ...scope('Focused re-teach'),
-    heading: 'Moving a term to the other side',
+    heading: `Let’s look at line ${problem.errIdx + 1} again`,
     body: [
-      'Moving a term across the equals sign is really doing the same thing to both sides. Subtracting 7 on the left means adding 7 on the right - so −7 becomes +7.',
-      'We’ll give you a couple of these before returning to the full problem.',
+      `Here’s the key step: ${errNote}. We’ll give you a couple of these before returning to the full problem.`,
     ],
     hasExample: true,
-    exampleTitle: 'Same idea, one step',
-    exampleSteps: ['x − 4 = 9', 'Add 4 to both sides', 'x = 13'],
-    route: 'Routed to: inverse operations - the prerequisite for linear equations on your map.',
+    exampleTitle: 'Same problem, worked through',
+    exampleSteps: problem.lines,
+    route: `Routed to: ${topic} on your map.`,
     cta: 'Practise this step →',
   }
 }

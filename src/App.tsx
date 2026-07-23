@@ -3,6 +3,7 @@ import { Logo } from './components/Logo'
 import TeacherApp from './teacher/TeacherApp'
 import StudentApp from './student/StudentApp'
 import ParentApp from './parent/ParentApp'
+import AdminApp from './admin/AdminApp'
 import { FONT_MONO, FONT_SERIF } from './theme'
 
 const POVS = [
@@ -26,6 +27,13 @@ const POVS = [
     who: "Aisha's parent",
     blurb:
       'Read-only: where she\'s growing, what she found tricky and why — never the mark — plus what\'s coming up and her map of maths.',
+  },
+  {
+    to: '/admin',
+    label: 'School admin',
+    who: 'School office · 4 teachers, 8 classes',
+    blurb:
+      'Add teachers, add classes, and assign who teaches what. Minimum viable for the pilot stage — nothing more elaborate than that.',
   },
 ]
 
@@ -72,6 +80,7 @@ export default function App() {
         <Route path="/teacher" element={<TeacherApp />} />
         <Route path="/student" element={<StudentApp />} />
         <Route path="/parent" element={<ParentApp />} />
+        <Route path="/admin" element={<AdminApp />} />
       </Routes>
     </BrowserRouter>
   )

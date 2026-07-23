@@ -66,6 +66,15 @@ export const CURRIC: CurriculumGroup[] = [
 
 export const GRADES = ['Year 7', 'Year 8', 'Year 9']
 
+/** Human label for a topic key, e.g. 'linear' -> 'Linear equations'. Falls back to the key itself. */
+export function topicLabel(key: string): string {
+  for (const g of CURRIC) {
+    const t = g.topics.find(([k]) => k === key)
+    if (t) return t[1]
+  }
+  return key
+}
+
 export const DEFAULT_BASKET: Record<string, boolean> = {
   negatives: true,
   fractions: true,

@@ -1,15 +1,19 @@
 import { useState } from 'react'
 import type { CSSProperties } from 'react'
+import { Link } from 'react-router-dom'
 import { Logo } from '../components/Logo'
 import { GraphSvg } from '../components/GraphSvg'
 import { NodeInfoCard } from '../components/NodeInfoCard'
-import { EDGES, NODES, ST, edgePath } from '../data/knowledgeGraph'
+import { EDGES, NODES, ST, edgePath, statsFor, statusFor } from '../data/knowledgeGraph'
 import { FONT_MONO, FONT_SERIF } from '../theme'
 
 /**
  * Parent POV — read-only: child progress, previous sessions (what she
  * struggled with and why, never the mark), what's coming up, and her map.
  */
+
+/** ParentApp is always Aisha's parent's app — there's no "pick a child" concept here. */
+const STUDENT_ID = 'aisha'
 
 type Screen = 'overview' | 'psessions' | 'pmap'
 
@@ -142,9 +146,6 @@ const NODE_META: Record<string, { ret: string; retColor: string }> = {
   locked: { ret: 'Not started yet', retColor: '#8a7c63' },
 }
 
-const LAST_MAP: Record<string, string> = { n1: 'today · free play', n2: '12 days ago', n3: '15 days ago', n4: '7 days ago', n5: '6 days ago', n6: '2 days ago', n7: '8 days ago', n8: '4 days ago', n9: '2 days ago · free play', n10: '—', n11: 'today', n12: 'today', n13: '—', n14: '—', n15: '—' }
-const NEXT_MAP: Record<string, string> = { n1: 'in 11 days', n2: 'in 14 days', n3: 'in 18 days', n4: 'in 9 days', n5: 'in 8 days', n6: 'tomorrow', n7: 'in 10 days', n8: 'in 5 days', n9: 'tomorrow', n10: 'when ready', n11: 'today', n12: 'today', n13: 'when ready', n14: 'when ready', n15: 'when ready' }
-
 export default function ParentApp() {
   const [s, setS] = useState<ParentState>({ screen: 'overview', selectedNode: null, openSession: null })
 
@@ -159,7 +160,7 @@ export default function ParentApp() {
   const selNode = s.selectedNode ? NODES.find((n) => n.id === s.selectedNode) : null
 
   const mapNodes = NODES.map((n) => {
-    const st = ST[n.st]
+    const st = ST[statusFor(STUDENT_ID, n.id)]
     return {
       id: n.id,
       x: n.x,
@@ -182,13 +183,16 @@ export default function ParentApp() {
       {/* top bar (shared) */}
       <div style={{ background: '#0e2a43', color: '#dbe6ef', padding: '0 22px' }}>
         <div style={{ maxWidth: 880, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 16, height: 56 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
+          <Link
+            to="/"
+            style={{ display: 'flex', alignItems: 'center', gap: 9, textDecoration: 'none' }}
+          >
             <Logo size={26} />
             <span style={{ fontFamily: FONT_SERIF, fontWeight: 600, fontSize: 17, color: '#fff' }}>Anadromos</span>
             <span style={{ fontFamily: FONT_MONO, fontSize: 10, letterSpacing: '.5px', textTransform: 'uppercase', color: '#9fb4c7', background: 'rgba(255,255,255,.08)', padding: '2px 7px', borderRadius: 5, marginLeft: 2 }}>
               Parent
             </span>
-          </div>
+          </Link>
           <div style={{ marginLeft: 'auto', display: 'flex', gap: 6 }}>
             {navRaw.map(([label, scr]) => {
               const on = s.screen === scr
@@ -403,9 +407,9 @@ export default function ParentApp() {
               heading="Topic"
               title={selNode.label}
               fields={[
-                { label: 'How secure', value: NODE_META[selNode.st].ret, color: NODE_META[selNode.st].retColor },
-                { label: 'Last worked', value: LAST_MAP[selNode.id] || '—' },
-                { label: 'Next review', value: NEXT_MAP[selNode.id] || '—' },
+                { label: 'How secure', value: NODE_META[statusFor(STUDENT_ID, selNode.id)].ret, color: NODE_META[statusFor(STUDENT_ID, selNode.id)].retColor },
+                { label: 'Last worked', value: statsFor(STUDENT_ID, selNode.id).last },
+                { label: 'Next review', value: statsFor(STUDENT_ID, selNode.id).next },
               ]}
               onClose={() => setS((st) => ({ ...st, selectedNode: null }))}
             />

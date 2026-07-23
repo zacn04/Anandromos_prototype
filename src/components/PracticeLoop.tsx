@@ -2,29 +2,64 @@ import { useRef, useState } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
 import { FONT_MONO, FONT_SERIF } from '../theme'
 import { buildReteach } from '../data/reteach'
+import type { Problem } from '../data/problems'
+import { topicLabel } from '../data/curriculum'
+import { TeachingCard } from './TeachingCard'
 
 /**
- * The diagnostic practice loop: solve (final answer only) → solution
- * (pinpoint the wrong lines, multi-select) → reason (one pass per flagged
- * line) → re-teach (one scoped card per flagged line).
+ * The diagnostic practice loop: solve (final answer only) → correct, or
+ * solution (pinpoint the wrong lines, multi-select) → reason (one pass per
+ * flagged line) → re-teach (one scoped card per flagged line).
+ *
+ * PracticeLoop drives exactly one problem attempt and knows nothing about
+ * what comes next - it reports the outcome via `onComplete` and stops. The
+ * caller (Free play, the Lesson/Review session wrappers, or the teacher
+ * preview) decides what problem to show next and remounts with a new `key`.
  *
  * Used by the Student POV (full loop, incl. the "Other" free-text reason)
- * and by the Teacher POV as "Preview her practice view" (no "Other").
+ * and by the Teacher POV as "Preview practice view" (no "Other").
  */
+export interface AttemptResult {
+  problemId: string
+  correct: boolean
+  flaggedLines: number[] | 'all'
+  reasons: Record<number, string>
+  notes: Record<number, string>
+  attach: string | null
+}
+
 export interface PracticeLoopProps {
   variant: 'student' | 'preview'
+  problem: Problem
   /** Teacher-set flag: block "Check my answer" until handwriting is attached. */
   requireHandwriting?: boolean
   /** Free-play banner label; null when not in free play. */
   fpLabel?: string | null
   backLabel: string
   title?: string
+  /**
+   * When set, every flagged line's re-teach is shown as if this reason had
+   * been picked, regardless of what the student actually chooses - used by
+   * the silly-mistake retry ("get it wrong again" escalates to the full
+   * re-teach). The student's real self-report is still captured in the
+   * AttemptResult passed to onComplete.
+   */
+  forceReason?: string
+  /**
+   * When true, the solve step renders four tappable options (the correct
+   * answer plus `problem.distractors`, shuffled) instead of the free-type
+   * input and notation palette, and tapping an option advances straight to
+   * checking - no separate "Check my answer" press. Used for the MCQ
+   * confidence-rebuild retry: the second attempt at a similar question
+   * after a self-reported silly mistake. Falls back to the ordinary
+   * free-typed input whenever the problem has no (or an incomplete)
+   * `distractors` array, so a problem that hasn't been authored for MCQ
+   * never renders a broken or partial multiple-choice.
+   */
+  mcq?: boolean
   onExit: () => void
+  onComplete: (result: AttemptResult) => void
 }
-
-const LINES = ['3x − 7 = 11', '3x = 11 + 7', '3x = 18', 'x = 6']
-const SOL_NOTES = ['', '−7 crosses the =, so it becomes +7', '', 'divide both sides by 3']
-const ERR_IDX = 1
 
 const PALETTE_DEFS: Array<[string, string, string]> = [
   ['x²', '²', 'Square'],
@@ -52,48 +87,80 @@ const monoCap = (extra: CSSProperties = {}): CSSProperties => ({
   ...extra,
 })
 
-type Step = 'solve' | 'solution' | 'reason' | 'reteach'
+const normalize = (s: string): string => s.trim().toLowerCase().replace(/\s+/g, '')
+
+/**
+ * Builds the shuffled MCQ option set for the solve step: the correct answer
+ * plus the problem's first three distractors, in random order. Returns null
+ * whenever `mcq` wasn't requested or the problem has no (or an incomplete)
+ * `distractors` array, so the caller can cleanly fall back to the ordinary
+ * free-typed input rather than ever rendering a partial multiple-choice.
+ */
+function buildMcqOptions(mcq: boolean, problem: Problem): string[] | null {
+  if (!mcq || !problem.distractors || problem.distractors.length < 3) return null
+  const options = [problem.correctAnswer, ...problem.distractors.slice(0, 3)]
+  for (let i = options.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[options[i], options[j]] = [options[j], options[i]]
+  }
+  return options
+}
+
+type Step = 'solve' | 'correct' | 'solution' | 'reason' | 'reteach'
 
 interface PState {
   pStep: Step
   pLines: number[]
+  pAllWrong: boolean
   pReasons: Record<number, string>
   pNotes: Record<number, string>
   pOtherOpen: boolean
   pOtherDraft: string
   pIdx: number
-  session: number
   answer: string
   attach: string | null
 }
 
-const FRESH: Omit<PState, 'session'> = {
+const FRESH: PState = {
   pStep: 'solve',
   pLines: [],
+  pAllWrong: false,
   pReasons: {},
   pNotes: {},
   pOtherOpen: false,
   pOtherDraft: '',
   pIdx: 0,
-  answer: '4⁄3',
+  answer: '',
   attach: null,
 }
 
 export function PracticeLoop({
   variant,
+  problem,
   requireHandwriting = false,
   fpLabel = null,
   backLabel,
   title,
+  forceReason,
+  mcq = false,
   onExit,
+  onComplete,
 }: PracticeLoopProps) {
-  const [s, setS] = useState<PState>({ ...FRESH, session: 1 })
+  const [s, setS] = useState<PState>(FRESH)
+  const [mcqOptions] = useState<string[] | null>(() => buildMcqOptions(mcq, problem))
   const fileRef = useRef<HTMLInputElement>(null)
   const setState = (patch: Partial<PState> | ((st: PState) => Partial<PState>)) =>
     setS((st) => ({ ...st, ...(typeof patch === 'function' ? patch(st) : patch) }))
 
   const blocked = requireHandwriting && !s.attach
   const clickable = s.pStep === 'solution'
+
+  /** MCQ solve step: tapping an option both answers and checks in one tap - no separate "Check my answer" press. */
+  const pickMcqOption = (opt: string) => {
+    if (blocked) return
+    const correct = normalize(opt) === normalize(problem.correctAnswer)
+    setState({ answer: opt, pStep: correct ? 'correct' : 'solution' })
+  }
 
   const curLine = s.pLines.length ? s.pLines[Math.min(s.pIdx, s.pLines.length - 1)] : 0
   const advanceReason = (st: PState, patch: Partial<PState>): Partial<PState> => {
@@ -133,19 +200,43 @@ export function PracticeLoop({
     )
   }
 
-  const reasonPrompt = `Line ${curLine + 1}: ${LINES[curLine] || ''}`
+  const reasonPrompt = `Line ${curLine + 1}: ${problem.lines[curLine] || ''}`
   const reasonCounter =
     s.pLines.length > 1
       ? `Line ${Math.min(s.pIdx, s.pLines.length - 1) + 1} of ${s.pLines.length} you flagged`
       : 'The line you flagged'
 
-  const reteachList = (s.pLines.length ? s.pLines : [0]).map((li) => ({
-    line: li + 1,
-    lineTex: LINES[li],
-    note: s.pNotes[li] || '',
-    hasNote: !!s.pNotes[li],
-    ...buildReteach(li, s.pReasons[li], ERR_IDX),
-  }))
+  const effectiveReason = (li: number) => forceReason ?? s.pReasons[li]
+
+  interface ReteachItem {
+    key: string
+    isAllWrong: boolean
+    line: number
+    lineTex: string
+    note: string
+    hasNote: boolean
+    scope: string
+    scopeStyle: CSSProperties
+    heading: string
+    body: string[]
+    hasExample: boolean
+    exampleTitle?: string
+    exampleSteps?: string[]
+    route: string
+    cta: string
+  }
+
+  const reteachList: ReteachItem[] = s.pAllWrong
+    ? [{ key: 'all', isAllWrong: true, line: 0, lineTex: '', note: '', hasNote: false, ...buildReteach('all', undefined, problem) }]
+    : (s.pLines.length ? s.pLines : [0]).map((li) => ({
+        key: String(li),
+        isAllWrong: false,
+        line: li + 1,
+        lineTex: problem.lines[li],
+        note: s.pNotes[li] || '',
+        hasNote: !!s.pNotes[li],
+        ...buildReteach(li, effectiveReason(li), problem),
+      }))
   const reteach = reteachList[reteachList.length - 1]
   const selCount = s.pLines.length
   const continueLabel = selCount > 1 ? `Continue with ${selCount} lines →` : 'Continue →'
@@ -160,13 +251,23 @@ export function PracticeLoop({
     })
   }
 
+  const finish = (correct: boolean) =>
+    onComplete({
+      problemId: problem.id,
+      correct,
+      flaggedLines: s.pAllWrong ? 'all' : s.pLines,
+      reasons: s.pReasons,
+      notes: s.pNotes,
+      attach: s.attach,
+    })
+
   const hwBadgeStyle: CSSProperties = requireHandwriting
     ? { fontSize: 10.5, fontWeight: 600, padding: '2px 9px', borderRadius: 20, color: '#b6531f', background: '#fbe7d8', border: '1px solid #eecab0' }
     : { fontSize: 10.5, fontWeight: 600, padding: '2px 9px', borderRadius: 20, color: '#5c6773', background: '#eef0f2', border: '1px solid #dfe3e7' }
 
   const workingLine = (i: number, interactive: boolean): ReactNode => {
-    const tex = LINES[i]
-    const note = SOL_NOTES[i]
+    const tex = problem.lines[i]
+    const note = problem.solNotes[i]
     if (!interactive) {
       return (
         <div key={i} style={{ display: 'flex', alignItems: 'baseline', gap: 14 }}>
@@ -255,51 +356,80 @@ export function PracticeLoop({
       )}
 
       <div style={{ width: '100%', maxWidth: 680, padding: '26px 24px 60px' }}>
-        {/* informational progress (never a score / comparison) */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
-          <div style={monoCap({ fontSize: 11, letterSpacing: '.8px' })}>Linear equations · frontier</div>
-          <div style={{ flex: 1, height: 6, background: '#e4dccb', borderRadius: 3, overflow: 'hidden' }}>
-            <div style={{ width: '64%', height: '100%', background: '#1f4e75' }} />
-          </div>
-          <div style={{ fontSize: 12, color: '#8a7c63' }}>8 of the ideas this builds on: mastered</div>
+        {/* informational topic label (never a score / comparison) */}
+        <div style={{ marginBottom: 20 }}>
+          <div style={monoCap({ fontSize: 11, letterSpacing: '.8px' })}>{topicLabel(problem.topic)}</div>
         </div>
 
         {/* PROBLEM CARD */}
         <div style={{ background: '#fff', border: '1px solid #e4dccb', borderRadius: 14, padding: '26px 28px', boxShadow: '0 1px 3px rgba(20,48,74,.05)' }}>
-          <div style={monoCap({ fontSize: 11, letterSpacing: '.8px', marginBottom: 8 })}>Solve for x</div>
-          <div style={{ fontFamily: FONT_SERIF, fontSize: 30, fontWeight: 600, color: '#0e2a43', letterSpacing: '.5px' }}>3x − 7 = 11</div>
+          <div style={monoCap({ fontSize: 11, letterSpacing: '.8px', marginBottom: 8 })}>{problem.prompt}</div>
+          <div style={{ fontFamily: FONT_SERIF, fontSize: 30, fontWeight: 600, color: '#0e2a43', letterSpacing: '.5px' }}>{problem.statement}</div>
 
           {/* SOLVE step */}
           {s.pStep === 'solve' && (
             <div style={{ marginTop: 22 }}>
-              <div style={{ fontSize: 12.5, color: '#8a7c63', marginBottom: 8 }}>
-                Type your final answer. Use the palette for notation a keyboard can't produce.
-              </div>
+              {mcqOptions ? (
+                <>
+                  <div style={{ fontSize: 12.5, color: '#8a7c63', marginBottom: 8 }}>Pick the answer you think is right.</div>
+                  {/* MCQ confidence-rebuild retry: tapping an option both answers and checks in one tap */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
+                    {mcqOptions.map((opt, i) => (
+                      <button
+                        key={i}
+                        onClick={() => pickMcqOption(opt)}
+                        disabled={blocked}
+                        style={{
+                          textAlign: 'left',
+                          background: '#faf6ee',
+                          border: '1px solid #e4dccb',
+                          borderRadius: 10,
+                          padding: '14px 16px',
+                          fontFamily: FONT_SERIF,
+                          fontSize: 18,
+                          color: blocked ? '#a99e88' : '#1a2129',
+                          cursor: blocked ? 'not-allowed' : 'pointer',
+                        }}
+                      >
+                        {problem.answerLabel} {opt}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div style={{ fontSize: 12.5, color: '#8a7c63', marginBottom: 8 }}>
+                    Type your final answer. Use the palette for notation a keyboard can't produce.
+                  </div>
 
-              {/* notation palette */}
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, padding: 9, background: '#f2ece0', border: '1px solid #e4dccb', borderBottom: 'none', borderRadius: '10px 10px 0 0' }}>
-                {PALETTE_DEFS.map(([label, ins, hint]) => (
-                  <button
-                    key={label}
-                    onClick={() => setState((st) => ({ answer: (st.answer || '') + ins }))}
-                    title={hint}
-                    style={{ minWidth: 36, height: 34, padding: '0 9px', background: '#fff', border: '1px solid #ddd2bd', borderRadius: 7, fontFamily: FONT_SERIF, fontSize: 16, color: '#0e2a43', cursor: 'pointer' }}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
+                  {/* notation palette */}
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, padding: 9, background: '#f2ece0', border: '1px solid #e4dccb', borderBottom: 'none', borderRadius: '10px 10px 0 0' }}>
+                    {PALETTE_DEFS.map(([label, ins, hint]) => (
+                      <button
+                        key={label}
+                        onClick={() => setState((st) => ({ answer: (st.answer || '') + ins }))}
+                        title={hint}
+                        style={{ minWidth: 36, height: 34, padding: '0 9px', background: '#fff', border: '1px solid #ddd2bd', borderRadius: 7, fontFamily: FONT_SERIF, fontSize: 16, color: '#0e2a43', cursor: 'pointer' }}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
 
-              {/* single final-answer input */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: '#fff', border: '1px solid #e4dccb', borderRadius: '0 0 10px 10px', padding: '2px 14px' }}>
-                <span style={{ fontFamily: FONT_SERIF, fontSize: 19, color: '#a99e88', flex: 'none' }}>x =</span>
-                <input
-                  value={s.answer}
-                  onChange={(e) => setState({ answer: e.target.value })}
-                  placeholder="your answer"
-                  style={{ flex: 1, minWidth: 0, border: 'none', outline: 'none', background: 'transparent', fontFamily: FONT_SERIF, fontSize: 22, color: '#1a2129', padding: '12px 0' }}
-                />
-              </div>
+                  {/* single final-answer input */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: '#fff', border: '1px solid #e4dccb', borderRadius: '0 0 10px 10px', padding: '2px 14px' }}>
+                    {!!problem.answerLabel && (
+                      <span style={{ fontFamily: FONT_SERIF, fontSize: 19, color: '#a99e88', flex: 'none' }}>{problem.answerLabel}</span>
+                    )}
+                    <input
+                      value={s.answer}
+                      onChange={(e) => setState({ answer: e.target.value })}
+                      placeholder="your answer"
+                      style={{ flex: 1, minWidth: 0, border: 'none', outline: 'none', background: 'transparent', fontFamily: FONT_SERIF, fontSize: 22, color: '#1a2129', padding: '12px 0' }}
+                    />
+                  </div>
+                </>
+              )}
 
               {/* optional handwriting upload */}
               <div style={{ marginTop: 12, background: '#faf6ee', border: '1px dashed #cdbfa6', borderRadius: 10, padding: '14px 16px' }}>
@@ -338,23 +468,53 @@ export function PracticeLoop({
                 </p>
               </div>
 
-              <button
-                onClick={() => {
-                  if (!blocked) setState({ pStep: 'solution' })
-                }}
-                style={{ marginTop: 18, width: '100%', color: '#fff', border: 'none', borderRadius: 10, padding: 13, fontWeight: 600, fontSize: 15, background: blocked ? '#e7c3ab' : '#dd6a2f', cursor: blocked ? 'not-allowed' : 'pointer' }}
-              >
-                Check my answer
-              </button>
-              {blocked ? (
-                <p style={{ margin: '8px 0 0', textAlign: 'center', fontSize: 12, color: '#b6531f' }}>
-                  Your teacher has asked for a photo of your handwritten working on this assignment.
-                </p>
+              {mcqOptions ? (
+                blocked && (
+                  <p style={{ margin: '12px 0 0', textAlign: 'center', fontSize: 12, color: '#b6531f' }}>
+                    Your teacher has asked for a photo of your handwritten working on this assignment.
+                  </p>
+                )
               ) : (
-                <p style={{ margin: '12px 0 0', textAlign: 'center', fontSize: 12, color: '#a99e88' }}>
-                  You attempt it on your own first - help only comes after.
-                </p>
+                <>
+                  <button
+                    onClick={() => {
+                      if (blocked) return
+                      const correct = normalize(s.answer) === normalize(problem.correctAnswer)
+                      setState({ pStep: correct ? 'correct' : 'solution' })
+                    }}
+                    style={{ marginTop: 18, width: '100%', color: '#fff', border: 'none', borderRadius: 10, padding: 13, fontWeight: 600, fontSize: 15, background: blocked ? '#e7c3ab' : '#dd6a2f', cursor: blocked ? 'not-allowed' : 'pointer' }}
+                  >
+                    Check my answer
+                  </button>
+                  {blocked ? (
+                    <p style={{ margin: '8px 0 0', textAlign: 'center', fontSize: 12, color: '#b6531f' }}>
+                      Your teacher has asked for a photo of your handwritten working on this assignment.
+                    </p>
+                  ) : (
+                    <p style={{ margin: '12px 0 0', textAlign: 'center', fontSize: 12, color: '#a99e88' }}>
+                      You attempt it on your own first - help only comes after.
+                    </p>
+                  )}
+                </>
               )}
+            </div>
+          )}
+
+          {/* CORRECT step */}
+          {s.pStep === 'correct' && (
+            <div style={{ marginTop: 22 }}>
+              <div style={{ background: '#eef3f7', border: '1px solid #d3e0ea', borderRadius: 10, padding: '16px 18px', display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#1f4e75', marginTop: 5, flex: 'none' }} />
+                <div style={{ fontSize: 13.5, color: '#2b4a63', lineHeight: 1.5 }}>
+                  That's right{!!problem.answerLabel && ` - ${problem.answerLabel} ${problem.correctAnswer}`}.
+                </div>
+              </div>
+              <button
+                onClick={() => finish(true)}
+                style={{ marginTop: 16, width: '100%', background: '#dd6a2f', color: '#fff', border: 'none', borderRadius: 10, padding: 14, fontWeight: 600, fontSize: 14.5, cursor: 'pointer' }}
+              >
+                Continue →
+              </button>
             </div>
           )}
 
@@ -370,19 +530,23 @@ export function PracticeLoop({
               <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', marginBottom: 22 }}>
                 <div style={{ flex: 1, minWidth: 150, background: '#faf6ee', border: '1px solid #e4dccb', borderRadius: 12, padding: '16px 18px' }}>
                   <div style={monoCap({ marginBottom: 8 })}>Your answer</div>
-                  <div style={{ fontFamily: FONT_SERIF, fontSize: 24, color: '#1a2129' }}>x = {s.answer}</div>
+                  <div style={{ fontFamily: FONT_SERIF, fontSize: 24, color: '#1a2129' }}>
+                    {problem.answerLabel} {s.answer}
+                  </div>
                   <div style={{ marginTop: 4, fontSize: 12, color: '#b6531f', fontWeight: 600 }}>✗ not correct</div>
                 </div>
                 <div style={{ flex: 1, minWidth: 150, background: '#eef3f7', border: '1px solid #d3e0ea', borderRadius: 12, padding: '16px 18px' }}>
                   <div style={monoCap({ color: '#1f4e75', marginBottom: 8 })}>Correct answer</div>
-                  <div style={{ fontFamily: FONT_SERIF, fontSize: 24, color: '#0e2a43' }}>x = 6</div>
+                  <div style={{ fontFamily: FONT_SERIF, fontSize: 24, color: '#0e2a43' }}>
+                    {problem.answerLabel} {problem.correctAnswer}
+                  </div>
                   <div style={{ marginTop: 4, fontSize: 12, color: '#1f4e75', fontWeight: 600 }}>✓</div>
                 </div>
               </div>
               <div style={monoCap({ letterSpacing: '.6px', marginBottom: 10 })}>Worked solution</div>
               <div style={{ background: '#fff', border: '1px solid #e4dccb', borderRadius: 12, padding: '16px 20px', marginBottom: 22 }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 11 }}>
-                  {LINES.map((_, i) => workingLine(i, false))}
+                  {problem.lines.map((_, i) => workingLine(i, false))}
                 </div>
               </div>
               <div style={{ fontSize: 13.5, color: '#0e2a43', fontWeight: 600, marginBottom: 4, fontFamily: FONT_SERIF }}>
@@ -392,18 +556,18 @@ export function PracticeLoop({
                 Tick every line where you used the wrong technique, or don't understand why it was done. You can pick more than one.
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {LINES.map((_, i) => workingLine(i, true))}
+                {problem.lines.map((_, i) => workingLine(i, true))}
               </div>
               {selCount > 0 && (
                 <button
-                  onClick={() => setState({ pStep: 'reason', pIdx: 0, pReasons: {}, pNotes: {}, pOtherOpen: false, pOtherDraft: '' })}
+                  onClick={() => setState({ pStep: 'reason', pIdx: 0, pAllWrong: false, pReasons: {}, pNotes: {}, pOtherOpen: false, pOtherDraft: '' })}
                   style={{ marginTop: 16, width: '100%', background: '#dd6a2f', color: '#fff', border: 'none', borderRadius: 10, padding: 14, fontWeight: 600, fontSize: 14.5, cursor: 'pointer' }}
                 >
                   {continueLabel}
                 </button>
               )}
               <button
-                onClick={() => setState({ pLines: LINES.map((_, i) => i), pStep: 'reason', pIdx: 0, pReasons: {}, pNotes: {}, pOtherOpen: false, pOtherDraft: '' })}
+                onClick={() => setState({ pLines: problem.lines.map((_, i) => i), pAllWrong: true, pStep: 'reteach', pReasons: {}, pNotes: {} })}
                 style={{ marginTop: 10, width: '100%', background: '#fff', color: '#0e2a43', border: '1.5px dashed #b9a888', borderRadius: 10, padding: 12, fontWeight: 600, fontSize: 13.5, cursor: 'pointer' }}
               >
                 I'm not sure where · I got it all wrong
@@ -478,11 +642,13 @@ export function PracticeLoop({
             <div style={{ marginTop: 22 }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                 {reteachList.map((rt) => (
-                  <div key={rt.line} style={{ border: '1px solid #e4dccb', borderRadius: 12, padding: '18px 20px', background: '#fffdf9' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-                      <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: '#a99e88' }}>Line {rt.line}</span>
-                      <span style={{ fontFamily: FONT_SERIF, fontSize: 16, color: '#1a2129' }}>{rt.lineTex}</span>
-                    </div>
+                  <div key={rt.key} style={{ border: '1px solid #e4dccb', borderRadius: 12, padding: '18px 20px', background: '#fffdf9' }}>
+                    {!rt.isAllWrong && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+                        <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: '#a99e88' }}>Line {rt.line}</span>
+                        <span style={{ fontFamily: FONT_SERIF, fontSize: 16, color: '#1a2129' }}>{rt.lineTex}</span>
+                      </div>
+                    )}
                     <span style={rt.scopeStyle}>{rt.scope}</span>
                     {rt.hasNote && (
                       <div style={{ marginTop: 10, background: '#f6f1e7', border: '1px solid #e4dccb', borderRadius: 9, padding: '11px 13px' }}>
@@ -490,24 +656,9 @@ export function PracticeLoop({
                         <div style={{ fontSize: 13, color: '#3f4a54', lineHeight: 1.5, textWrap: 'pretty' }}>{rt.note}</div>
                       </div>
                     )}
-                    <h3 style={{ fontFamily: FONT_SERIF, fontSize: 19, fontWeight: 600, color: '#0e2a43', margin: '10px 0 8px' }}>{rt.heading}</h3>
-                    {rt.body.map((para, i) => (
-                      <p key={i} style={{ margin: '0 0 10px', fontSize: 14, lineHeight: 1.6, color: '#3f4a54', textWrap: 'pretty' }}>
-                        {para}
-                      </p>
-                    ))}
-                    {rt.hasExample && (
-                      <div style={{ marginTop: 6, background: '#f6f1e7', border: '1px solid #e4dccb', borderRadius: 10, padding: '16px 18px' }}>
-                        <div style={monoCap({ letterSpacing: '.6px', marginBottom: 10 })}>{rt.exampleTitle}</div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
-                          {rt.exampleSteps!.map((step, i) => (
-                            <div key={i} style={{ fontFamily: FONT_SERIF, fontSize: 17, color: '#1a2129' }}>
-                              {step}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+                    <div style={{ marginTop: 10 }}>
+                      <TeachingCard heading={rt.heading} body={rt.body} exampleTitle={rt.exampleTitle} exampleSteps={rt.exampleSteps} />
+                    </div>
                     <div style={{ marginTop: 14, display: 'flex', gap: 9, alignItems: 'flex-start', background: '#eef3f7', border: '1px solid #d3e0ea', borderRadius: 9, padding: '12px 14px' }}>
                       <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#1f4e75', marginTop: 6, flex: 'none' }} />
                       <div style={{ fontSize: 12.5, lineHeight: 1.5, color: '#2b4a63' }}>{rt.route}</div>
@@ -517,7 +668,7 @@ export function PracticeLoop({
               </div>
               <div style={{ marginTop: 20, display: 'flex', gap: 10 }}>
                 <button
-                  onClick={() => setState((st) => ({ ...FRESH, session: st.session + 1 }))}
+                  onClick={() => finish(false)}
                   style={{ flex: 1, background: '#dd6a2f', color: '#fff', border: 'none', borderRadius: 10, padding: 13, fontWeight: 600, fontSize: 14.5, cursor: 'pointer' }}
                 >
                   {reteach.cta}

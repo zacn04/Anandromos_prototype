@@ -1,12 +1,29 @@
 import { useRef, useState } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
+import { Link } from 'react-router-dom'
 import { Logo } from '../components/Logo'
 import { GraphSvg } from '../components/GraphSvg'
 import { NodeInfoCard } from '../components/NodeInfoCard'
 import { PracticeLoop } from '../components/PracticeLoop'
+import type { AttemptResult } from '../components/PracticeLoop'
+import { LessonSession } from '../components/LessonSession'
+import { ReviewSession } from '../components/ReviewSession'
+import { DiagnosticTest } from '../components/DiagnosticTest'
 import { BASKETS, EDGES, NODES, ST, edgePath } from '../data/knowledgeGraph'
+import type { EngineNodeState, EngineState, MasteryTier } from '../data/engine'
+import { initEngineState, recordAttempt } from '../data/engine'
 import { LOG_RAW } from '../data/activityLog'
+import { LESSONS } from '../data/lessons'
+import { problemById, problemsForTopic } from '../data/problems'
+import { topicLabel } from '../data/curriculum'
+import { getProblemSets } from '../data/teacherProblemSets'
+import type { AuthoredQuestion } from '../data/teacherProblemSets'
+import { pushLiveFlag } from '../data/liveOversight'
+import { getLiveSessions, pushLiveSession } from '../data/liveSessions'
 import { FONT_MONO, FONT_SERIF } from '../theme'
+
+/** StudentApp is always Aisha's own app — there's no "pick a student" concept here. */
+const STUDENT_ID = 'aisha'
 
 /**
  * Student POV — a calm home of mastery-path lessons/reviews plus teacher-set
@@ -15,6 +32,7 @@ import { FONT_MONO, FONT_SERIF } from '../theme'
  */
 
 type Screen =
+  | 'sdiagnostic'
   | 'shome'
   | 'sprogress'
   | 'ssessions'
@@ -25,12 +43,39 @@ type Screen =
   | 'fptopic'
   | 'practice'
 
+type PracticeMode = 'lesson' | 'review' | 'freeplay' | 'unavailable'
+
 interface StudentState {
   screen: Screen
+  /**
+   * Whether the one-time diagnostic/placement test (components/DiagnosticTest.tsx,
+   * Appendix A) has been completed this session. Starts false, so `screen`
+   * starts on 'sdiagnostic' instead of 'shome' - see INITIAL below - and
+   * flips true (never back) the moment the student reaches its closing
+   * summary screen and presses Continue. Nothing else in the app ever
+   * routes back to 'sdiagnostic', so this is a one-way, one-time gate.
+   */
+  diagnosticDone: boolean
   smapView: 'focused' | 'full'
-  pathDone: number
+  /**
+   * Indices into PATH_RAW that have actually been completed, in whatever
+   * order they were done - not just a "how far in order" cursor, since
+   * "Speed through lessons" (see speedMode) makes out-of-order completion
+   * reachable. `pathPrefixDone()` derives the old-style "N of 6 done"
+   * sequential count from this whenever that's what's wanted.
+   */
+  pathCompleted: number[]
+  /** "Speed through lessons" toggle (Home, near "Your path") - see isPathItemLocked(). */
+  speedMode: boolean
   fpTopic: string | null
   fpLabel: string | null
+  fpProblemIdx: number
+  practiceMode: PracticeMode | null
+  practiceTopic: string | null
+  /** Which PATH_RAW index is in progress, so its completion callback knows what to mark done. */
+  activePathIdx: number | null
+  /** Which teacher-authored problem set (data/teacherProblemSets.ts) is open in `psolve`; null means the static PS_SET demo set. */
+  activePsId: string | null
   psIdx: number
   psAnswers: Record<number, string>
   psSubmitted: boolean
@@ -38,7 +83,48 @@ interface StudentState {
   selectedLog: number | null
   selectedNode: string | null
   graphFilter: string
-  session: number
+}
+
+/** PATH_RAW / Free-play subtopic label -> problems.ts topic key. Only topics with an authored problem bank are listed; everything else gets an honest "not built out yet" placeholder rather than mismatched content. */
+const PATH_TOPIC_KEY: Record<string, string> = {
+  'Inverse operations': 'linear',
+  'One-step equations': 'linear',
+  'Two-step equations': 'linear',
+  'Equations with brackets': 'linear',
+  'Fractions → %': 'fracpct',
+}
+const FREEPLAY_TOPIC_KEY: Record<string, string> = {
+  Substitution: 'substitution',
+}
+
+/**
+ * problems.ts topic key -> knowledgeGraph.ts node id, so recording an
+ * attempt knows which map node to update. Cross-checked against NODES'
+ * labels: n11 'Linear equations' (linear), n9 'Substitution'
+ * (substitution), n6 'Fractions → %' (fracpct) - the only three topics with
+ * a real problem bank, matching PATH_TOPIC_KEY/FREEPLAY_TOPIC_KEY above.
+ */
+const TOPIC_TO_NODE_ID: Record<string, string> = {
+  linear: 'n11',
+  substitution: 'n9',
+  fracpct: 'n6',
+}
+
+/** Defensive fallback for a node id the live engine hasn't seeded - shouldn't happen, since initEngineState seeds all 15 ids from the same static map this app always showed, but cheaper and more honest than a crash if a new node id is ever added to knowledgeGraph.ts without a matching status entry. */
+const FALLBACK_NODE_STATE: EngineNodeState = { status: 'notready', last: '—', next: 'when ready', reps: 0 }
+
+/**
+ * Free-play subtopic label -> topic key, for the subset of FP_TOPICS whose
+ * `unlocked` flag should read live off the engine instead of the static
+ * sample data: Substitution (has a problem bank) and Linear equations
+ * (topicLabel('linear') - the only topic with a real Lesson, so the only
+ * other one worth a live "not just notready/locked" unlock signal). Every
+ * other Free-play label has no problem bank behind it and is left exactly
+ * as the static sample data has it - see FREEPLAY_TOPIC_KEY's comment.
+ */
+const FP_LIVE_UNLOCK_TOPIC_KEY: Record<string, string> = {
+  Substitution: 'substitution',
+  'Linear equations': 'linear',
 }
 
 const monoCap = (extra: CSSProperties = {}): CSSProperties => ({
@@ -177,16 +263,27 @@ const FP_TOPICS = [
   },
 ]
 
+/**
+ * PROGRESS_TOPICS' name -> problems.ts/curriculum topic key, wired up only
+ * because the match to a live masteryByTopic entry is clean and exact here
+ * - all four names below match a studentProfiles.ts mastery row verbatim,
+ * which is itself how initEngineState seeds masteryByTopic. Not a
+ * general-purpose alias table - if PROGRESS_TOPICS ever grows a row without
+ * an equally clean match, leave it out rather than guessing.
+ */
+const PROGRESS_TOPIC_KEY: Record<string, string> = {
+  Negatives: 'negatives',
+  'Fractions & %': 'fracpct',
+  Substitution: 'substitution',
+  'Linear equations': 'linear',
+}
+
 const PROGRESS_TOPICS = [
   { name: 'Negatives', pct: 96, label: 'Mastered' },
   { name: 'Fractions & %', pct: 78, label: 'Strong' },
   { name: 'Substitution', pct: 52, label: 'Building' },
   { name: 'Linear equations', pct: 34, label: 'Learning now' },
 ]
-
-const LAST_MAP: Record<string, string> = { n1: 'today · free play', n2: '12 days ago', n3: '15 days ago', n4: '7 days ago', n5: '6 days ago', n6: '2 days ago', n7: '8 days ago', n8: '4 days ago', n9: '2 days ago · free play', n10: '—', n11: 'today', n12: 'today', n13: '—', n14: '—', n15: '—' }
-const NEXT_MAP: Record<string, string> = { n1: 'in 11 days', n2: 'in 14 days', n3: 'in 18 days', n4: 'in 9 days', n5: 'in 8 days', n6: 'tomorrow', n7: 'in 10 days', n8: 'in 5 days', n9: 'tomorrow', n10: 'when ready', n11: 'today', n12: 'today', n13: 'when ready', n14: 'when ready', n15: 'when ready' }
-const REPS_MAP: Record<string, number> = { n1: 16, n2: 13, n3: 11, n4: 12, n5: 14, n6: 9, n7: 10, n8: 15, n9: 7, n10: 0, n11: 5, n12: 3, n13: 0, n14: 0, n15: 0 }
 
 const NAV_ITEMS: Array<[string, Screen]> = [
   ['Home', 'shome'],
@@ -197,11 +294,18 @@ const NAV_ITEMS: Array<[string, Screen]> = [
 ]
 
 const INITIAL: StudentState = {
-  screen: 'shome',
+  screen: 'sdiagnostic',
+  diagnosticDone: false,
   smapView: 'focused',
-  pathDone: 2,
+  pathCompleted: [0, 1],
+  speedMode: false,
   fpTopic: null,
   fpLabel: null,
+  fpProblemIdx: 0,
+  practiceMode: null,
+  practiceTopic: null,
+  activePathIdx: null,
+  activePsId: null,
   psIdx: 0,
   psAnswers: {},
   psSubmitted: false,
@@ -209,7 +313,6 @@ const INITIAL: StudentState = {
   selectedLog: null,
   selectedNode: null,
   graphFilter: 'all',
-  session: 1,
 }
 
 export default function StudentApp() {
@@ -218,18 +321,298 @@ export default function StudentApp() {
   const setState = (patch: Partial<StudentState> | ((st: StudentState) => Partial<StudentState>)) =>
     setS((st) => ({ ...st, ...(typeof patch === 'function' ? patch(st) : patch) }))
 
-  const startPractice = (extra: Partial<StudentState> = {}) =>
-    setState((st) => ({ screen: 'practice', session: st.session, ...extra }))
+  // Live computed mastery (data/engine.ts) - seeded once from exactly the same static
+  // overlays every POV already shows for this student, then moved forward only by real
+  // recordAttempt calls as Aisha actually practises.
+  const [engine, setEngine] = useState<EngineState>(() => initEngineState(STUDENT_ID))
+  const engineNode = (nodeId: string): EngineNodeState => engine.nodes[nodeId] ?? FALLBACK_NODE_STATE
+
+  /**
+   * Records one real attempt on the live engine. Difficulty comes from the
+   * problem bank (falls back to 'core' if a problem id somehow isn't
+   * found); weak is always false here - this is all confident practice
+   * attempts from PracticeLoop/LessonSession/ReviewSession. weak is for
+   * the diagnostic test's guesses instead (recordDiagnosticAttempt below).
+   * No-ops for a topic with no knowledge-graph node behind it (nothing
+   * outside TOPIC_TO_NODE_ID's three topics currently reaches this).
+   */
+  const recordTopicAttempt = (topic: string, result: AttemptResult) => {
+    const nodeId = TOPIC_TO_NODE_ID[topic]
+    if (!nodeId) return
+    const difficulty: MasteryTier = problemById(result.problemId)?.difficulty ?? 'core'
+    setEngine((prev) => recordAttempt(prev, { nodeId, topic, difficulty, correct: result.correct, weak: false }))
+  }
+
+  /**
+   * Records one diagnostic-test answer on the live engine - same
+   * TOPIC_TO_NODE_ID mapping, same problemById difficulty lookup, and the
+   * same setEngine(recordAttempt(...)) call as recordTopicAttempt above,
+   * just with `weak` and `correct` passed straight through instead of
+   * hardcoded, since DiagnosticTest's onAnswer already computed them (see
+   * that component: "I guessed" always passes correct: false, weak: true;
+   * "I don't know" never calls onAnswer at all, so never reaches here).
+   */
+  const recordDiagnosticAttempt = (topic: string, problemId: string, correct: boolean, weak: boolean) => {
+    const nodeId = TOPIC_TO_NODE_ID[topic]
+    if (!nodeId) return
+    const difficulty: MasteryTier = problemById(problemId)?.difficulty ?? 'core'
+    setEngine((prev) => recordAttempt(prev, { nodeId, topic, difficulty, correct, weak }))
+  }
+
+  /**
+   * LessonSession/ReviewSession's onGamingSignal - fires once three
+   * consecutive attempts in one session were all marked "I got it all
+   * wrong". Builds a live Oversight card (data/liveOversight.ts) styled the
+   * same as the static gaming-pattern sample in data/oversight.ts, honest
+   * about what was actually observed rather than inventing per-line detail
+   * this app doesn't have for a live-detected pattern.
+   */
+  const reportGamingSignal = (topic: string, sessionKind: 'Lesson' | 'Review') => {
+    const subtopic = topicLabel(topic)
+    const kindLower = sessionKind.toLowerCase()
+    pushLiveFlag({
+      kind: 'gaming',
+      student: 'Aisha Bello',
+      context: `${subtopic} · ${kindLower}, today`,
+      title: 'Three "all wrong" answers in a row',
+      body: `Aisha marked three attempts in a row as "I got it all wrong" in this ${kindLower}, without narrowing down which lines were right or wrong first. That can be a genuine stuck point, or a way to skip straight past the diagnostic to the worked solution. Flagged for your judgement rather than assumed either way.`,
+      asks: 'Genuine stuck point, or skipping the diagnostic?',
+      detail: {
+        kind: sessionKind,
+        title: `${subtopic} · ${kindLower}, live-detected`,
+        date: 'Today',
+        result: 'flagged',
+        flag: 'attention',
+        upload: false,
+        items: [
+          {
+            label: 'Pattern',
+            q: 'Three consecutive "I got it all wrong" answers',
+            hit: true,
+            note: `Marked "I got it all wrong" three times running in this ${kindLower}, without picking out specific lines first.`,
+          },
+        ],
+      },
+    })
+  }
+
+  /**
+   * Live mastery level in [0,1] for a topic - the same foundations/core/
+   * stretch tier average `progressPct` below computes, just left as a raw
+   * fraction instead of rounded to a percentage. Threaded into
+   * LessonSession's teach-phase scaffolding fade; undefined when the engine
+   * has no tier data yet for this topic, matching LessonSession's own
+   * "unavailable -> fully scaffolded" default.
+   */
+  const masteryLevelFor = (topic: string): number | undefined => {
+    const tier = engine.masteryByTopic[topic]
+    return tier ? (tier.foundations + tier.core + tier.stretch) / 3 : undefined
+  }
+
+  /** Live unlock for the handful of Free-play subtopics with a topic mapping (see FP_LIVE_UNLOCK_TOPIC_KEY); everything else keeps its static sample-data flag untouched. */
+  const isSubUnlocked = (su: { name: string; unlocked: boolean }): boolean => {
+    const topicKey = FP_LIVE_UNLOCK_TOPIC_KEY[su.name]
+    const nodeId = topicKey ? TOPIC_TO_NODE_ID[topicKey] : undefined
+    if (!nodeId) return su.unlocked
+    const status = engineNode(nodeId).status
+    return status !== 'notready' && status !== 'locked'
+  }
+
+  /** Live mastery % for the handful of Progress rows with a clean topic mapping (see PROGRESS_TOPIC_KEY); falls back to the static sample pct otherwise. */
+  const progressPct = (t: { name: string; pct: number }): number => {
+    const key = PROGRESS_TOPIC_KEY[t.name]
+    const tier = key ? engine.masteryByTopic[key] : undefined
+    return tier ? Math.round(((tier.foundations + tier.core + tier.stretch) / 3) * 100) : t.pct
+  }
+
+  const openPathItem = (i: number) => {
+    const it = PATH_RAW[i]
+    const topicKey = PATH_TOPIC_KEY[it.subtopic]
+    const mode: PracticeMode = !topicKey ? 'unavailable' : it.kind === 'Review' ? 'review' : 'lesson'
+    setState({
+      screen: 'practice',
+      activePathIdx: i,
+      practiceMode: mode,
+      practiceTopic: topicKey ?? null,
+      fpLabel: null,
+    })
+  }
+
+  const openFreePlay = (subtopicName: string) => {
+    const topicKey = FREEPLAY_TOPIC_KEY[subtopicName]
+    setState({
+      screen: 'practice',
+      activePathIdx: null,
+      practiceMode: topicKey ? 'freeplay' : 'unavailable',
+      practiceTopic: topicKey ?? null,
+      fpLabel: subtopicName,
+      fpProblemIdx: 0,
+    })
+  }
+
+  // A path item only counts as "done" if it was actually completed (session outcome, win or
+  // lose) - not just opened. A failed review still marks the item done (the work was done; the
+  // consequence is the redo-lesson flag, not lost progress), matching the non-punitive framing
+  // used throughout the practice loop itself. Marks whichever item was active regardless of
+  // order - with "Speed through lessons" on, that can be a Lesson further down the path than
+  // pathPrefixDone() has reached; see isPathItemLocked() for the gate this gets recorded against.
+  const completePathItem = () =>
+    setState((st) => ({
+      screen: 'shome',
+      pathCompleted: st.activePathIdx !== null && !st.pathCompleted.includes(st.activePathIdx)
+        ? [...st.pathCompleted, st.activePathIdx]
+        : st.pathCompleted,
+      activePathIdx: null,
+      practiceMode: null,
+      practiceTopic: null,
+    }))
+
+  /** The old-style "N of 6 done" sequential count: the length of the unbroken done-prefix from index 0, so speed-running a later item never inflates this past the earliest still-undone one. */
+  const pathPrefixDone = (completed: number[]): number => {
+    let n = 0
+    while (completed.includes(n)) n++
+    return n
+  }
+
+  /**
+   * A PATH_RAW Review counts as a gate only if it actually has content behind
+   * it (see PATH_TOPIC_KEY) - a Review with none (e.g. 'Negatives', which has
+   * no problem bank) can never be completed through openPathItem/completePathItem,
+   * so treating it as a gate would permanently lock every item after it with
+   * no way out short of Speed mode. Lessons never gate at all, matching
+   * isPathItemLocked's original contract.
+   */
+  const isGatingReview = (it: { kind: string; subtopic: string }): boolean =>
+    it.kind === 'Review' && !!PATH_TOPIC_KEY[it.subtopic]
+
+  /**
+   * True when an earlier PATH_RAW item is a (completable) Review that hasn't
+   * been done yet - Reviews are the only gate (Lessons never block each other
+   * or get blocked by an earlier Lesson), matching Appendix A: "freedom to
+   * speed through lessons" but progress "capped" until reviews are done.
+   * Speed mode lifts the gate entirely; the honest "N reviews pending"
+   * indicator (see pendingReviews below) is what keeps that from silently
+   * reading as full completion once it's lifted.
+   */
+  const isPathItemLocked = (i: number): boolean =>
+    !s.speedMode && PATH_RAW.some((it, j) => j < i && isGatingReview(it) && !s.pathCompleted.includes(j))
+
+  /**
+   * Reviews that got jumped over via speed mode: incomplete, but earlier
+   * than the furthest item actually completed. Zero whenever nothing's been
+   * completed out of order (including with speed mode off, since locking
+   * makes that unreachable) - this is what keeps a later Lesson's "Done"
+   * from silently reading as full completion of everything before it. Scoped
+   * to the same gating Reviews as isPathItemLocked, so a content-less Review
+   * like 'Negatives' can't sit here forever as a pending count that can never
+   * be cleared.
+   */
+  const highestPathCompletedIdx = s.pathCompleted.length ? Math.max(...s.pathCompleted) : -1
+  const pendingReviews = PATH_RAW.filter(
+    (it, i) => isGatingReview(it) && i < highestPathCompletedIdx && !s.pathCompleted.includes(i),
+  )
+
+  // One-time diagnostic/placement test, shown in place of Home until it's done - see
+  // diagnosticDone's comment on StudentState. Guarded on both the screen and the flag (rather
+  // than just the screen) so this stays correct even if something later ever routes back to
+  // 'sdiagnostic' by mistake; nothing currently does, since NAV_ITEMS has no entry for it.
+  if (s.screen === 'sdiagnostic' && !s.diagnosticDone) {
+    return (
+      <DiagnosticTest
+        onAnswer={recordDiagnosticAttempt}
+        onDone={() => setState({ screen: 'shome', diagnosticDone: true })}
+      />
+    )
+  }
 
   if (s.screen === 'practice') {
+    const exitPractice = () =>
+      setState({
+        screen: s.fpLabel ? 'fptopic' : 'shome',
+        fpLabel: null,
+        activePathIdx: null,
+        practiceMode: null,
+        practiceTopic: null,
+      })
+
+    if (s.practiceMode === 'lesson' && s.practiceTopic && LESSONS[s.practiceTopic]) {
+      const topic = s.practiceTopic
+      return (
+        <LessonSession
+          lesson={LESSONS[topic]}
+          backLabel="← Home"
+          onExit={exitPractice}
+          onComplete={completePathItem}
+          onAttempt={(result) => recordTopicAttempt(topic, result)}
+          onGamingSignal={() => reportGamingSignal(topic, 'Lesson')}
+          masteryLevel={masteryLevelFor(topic)}
+          onSessionLogged={pushLiveSession}
+        />
+      )
+    }
+
+    if (s.practiceMode === 'review' && s.practiceTopic) {
+      const topic = s.practiceTopic
+      const lesson = LESSONS[topic]
+      return (
+        <ReviewSession
+          topic={topic}
+          subtopicLabel={topicLabel(topic)}
+          backLabel="← Home"
+          onExit={exitPractice}
+          onComplete={completePathItem}
+          onGoToLesson={lesson ? () => setState({ practiceMode: 'lesson' }) : undefined}
+          onAttempt={(result) => recordTopicAttempt(topic, result)}
+          onGamingSignal={() => reportGamingSignal(topic, 'Review')}
+          onSessionLogged={pushLiveSession}
+        />
+      )
+    }
+
+    if (s.practiceMode === 'freeplay' && s.practiceTopic) {
+      const topic = s.practiceTopic
+      const pool = problemsForTopic(topic)
+      const problem = pool[s.fpProblemIdx % pool.length]
+      return (
+        <PracticeLoop
+          key={`${problem.id}-${s.fpProblemIdx}`}
+          variant="student"
+          problem={problem}
+          fpLabel={s.fpLabel}
+          backLabel="← Free play"
+          title={s.fpLabel || undefined}
+          onExit={exitPractice}
+          onComplete={(result) => {
+            recordTopicAttempt(topic, result)
+            setState((st) => ({ fpProblemIdx: st.fpProblemIdx + 1 }))
+          }}
+        />
+      )
+    }
+
+    // practiceMode === 'unavailable' - honest placeholder rather than mismatched content
+    const unavailableLabel = s.fpLabel || (s.activePathIdx != null ? PATH_RAW[s.activePathIdx].subtopic : 'this subtopic')
     return (
-      <PracticeLoop
-        variant="student"
-        fpLabel={s.fpLabel}
-        backLabel={s.fpLabel ? '← Free play' : '← Home'}
-        title={s.fpLabel || 'Linear equations'}
-        onExit={() => setState({ screen: s.fpLabel ? 'fptopic' : 'shome', fpLabel: null })}
-      />
+      <div style={{ minHeight: '100vh', background: '#f6f1e7', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <div style={{ width: '100%', background: '#0e2a43', color: '#dbe6ef', padding: '11px 22px' }}>
+          <div style={{ maxWidth: 680, margin: '0 auto' }}>
+            <div onClick={exitPractice} style={{ fontSize: 13, color: '#9fb4c7', cursor: 'pointer' }}>
+              {s.fpLabel ? '← Free play' : '← Home'}
+            </div>
+          </div>
+        </div>
+        <div style={{ width: '100%', maxWidth: 560, padding: '70px 24px', textAlign: 'center' }}>
+          <p style={{ fontSize: 14, color: '#8a7c63', lineHeight: 1.6, textWrap: 'pretty' }}>
+            Practice content for {unavailableLabel} isn't built out in this prototype yet.
+          </p>
+          <button
+            onClick={exitPractice}
+            style={{ marginTop: 14, background: '#dd6a2f', color: '#fff', border: 'none', borderRadius: 10, padding: '12px 22px', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}
+          >
+            {s.fpLabel ? '← Back to Free play' : '← Back to Home'}
+          </button>
+        </div>
+      </div>
     )
   }
 
@@ -251,10 +634,13 @@ export default function StudentApp() {
   const topBar = (maxWidth: number): ReactNode => (
     <div style={{ background: '#0e2a43', color: '#dbe6ef', padding: '0 22px' }}>
       <div style={{ maxWidth, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 16, height: 56 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
+        <Link
+          to="/"
+          style={{ display: 'flex', alignItems: 'center', gap: 9, textDecoration: 'none' }}
+        >
           <Logo size={26} />
           <span style={{ fontFamily: FONT_SERIF, fontWeight: 600, fontSize: 17, color: '#fff' }}>Anadromos</span>
-        </div>
+        </Link>
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 6 }}>
           {NAV_ITEMS.map(([label, scr]) => {
             const on = cur === scr
@@ -278,7 +664,7 @@ export default function StudentApp() {
 
   // ---- knowledge graph (My map) ----
   const graphNodes = NODES.map((n) => {
-    const st = ST[n.st]
+    const st = ST[engineNode(n.id).status]
     const sel = s.selectedNode === n.id
     return {
       id: n.id,
@@ -296,7 +682,7 @@ export default function StudentApp() {
     }
   })
   const graphEdges = EDGES.map(([a, b]) => {
-    const frontier = NODES.find((n) => n.id === b)!.st === 'frontier'
+    const frontier = engineNode(b).status === 'frontier'
     return { d: edgePath(a, b), stroke: frontier ? '#e8a06a' : '#d3c6ab', sw: frontier ? 2 : 1.4 }
   })
   const gf = s.graphFilter
@@ -310,11 +696,19 @@ export default function StudentApp() {
   const selNode = s.selectedNode ? NODES.find((n) => n.id === s.selectedNode) : null
 
   // ---- problem set (homework) ----
+  // Teacher-authored sets (data/teacherProblemSets.ts) alongside the static PS_SET/PROBLEM_SETS
+  // demo data - see that module's comment for the cross-route caveat. activePsId is null for the
+  // static demo set (PS_SET) and an authored set's id once one of its cards is opened.
+  const authoredSets = getProblemSets()
+  const activeAuthoredSet = s.activePsId ? authoredSets.find((p) => p.id === s.activePsId) : undefined
+  const curPS: { title: string; topics: string; due: string; questions: AuthoredQuestion[]; requireHandwriting?: boolean } = activeAuthoredSet ?? PS_SET
   const psIdx = s.psIdx
   const psAns = s.psAnswers
-  const psAnsweredCount = PS_SET.questions.filter((_, i) => (psAns[i] || '').trim()).length
-  const psCur = PS_SET.questions[psIdx] || PS_SET.questions[0]
-  const psIsLast = psIdx === PS_SET.questions.length - 1
+  const psAnsweredCount = curPS.questions.filter((_, i) => (psAns[i] || '').trim()).length
+  const psCur = curPS.questions[psIdx] || curPS.questions[0]
+  const psIsLast = psIdx === curPS.questions.length - 1
+  /** Teacher-set "require handwriting" gate (data/teacherProblemSets.ts's AuthoredProblemSet.requireHandwriting) - mirrors PracticeLoop's own `blocked` pattern, applied at the whole-set level since Problem Sets don't render PracticeLoop at all. */
+  const psBlocked = !!curPS.requireHandwriting && !s.psAttach
 
   const mapToggleStyle = (on: boolean): CSSProperties => ({
     cursor: 'pointer',
@@ -327,7 +721,11 @@ export default function StudentApp() {
     border: on ? '1px solid #0e2a43' : '1px solid #e0d4bd',
   })
 
-  const selectedLog = s.selectedLog != null ? LOG_RAW[s.selectedLog] : null
+  // Live Lesson/Review sessions Aisha has actually completed this tab (data/liveSessions.ts),
+  // shown ahead of the static sample history - same merge-live-in pattern as authoredSets above
+  // and TeacherApp.tsx's ovList. selectedLog indexes into this combined list, not LOG_RAW alone.
+  const allSessions = [...getLiveSessions(), ...LOG_RAW]
+  const selectedLog = s.selectedLog != null ? allSessions[s.selectedLog] : null
 
   return (
     <>
@@ -340,33 +738,44 @@ export default function StudentApp() {
             <h1 style={{ fontFamily: FONT_SERIF, fontWeight: 600, fontSize: 28, margin: '6px 0 22px', color: '#0e2a43' }}>Good afternoon, Aisha</h1>
 
             {/* your path: lessons + reviews */}
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 4 }}>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 4, flexWrap: 'wrap' }}>
               <h2 style={{ fontFamily: FONT_SERIF, fontSize: 19, fontWeight: 600, margin: 0, color: '#0e2a43' }}>Your path</h2>
-              <span style={{ fontFamily: FONT_MONO, fontSize: 12, color: '#8a7c63' }}>{s.pathDone} of 6 done</span>
+              <span style={{ fontFamily: FONT_MONO, fontSize: 12, color: '#8a7c63' }}>{pathPrefixDone(s.pathCompleted)} of 6 done</span>
+              {pendingReviews.length > 0 && (
+                <span style={{ fontFamily: FONT_MONO, fontSize: 12, color: '#b6531f' }}>
+                  · {pendingReviews.length} review{pendingReviews.length === 1 ? '' : 's'} pending
+                </span>
+              )}
+              <button
+                onClick={() => setState((st) => ({ speedMode: !st.speedMode }))}
+                style={{ ...mapToggleStyle(s.speedMode), marginLeft: 'auto', padding: '7px 13px', fontSize: 12 }}
+              >
+                {s.speedMode ? '⚡ Speed through lessons: on' : 'Speed through lessons'}
+              </button>
             </div>
-            <p style={{ margin: '0 0 14px', fontSize: 13, lineHeight: 1.5, color: '#5c6773', maxWidth: 520, textWrap: 'pretty' }}>
-              Lessons and reviews on the subtopics next on your learning path. Finish all six and a fresh set unlocks.
+            <p style={{ margin: '0 0 14px', fontSize: 13, lineHeight: 1.5, color: '#5c6773', maxWidth: 560, textWrap: 'pretty' }}>
+              Lessons and reviews on the subtopics next on your learning path. Finish all six and a fresh set unlocks. A
+              pending review locks what comes after it — turn on "Speed through lessons" to push ahead through later
+              lessons anyway and catch up on the review later.
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
               {PATH_RAW.map((it, i) => {
-                const complete = i < s.pathDone
-                const isNext = i === s.pathDone
+                const complete = s.pathCompleted.includes(i)
+                const locked = isPathItemLocked(i)
+                const isNext = !complete && i === pathPrefixDone(s.pathCompleted)
                 const isReview = it.kind === 'Review'
                 return (
                   <div
                     key={i}
-                    onClick={() =>
-                      startPractice({
-                        fpLabel: null,
-                        pathDone: i === s.pathDone ? Math.min(6, s.pathDone + 1) : s.pathDone,
-                      })
-                    }
-                    style={{ display: 'flex', alignItems: 'center', gap: 14, background: '#fff', border: `1px solid ${isNext ? '#f0d3bc' : '#e4dccb'}`, borderRadius: 11, padding: '14px 16px', cursor: 'pointer', opacity: complete ? 0.6 : 1 }}
+                    onClick={() => {
+                      if (!locked) openPathItem(i)
+                    }}
+                    style={{ display: 'flex', alignItems: 'center', gap: 14, background: '#fff', border: `1px solid ${isNext ? '#f0d3bc' : '#e4dccb'}`, borderRadius: 11, padding: '14px 16px', cursor: locked ? 'not-allowed' : 'pointer', opacity: complete ? 0.6 : locked ? 0.55 : 1 }}
                   >
                     <span
                       style={{ width: 26, height: 26, borderRadius: '50%', flex: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, background: complete ? '#1f4e75' : isNext ? '#dd6a2f' : '#efe7d9', color: complete || isNext ? '#fff' : '#a99e88' }}
                     >
-                      {complete ? '✓' : i + 1}
+                      {complete ? '✓' : locked ? '🔒' : i + 1}
                     </span>
                     <div style={{ minWidth: 0 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
@@ -379,20 +788,20 @@ export default function StudentApp() {
                         {it.detail} · {isReview ? '~4 min' : '~10 min'}
                       </div>
                     </div>
-                    <span style={{ marginLeft: 'auto', fontSize: 12.5, fontWeight: 600, whiteSpace: 'nowrap', color: complete ? '#8a7c63' : '#dd6a2f' }}>
-                      {complete ? 'Done' : isNext ? 'Start →' : 'Open'}
+                    <span style={{ marginLeft: 'auto', fontSize: 12.5, fontWeight: 600, whiteSpace: 'nowrap', color: complete ? '#8a7c63' : locked ? '#a99e88' : '#dd6a2f' }}>
+                      {complete ? 'Done' : locked ? '🔒 Locked' : isNext ? 'Start →' : 'Open'}
                     </span>
                   </div>
                 )
               })}
             </div>
-            {s.pathDone >= 6 && (
+            {s.pathCompleted.length >= 6 && (
               <div style={{ marginTop: 12, background: '#eef3f7', border: '1px solid #d3e0ea', borderRadius: 11, padding: '16px 18px', display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
                 <div style={{ fontSize: 13.5, color: '#2b4a63', textWrap: 'pretty' }}>
                   Nice work — you've cleared this set. A fresh batch of lessons and reviews is ready.
                 </div>
                 <button
-                  onClick={() => setState((st) => ({ pathDone: 0, session: st.session + 1 }))}
+                  onClick={() => setState({ pathCompleted: [] })}
                   style={{ marginLeft: 'auto', background: '#1f4e75', color: '#fff', border: 'none', borderRadius: 9, padding: '11px 18px', fontSize: 13.5, fontWeight: 600, cursor: 'pointer' }}
                 >
                   Load the next six →
@@ -446,11 +855,49 @@ export default function StudentApp() {
                     )}
                     <button
                       onClick={() => {
-                        if (!p.locked) setState({ screen: 'psolve', psIdx: 0, psAnswers: {}, psSubmitted: false })
+                        if (!p.locked) setState({ screen: 'psolve', psIdx: 0, psAnswers: {}, psSubmitted: false, activePsId: null })
                       }}
                       style={{ marginTop: 12, background: p.locked ? '#f2ece0' : '#dd6a2f', color: p.locked ? '#a99e88' : '#fff', border: 'none', borderRadius: 9, padding: '11px 16px', fontSize: 13.5, fontWeight: 600, cursor: p.locked ? 'not-allowed' : 'pointer' }}
                     >
                       {p.locked ? '🔒 Locked' : 'Start homework →'}
+                    </button>
+                  </div>
+                ))}
+                {/* Teacher-authored sets (data/teacherProblemSets.ts) - always unlocked, since this
+                    prototype's authoring form has no prerequisite/lock concept of its own. */}
+                {authoredSets.map((t) => (
+                  <div key={t.id} style={{ background: '#fff', border: '1px solid #d3e0ea', borderRadius: 12, padding: '16px 18px' }}>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap' }}>
+                      <div style={{ minWidth: 0, flex: 1 }}>
+                        <div style={{ fontSize: 15, fontWeight: 600, color: '#1a2129' }}>{t.title}</div>
+                        <div style={{ fontSize: 12.5, color: '#8a7c63', marginTop: 3 }}>
+                          {t.topics} · {t.questions.length} question{t.questions.length === 1 ? '' : 's'}
+                        </div>
+                      </div>
+                      <span
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 6,
+                          fontFamily: FONT_MONO,
+                          fontSize: 11,
+                          fontWeight: 600,
+                          padding: '4px 10px',
+                          borderRadius: 20,
+                          whiteSpace: 'nowrap',
+                          background: '#eef3f7',
+                          color: '#1f4e75',
+                          border: '1px solid #d3e0ea',
+                        }}
+                      >
+                        🗓 {t.due}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => setState({ screen: 'psolve', psIdx: 0, psAnswers: {}, psSubmitted: false, activePsId: t.id })}
+                      style={{ marginTop: 12, background: '#dd6a2f', color: '#fff', border: 'none', borderRadius: 9, padding: '11px 16px', fontSize: 13.5, fontWeight: 600, cursor: 'pointer' }}
+                    >
+                      Start homework →
                     </button>
                   </div>
                 ))}
@@ -478,17 +925,20 @@ export default function StudentApp() {
             <div style={{ background: '#fff', border: '1px solid #e4dccb', borderRadius: 12, padding: '22px 24px' }}>
               <h2 style={{ fontFamily: FONT_SERIF, fontSize: 16, fontWeight: 600, margin: '0 0 16px', color: '#0e2a43' }}>What you've built up</h2>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                {PROGRESS_TOPICS.map((t) => (
-                  <div key={t.name}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>
-                      <span style={{ fontSize: 14, fontWeight: 500, color: '#1a2129' }}>{t.name}</span>
-                      <span style={{ fontFamily: FONT_MONO, fontSize: 11.5, color: '#8a7c63' }}>{t.label}</span>
+                {PROGRESS_TOPICS.map((t) => {
+                  const pct = progressPct(t)
+                  return (
+                    <div key={t.name}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>
+                        <span style={{ fontSize: 14, fontWeight: 500, color: '#1a2129' }}>{t.name}</span>
+                        <span style={{ fontFamily: FONT_MONO, fontSize: 11.5, color: '#8a7c63' }}>{t.label}</span>
+                      </div>
+                      <div style={{ height: 12, background: '#f0e9dc', borderRadius: 6, overflow: 'hidden' }}>
+                        <div style={{ width: `${pct}%`, height: '100%', background: pct >= 85 ? '#1f4e75' : pct >= 60 ? '#4a86ad' : '#dd6a2f', borderRadius: 6 }} />
+                      </div>
                     </div>
-                    <div style={{ height: 12, background: '#f0e9dc', borderRadius: 6, overflow: 'hidden' }}>
-                      <div style={{ width: `${t.pct}%`, height: '100%', background: t.pct >= 85 ? '#1f4e75' : t.pct >= 60 ? '#4a86ad' : '#dd6a2f', borderRadius: 6 }} />
-                    </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             </div>
 
@@ -514,7 +964,7 @@ export default function StudentApp() {
               Every lesson, problem set and review you've done. Open one to see exactly where things clicked and where they didn't.
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {LOG_RAW.map((a, i) => (
+              {allSessions.map((a, i) => (
                 <div
                   key={i}
                   onClick={() => setState({ screen: 'ssessiondetail', selectedLog: i })}
@@ -675,9 +1125,9 @@ export default function StudentApp() {
                 heading="Topic"
                 title={selNode.label}
                 fields={[
-                  { label: 'Last worked', value: LAST_MAP[selNode.id] || '—' },
-                  { label: 'Next review', value: NEXT_MAP[selNode.id] || '—' },
-                  { label: 'Times practised', value: REPS_MAP[selNode.id] || 0 },
+                  { label: 'Last worked', value: engineNode(selNode.id).last },
+                  { label: 'Next review', value: engineNode(selNode.id).next },
+                  { label: 'Times practised', value: engineNode(selNode.id).reps },
                 ]}
                 onClose={() => setState({ selectedNode: null })}
               />
@@ -694,7 +1144,7 @@ export default function StudentApp() {
               <div onClick={() => setState({ screen: 'shome', psSubmitted: false })} style={{ fontSize: 13, color: '#9fb4c7', cursor: 'pointer' }}>
                 ← Today
               </div>
-              <span style={{ marginLeft: 'auto', fontSize: 13, color: '#dbe6ef', fontFamily: FONT_SERIF }}>{PS_SET.title}</span>
+              <span style={{ marginLeft: 'auto', fontSize: 13, color: '#dbe6ef', fontFamily: FONT_SERIF }}>{curPS.title}</span>
             </div>
           </div>
 
@@ -704,7 +1154,7 @@ export default function StudentApp() {
                 <div style={{ width: 56, height: 56, borderRadius: '50%', background: '#e4edf3', color: '#1f4e75', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, margin: '0 auto 16px' }}>✓</div>
                 <h1 style={{ fontFamily: FONT_SERIF, fontSize: 24, fontWeight: 600, color: '#0e2a43', margin: '0 0 6px' }}>Homework submitted</h1>
                 <p style={{ margin: '0 0 4px', fontSize: 14, color: '#5c6773', textWrap: 'pretty' }}>
-                  Sent to Ms. Okafor · {psAnsweredCount} of {PS_SET.questions.length} answered
+                  Sent to Ms. Okafor · {psAnsweredCount} of {curPS.questions.length} answered
                 </p>
                 <p style={{ margin: '0 0 22px', fontSize: 12.5, color: '#8a7c63', textWrap: 'pretty' }}>
                   You'll see it marked in Sessions once your teacher has reviewed it.
@@ -722,17 +1172,17 @@ export default function StudentApp() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', marginBottom: 6 }}>
                 <div style={monoCap()}>Problem set · homework</div>
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: FONT_MONO, fontSize: 11, fontWeight: 600, color: '#b6531f', background: '#fdf0e6', border: '1px solid #f0d3bc', padding: '4px 10px', borderRadius: 20 }}>
-                  🗓 {PS_SET.due}
+                  🗓 {curPS.due}
                 </span>
               </div>
-              <h1 style={{ fontFamily: FONT_SERIF, fontWeight: 600, fontSize: 25, margin: '0 0 4px', color: '#0e2a43' }}>{PS_SET.title}</h1>
+              <h1 style={{ fontFamily: FONT_SERIF, fontWeight: 600, fontSize: 25, margin: '0 0 4px', color: '#0e2a43' }}>{curPS.title}</h1>
               <p style={{ margin: '0 0 16px', fontSize: 13, color: '#5c6773' }}>
-                {PS_SET.topics} · {psAnsweredCount} of {PS_SET.questions.length} answered
+                {curPS.topics} · {psAnsweredCount} of {curPS.questions.length} answered
               </p>
 
               {/* question navigator: answered = blue, current = navy, unanswered = sand */}
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 18 }}>
-                {PS_SET.questions.map((_, i) => {
+                {curPS.questions.map((_, i) => {
                   const answered = (psAns[i] || '').trim()
                   const on = i === psIdx
                   return (
@@ -753,7 +1203,7 @@ export default function StudentApp() {
                     {psCur.topic}
                   </span>
                   <span style={{ marginLeft: 'auto', fontFamily: FONT_MONO, fontSize: 12, color: '#a99e88' }}>
-                    Q{psIdx + 1} / {PS_SET.questions.length}
+                    Q{psIdx + 1} / {curPS.questions.length}
                   </span>
                 </div>
                 <div style={{ fontFamily: FONT_SERIF, fontSize: 22, fontWeight: 600, color: '#0e2a43', lineHeight: 1.4, textWrap: 'pretty' }}>{psCur.q}</div>
@@ -798,7 +1248,15 @@ export default function StudentApp() {
                 <div style={{ marginTop: 16, border: '1px dashed #cdbfa6', borderRadius: 11, padding: '14px 16px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span style={{ fontSize: 13.5, fontWeight: 600, color: '#0e2a43' }}>Handwritten working</span>
-                    <span style={{ fontSize: 10.5, fontWeight: 600, color: '#5c6773', background: '#eef0f2', border: '1px solid #dfe3e7', padding: '2px 9px', borderRadius: 20 }}>Optional</span>
+                    <span
+                      style={
+                        curPS.requireHandwriting
+                          ? { fontSize: 10.5, fontWeight: 600, color: '#b6531f', background: '#fbe7d8', border: '1px solid #eecab0', padding: '2px 9px', borderRadius: 20 }
+                          : { fontSize: 10.5, fontWeight: 600, color: '#5c6773', background: '#eef0f2', border: '1px solid #dfe3e7', padding: '2px 9px', borderRadius: 20 }
+                      }
+                    >
+                      {curPS.requireHandwriting ? 'Required for this assignment' : 'Optional'}
+                    </span>
                   </div>
                   {s.psAttach ? (
                     <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 10, background: '#f6f1e7', border: '1px solid #e4dccb', borderRadius: 8, padding: '8px 12px' }}>
@@ -827,12 +1285,14 @@ export default function StudentApp() {
                     style={{ display: 'none' }}
                   />
                   <p style={{ margin: '10px 0 0', fontSize: 11.5, lineHeight: 1.5, color: '#8a7c63', textWrap: 'pretty' }}>
-                    Optional across the whole set — attach a photo of your written working so your teacher can see your method.
+                    {curPS.requireHandwriting
+                      ? 'Your teacher has asked for a photo of your written working across this whole set - attach it before submitting.'
+                      : 'Optional across the whole set — attach a photo of your written working so your teacher can see your method.'}
                   </p>
                 </div>
               </div>
 
-              <div style={{ marginTop: 18, display: 'flex', gap: 10, alignItems: 'center' }}>
+              <div style={{ marginTop: 18, display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
                 <button
                   onClick={() => setState((st) => ({ psIdx: Math.max(0, st.psIdx - 1) }))}
                   disabled={psIdx === 0}
@@ -842,20 +1302,29 @@ export default function StudentApp() {
                 </button>
                 {psIsLast ? (
                   <button
-                    onClick={() => setState({ psSubmitted: true })}
-                    style={{ marginLeft: 'auto', background: '#dd6a2f', color: '#fff', border: 'none', borderRadius: 10, padding: '13px 28px', fontSize: 14.5, fontWeight: 600, cursor: 'pointer' }}
+                    onClick={() => {
+                      if (psBlocked) return
+                      setState({ psSubmitted: true })
+                    }}
+                    disabled={psBlocked}
+                    style={{ marginLeft: 'auto', color: '#fff', border: 'none', borderRadius: 10, padding: '13px 28px', fontSize: 14.5, fontWeight: 600, background: psBlocked ? '#e7c3ab' : '#dd6a2f', cursor: psBlocked ? 'not-allowed' : 'pointer' }}
                   >
                     Submit homework →
                   </button>
                 ) : (
                   <button
-                    onClick={() => setState((st) => ({ psIdx: Math.min(PS_SET.questions.length - 1, st.psIdx + 1) }))}
+                    onClick={() => setState((st) => ({ psIdx: Math.min(curPS.questions.length - 1, st.psIdx + 1) }))}
                     style={{ marginLeft: 'auto', background: '#0e2a43', color: '#fff', border: 'none', borderRadius: 10, padding: '13px 28px', fontSize: 14.5, fontWeight: 600, cursor: 'pointer' }}
                   >
                     Next question →
                   </button>
                 )}
               </div>
+              {psIsLast && psBlocked && (
+                <p style={{ margin: '10px 4px 0', fontSize: 12, color: '#b6531f', textAlign: 'center' }}>
+                  Your teacher has asked for a photo of your handwritten working before this set can be submitted.
+                </p>
+              )}
               <p style={{ margin: '16px 4px 0', fontSize: 11.5, lineHeight: 1.5, color: '#a99e88', textAlign: 'center', textWrap: 'pretty' }}>
                 Homework is submitted to your teacher as a whole set — you can move between questions freely before submitting.
               </p>
@@ -876,7 +1345,7 @@ export default function StudentApp() {
             </p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(240px,1fr))', gap: 14 }}>
               {FP_TOPICS.map((t) => {
-                const unlocked = t.subs.filter((su) => su.unlocked).length
+                const unlocked = t.subs.filter(isSubUnlocked).length
                 return (
                   <div
                     key={t.key}
@@ -920,30 +1389,33 @@ export default function StudentApp() {
                   Each subtopic has unlimited practice problems. Locked subtopics open once you've done their lesson on Home — free play never gives you a lesson you haven't reached yet.
                 </p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                  {curT.subs.map((su) => (
-                    <div
-                      key={su.name}
-                      style={{ display: 'flex', alignItems: 'center', gap: 14, background: '#fff', border: `1px solid ${su.unlocked ? '#d3e0ea' : '#e4dccb'}`, borderRadius: 11, padding: '15px 17px', opacity: su.unlocked ? 1 : 0.85 }}
-                    >
-                      <span style={{ width: 10, height: 10, borderRadius: '50%', flex: 'none', background: su.unlocked ? '#1f4e75' : '#cdbfa6' }} />
-                      <div style={{ minWidth: 0 }}>
-                        <div style={{ fontSize: 14.5, fontWeight: 600, color: '#1a2129' }}>{su.name}</div>
-                        {su.unlocked ? (
-                          <div style={{ fontSize: 12, color: '#8a7c63', marginTop: 2 }}>Last studied: {su.last}</div>
-                        ) : (
-                          <div style={{ fontSize: 12, color: '#a99e88', marginTop: 2 }}>Lesson not done yet</div>
-                        )}
-                      </div>
-                      <button
-                        onClick={() => {
-                          if (su.unlocked) startPractice({ fpLabel: su.name })
-                        }}
-                        style={{ marginLeft: 'auto', border: 'none', borderRadius: 9, padding: '9px 15px', fontSize: 13, fontWeight: 600, whiteSpace: 'nowrap', cursor: su.unlocked ? 'pointer' : 'not-allowed', background: su.unlocked ? '#dd6a2f' : '#f2ece0', color: su.unlocked ? '#fff' : '#a99e88' }}
+                  {curT.subs.map((su) => {
+                    const unlocked = isSubUnlocked(su)
+                    return (
+                      <div
+                        key={su.name}
+                        style={{ display: 'flex', alignItems: 'center', gap: 14, background: '#fff', border: `1px solid ${unlocked ? '#d3e0ea' : '#e4dccb'}`, borderRadius: 11, padding: '15px 17px', opacity: unlocked ? 1 : 0.85 }}
                       >
-                        {su.unlocked ? 'Free play →' : '🔒 Do the lesson first'}
-                      </button>
-                    </div>
-                  ))}
+                        <span style={{ width: 10, height: 10, borderRadius: '50%', flex: 'none', background: unlocked ? '#1f4e75' : '#cdbfa6' }} />
+                        <div style={{ minWidth: 0 }}>
+                          <div style={{ fontSize: 14.5, fontWeight: 600, color: '#1a2129' }}>{su.name}</div>
+                          {unlocked ? (
+                            <div style={{ fontSize: 12, color: '#8a7c63', marginTop: 2 }}>Last studied: {su.last}</div>
+                          ) : (
+                            <div style={{ fontSize: 12, color: '#a99e88', marginTop: 2 }}>Lesson not done yet</div>
+                          )}
+                        </div>
+                        <button
+                          onClick={() => {
+                            if (unlocked) openFreePlay(su.name)
+                          }}
+                          style={{ marginLeft: 'auto', border: 'none', borderRadius: 9, padding: '9px 15px', fontSize: 13, fontWeight: 600, whiteSpace: 'nowrap', cursor: unlocked ? 'pointer' : 'not-allowed', background: unlocked ? '#dd6a2f' : '#f2ece0', color: unlocked ? '#fff' : '#a99e88' }}
+                        >
+                          {unlocked ? 'Free play →' : '🔒 Do the lesson first'}
+                        </button>
+                      </div>
+                    )
+                  })}
                 </div>
               </div>
             </div>
