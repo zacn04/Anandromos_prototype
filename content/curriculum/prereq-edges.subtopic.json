@@ -2353,6 +2353,34 @@
       "strength": 1,
       "source": "ai",
       "confidence": 0.7
+    },
+    {
+      "from": "num.decimals.place-value",
+      "to": "num.rounding.nearest",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.angles.name-types",
+      "to": "geo.polygons.name-by-sides",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.area.rectangle",
+      "to": "geo.volume.nets",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.fractions.part-of-whole",
+      "to": "num.ratio.notation",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
     }
   ]
 }

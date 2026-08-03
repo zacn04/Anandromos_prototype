@@ -752,7 +752,11 @@ function checkReferentialIntegrity(): number {
     })
   }
 
-  questions.forEach((q, qi) => {
+  // Templates are checked alongside authored questions: they are the bulk of
+  // what a student is served, and an out-of-ancestry tag on a template is a
+  // wrong diagnosis repeated across every instance it generates.
+  const taggedSources: Row[] = [...rowsOf(questions), ...rowsOf(questionTemplates)]
+  taggedSources.forEach((q, qi) => {
     const lines: Row[] = rowsOf(q.lines)
     lines.forEach((line, li) => {
       const tags: unknown[] = isArray(line.prereqSubtopicIds) ? line.prereqSubtopicIds : []
@@ -1251,7 +1255,11 @@ function checkLinePrereqAncestry(): number {
   const tierA = subtopicEdges.length > 0
   let subjects = 0
 
-  questions.forEach((q, qi) => {
+  // Templates are checked alongside authored questions: they are the bulk of
+  // what a student is served, and an out-of-ancestry tag on a template is a
+  // wrong diagnosis repeated across every instance it generates.
+  const taggedSources: Row[] = [...rowsOf(questions), ...rowsOf(questionTemplates)]
+  taggedSources.forEach((q, qi) => {
     const lines: Row[] = rowsOf(q.lines)
     lines.forEach((line, li) => {
       const tags: unknown[] = isArray(line.prereqSubtopicIds) ? line.prereqSubtopicIds : []

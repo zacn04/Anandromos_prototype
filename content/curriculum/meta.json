@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
   "kind": "meta",
-  "contentVersion": "2026-08-03.2",
+  "contentVersion": "2026-08-03.4",
   "topicGraphVersion": "topic-graph-2026-08-02.1",
-  "subtopicGraphVersion": "subtopic-graph-2026-08-03.2",
+  "subtopicGraphVersion": "subtopic-graph-2026-08-03.4",
   "graphHashes": {
     "topic": "7c57ec4378374c856fb3d586688de574970cc3a147f298ac40d4823209388550",
-    "subtopic": "3e9c771475dd62bcbbff6557eeb717b3bb3a3023b877e59e4df1aa36ee491d94"
+    "subtopic": "749136fd1ac2ef6f5cb0cab09018e30134da383f31c5bdc61f04a079c3ad45d5"
   },
   "yearBands": [
     "Year 7",
