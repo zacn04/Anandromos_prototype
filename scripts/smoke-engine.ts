@@ -68,8 +68,11 @@ console.log('\nschedule · daily cap and problem sets')
 // ---------------------------------------------------------------------------
 {
   const nodes: EngineState['nodes'] = {}
-  for (const t of ['num.fractions', 'num.decimals', 'num.ratio', 'num.proportion',
-                   'num.negatives', 'num.primes', 'num.rounding', 'alg.substitution']) {
+  // Every topic here must have a question bank: buildQueue deliberately skips
+  // a review it cannot serve, so topics without one would be filtered out and
+  // this would be testing the filter rather than the cap.
+  for (const t of ['num.fractions', 'num.decimals', 'num.fractions-to-percent', 'num.ratio',
+                   'num.percent-change', 'num.negatives-arithmetic', 'alg.substitution', 'alg.linear']) {
     nodes[t] = { status: 'mastered', last: '', next: '', reps: 5, dueAt: NOW - DAY }
   }
   const state: EngineState = { nodes, masteryByTopic: {} }
@@ -130,6 +133,18 @@ console.log('\nschedule · finishing something actually changes the queue')
     nodes: { 'alg.linear': { status: 'frontier', last: '', next: '', reps: 9, dueAt: NOW } },
     masteryByTopic: { 'alg.linear': { foundations: 0.2, core: 0.1, stretch: 0 } },
   }
+  // Regression: the queue used to offer reviews for topics with no question
+  // bank, so the row dead-ended in "not built out yet" when clicked.
+  const undeliverable: EngineState = {
+    nodes: { 'num.surds': { status: 'mastered', last: '', next: '', reps: 4, dueAt: NOW - DAY } },
+    masteryByTopic: {},
+  }
+  check('a review with no question bank behind it is never queued',
+    buildQueue(undeliverable, { now: NOW }).items.length === 0,
+    buildQueue(undeliverable, { now: NOW }).items.map((i) => i.id).join(', '))
+  check('and that reads as caught-up, not as an error',
+    buildQueue(undeliverable, { now: NOW }).clear)
+
   check('weak mastery re-offers the lesson even with reps banked',
     buildQueue(decayed, { now: NOW }).items[0]?.kind === 'lesson',
     buildQueue(decayed, { now: NOW }).items[0]?.kind)

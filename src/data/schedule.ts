@@ -20,7 +20,7 @@
  *    product exists to avoid, and an unpayable backlog is exactly that.
  */
 import type { TopicId } from '../content'
-import { lessonForTopic, topicLabel } from '../content'
+import { lessonForTopic, questionsForTopic, topicLabel } from '../content'
 import { dueInDays } from './engine'
 import { needsRelesson } from './xp'
 import type { EngineState } from './engine'
@@ -136,6 +136,14 @@ export function buildQueue(state: EngineState, opts: BuildQueueOptions = {}): Qu
     // Reviews are for material already met. Nothing not-yet-started is due.
     if (node.status === 'notready' || node.status === 'locked') continue
     if (due > 0) continue
+
+    // And only a review we can actually serve — the same rule the lesson
+    // branch above already applies via `lessonForTopic`. Queueing a review for
+    // a topic with no question bank puts a row on the student's path that
+    // dead-ends in "not built out yet" when they click it. An honest empty
+    // queue reads as "you're up to date"; a queue full of things you cannot do
+    // reads as the product being broken.
+    if (questionsForTopic(topicId).length === 0) continue
 
     items.push({
       kind: 'review',

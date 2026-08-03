@@ -912,6 +912,36 @@ export default function StudentApp() {
         practiceTopic: null,
       })
 
+    /**
+     * The honest "not built out yet" placeholder, shown instead of mismatched
+     * content. Extracted so the free-play branch can fall back to it too.
+     */
+    const renderUnavailable = () => {
+          const unavailableLabel = s.fpLabel || (s.activePathId != null ? (path.find((it) => it.id === s.activePathId)?.subtopic ?? 'this subtopic') : 'this subtopic')
+        return (
+          <div style={{ minHeight: '100vh', background: '#f6f1e7', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <div style={{ width: '100%', background: '#0e2a43', color: '#dbe6ef', padding: '11px 22px' }}>
+              <div style={{ maxWidth: 680, margin: '0 auto' }}>
+                <div onClick={exitPractice} style={{ fontSize: 13, color: '#9fb4c7', cursor: 'pointer' }}>
+                  {s.fpLabel ? '← Free play' : '← Home'}
+                </div>
+              </div>
+            </div>
+            <div style={{ width: '100%', maxWidth: 560, padding: '70px 24px', textAlign: 'center' }}>
+              <p style={{ fontSize: 14, color: '#8a7c63', lineHeight: 1.6, textWrap: 'pretty' }}>
+                Practice content for {unavailableLabel} isn't built out in this prototype yet.
+              </p>
+              <button
+                onClick={exitPractice}
+                style={{ marginTop: 14, background: '#dd6a2f', color: '#fff', border: 'none', borderRadius: 10, padding: '12px 22px', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}
+              >
+                {s.fpLabel ? '← Back to Free play' : '← Back to Home'}
+              </button>
+            </div>
+          </div>
+        )
+    }
+
     const practiceLesson = s.practiceTopic ? lessonForTopic(s.practiceTopic) : undefined
 
     if (s.practiceMode === 'lesson' && s.practiceTopic && practiceLesson) {
@@ -958,6 +988,11 @@ export default function StudentApp() {
       // have questions but no template yet.
       const pool = questionsForTopic(topic)
       const problem = questionAt(topic, s.fpProblemIdx) ?? pool[s.fpProblemIdx % pool.length]
+      // `openFreePlay` already refuses to enter a topic with no questions, so
+      // this should be unreachable. Guarded anyway because PracticeLoop takes a
+      // non-optional problem: an undefined here would be a blank crash rather
+      // than the honest placeholder two branches below.
+      if (!problem) return renderUnavailable()
       return (
         <PracticeLoop
           key={`${problem.id}-${s.fpProblemIdx}`}
@@ -975,30 +1010,7 @@ export default function StudentApp() {
       )
     }
 
-    // practiceMode === 'unavailable' - honest placeholder rather than mismatched content
-    const unavailableLabel = s.fpLabel || (s.activePathId != null ? (path.find((it) => it.id === s.activePathId)?.subtopic ?? 'this subtopic') : 'this subtopic')
-    return (
-      <div style={{ minHeight: '100vh', background: '#f6f1e7', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <div style={{ width: '100%', background: '#0e2a43', color: '#dbe6ef', padding: '11px 22px' }}>
-          <div style={{ maxWidth: 680, margin: '0 auto' }}>
-            <div onClick={exitPractice} style={{ fontSize: 13, color: '#9fb4c7', cursor: 'pointer' }}>
-              {s.fpLabel ? '← Free play' : '← Home'}
-            </div>
-          </div>
-        </div>
-        <div style={{ width: '100%', maxWidth: 560, padding: '70px 24px', textAlign: 'center' }}>
-          <p style={{ fontSize: 14, color: '#8a7c63', lineHeight: 1.6, textWrap: 'pretty' }}>
-            Practice content for {unavailableLabel} isn't built out in this prototype yet.
-          </p>
-          <button
-            onClick={exitPractice}
-            style={{ marginTop: 14, background: '#dd6a2f', color: '#fff', border: 'none', borderRadius: 10, padding: '12px 22px', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}
-          >
-            {s.fpLabel ? '← Back to Free play' : '← Back to Home'}
-          </button>
-        </div>
-      </div>
-    )
+    return renderUnavailable()
   }
 
   // top nav — the tab that stays lit for each screen
