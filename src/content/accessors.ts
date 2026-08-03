@@ -21,6 +21,7 @@
  * `StudentApp`'s `pool[i % pool.length]` all index straight into these results.
  */
 import type {
+  DifficultyTier,
   CatalogueGroup,
   ClassDefaults,
   ContentMeta,
@@ -186,6 +187,53 @@ export function questionById(id: QuestionId): Question | undefined {
 /** Was problemsForTopic. */
 export function questionsForTopic(topicId: TopicId): readonly Question[] {
   return requireStore().bank.forTopic(topicId) ?? NO_QUESTIONS
+}
+
+/**
+ * The difficulty tiers a topic actually has questions for.
+ *
+ * Mastery is an average across tiers, and averaging in a tier the topic never
+ * asks about makes mastery unreachable by construction: a topic whose bank is
+ * all `core` would need `foundations` and `stretch` evidence it can never give
+ * a student the chance to produce. Judging against what the topic offers is the
+ * difference between a demanding bar and an impossible one.
+ *
+ * Order is fixed (not draw order) so callers can rely on it.
+ */
+export function tiersOfferedForTopic(topicId: TopicId): readonly DifficultyTier[] {
+  const offered = new Set(questionsForTopic(topicId).map((q) => q.difficulty))
+  return (['foundations', 'core', 'stretch'] as const).filter((t) => offered.has(t))
+}
+
+/**
+ * Draws `count` questions for a topic, spread evenly across the tiers it offers.
+ *
+ * Homework and any other bulk draw wants a ramp, not a prefix: the bank is
+ * grouped by tier, so `questionAt(topic, 0..n)` can hand back a dozen questions
+ * at a single difficulty. Beyond being poor homework, that makes the set
+ * unable to demonstrate mastery — mastery averages over the tiers a topic
+ * offers, and a tier the set never asks about stays at zero however much work
+ * the student does, wedging anything gated behind that topic shut.
+ *
+ * Round-robins the tiers so each is represented before any repeats, and returns
+ * fewer than `count` when the topic simply hasn't got that many questions.
+ */
+export function drawBalanced(topicId: TopicId, count: number): readonly Question[] {
+  const all = questionsForTopic(topicId)
+  const byTier = tiersOfferedForTopic(topicId)
+    .map((tier) => all.filter((q) => q.difficulty === tier))
+    .filter((qs) => qs.length > 0)
+  const drawn: Question[] = []
+  for (let round = 0; drawn.length < count; round++) {
+    // Every tier exhausted means the topic has nothing left to give.
+    if (byTier.every((qs) => round >= qs.length)) break
+    for (const questions of byTier) {
+      if (drawn.length >= count) break
+      const question = questions[round]
+      if (question) drawn.push(question)
+    }
+  }
+  return drawn
 }
 
 export function questionsForSubtopic(id: SubtopicId): readonly Question[] {

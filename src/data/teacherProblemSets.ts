@@ -24,10 +24,65 @@
  * the same homework-solving screen without any translation step.
  */
 
+import { drawBalanced, topicLabel } from '../content'
+import type { TopicId } from '../content'
+
 export interface AuthoredQuestion {
   topic: string
   q: string
   hint: string
+  /**
+   * Link back to the question bank, when the question came from it.
+   *
+   * Homework that can't be marked can't move mastery, and a set that can't
+   * move mastery can never unlock the set gated behind it — so a minted
+   * question carries the three things marking needs. Questions a teacher typed
+   * by hand have no answer key and leave these undefined: they still get set,
+   * answered and submitted, they just go to the teacher for marking rather
+   * than being graded here. `gradable` below is that distinction.
+   */
+  questionId?: string
+  topicId?: TopicId
+  answer?: string
+}
+
+/** True when the question carries enough to be marked automatically. */
+export function gradable(q: AuthoredQuestion): q is AuthoredQuestion & { questionId: string; topicId: TopicId; answer: string } {
+  return typeof q.questionId === 'string' && typeof q.topicId === 'string' && typeof q.answer === 'string'
+}
+
+/**
+ * Draws real questions from the bank into the shape a problem set renders.
+ *
+ * Lives here rather than in either app because both need it: StudentApp fills
+ * the sample sets with it, and TeacherApp's builder offers it as "pull from the
+ * bank" so a set a teacher makes in the app is markable. A hand-typed question
+ * has no answer key, so a set built only from those records nothing on
+ * submission — the teacher assigns work and the student's mastery never moves.
+ *
+ * `drawBalanced` (not a prefix of the pool) because the bank is grouped by
+ * tier: taking the first N of a topic can hand back twelve `core` questions and
+ * leave `stretch` at zero, which mastery averages over and so can never clear.
+ */
+export function mintQuestions(topicIds: readonly TopicId[], count: number): AuthoredQuestion[] {
+  const drawn: AuthoredQuestion[] = []
+  const perTopic = Math.ceil(count / Math.max(1, topicIds.length))
+  for (const topicId of topicIds) {
+    for (const question of drawBalanced(topicId, Math.min(perTopic, count - drawn.length))) {
+      // No hint: the bank's per-line notes are the worked solution, and a
+      // homework hint invented here would be exactly the fabricated detail
+      // the data can't support.
+      drawn.push({
+        topic: topicLabel(topicId),
+        q: `${question.prompt}: ${question.statement}`,
+        hint: '',
+        questionId: question.id,
+        topicId,
+        answer: question.correctAnswer,
+      })
+    }
+  }
+  return drawn
 }
 
 export interface AuthoredProblemSet {

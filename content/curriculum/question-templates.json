@@ -8530,25 +8530,25 @@
       "constraints": [
         "a != b"
       ],
-      "prompt": "Which sign makes it true: {a} ? {b}",
-      "statement": "{a} ? {b}",
+      "prompt": "Which number is smaller?",
+      "statement": "{a} or {b}",
       "answerLabel": "=",
-      "correctAnswer": "{a < b}",
+      "correctAnswer": "{min(a, b)}",
       "lines": [
         {
-          "text": "{a} and {b}",
+          "text": "{a} or {b}",
           "note": "",
           "prereqSubtopicIds": []
         },
         {
-          "text": "{min(a, b)} is further left, so it is smaller",
-          "note": "",
+          "text": "{min(a, b)} sits further left on the number line",
+          "note": "further left means smaller, so it takes the < side",
           "prereqSubtopicIds": [
             "num.negatives.compare"
           ]
         },
         {
-          "text": "1 means < is correct, 0 means > is correct: {a < b}",
+          "text": "= {min(a, b)}",
           "note": "",
           "prereqSubtopicIds": []
         }
@@ -8556,16 +8556,16 @@
       "errorLineIndex": 1,
       "distractors": [
         {
-          "text": "{a > b}",
-          "cause": "chose the opposite sign"
+          "text": "{max(a, b)}",
+          "cause": "compared the digits and ignored the signs"
         },
         {
-          "text": "{a}",
-          "cause": "gave a number rather than a comparison"
+          "text": "{abs(min(a, b))}",
+          "cause": "dropped the minus sign from the answer"
         },
         {
-          "text": "{abs(a - b)}",
-          "cause": "found the difference instead"
+          "text": "{a + b}",
+          "cause": "added the two numbers instead of comparing them"
         }
       ],
       "boardStyle": null,

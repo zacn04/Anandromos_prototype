@@ -32,6 +32,13 @@ export interface GapObservation {
   lineText: string
   /** Why they said it went wrong, if they said. */
   reason?: string
+  /**
+   * The student's own words, when they picked "Something else - let me
+   * explain" and typed a sentence. PracticeLoop has always collected this and
+   * nothing read it, so the one place a student explains a mistake in their own
+   * words never reached the person best placed to act on it.
+   */
+  note?: string
   at: string
 }
 
@@ -74,6 +81,8 @@ export interface GapSummary {
   count: number
   subtopicLabels: string[]
   seenInLabels: string[]
+  /** Every explanation the student typed against this topic, newest first. */
+  notes: string[]
   latest: GapObservation
 }
 
@@ -91,6 +100,7 @@ export function summariseGaps(): GapSummary[] {
       count: obs.length,
       subtopicLabels: [...new Set(obs.map((o) => o.subtopicLabel))],
       seenInLabels: [...new Set(obs.map((o) => o.seenInTopicLabel))],
+      notes: [...new Set(obs.map((o) => o.note).filter((n): n is string => !!n && n.trim().length > 0))],
       latest: obs[0],
     }))
     .sort((a, b) => b.count - a.count)

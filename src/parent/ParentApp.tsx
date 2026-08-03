@@ -16,15 +16,17 @@ import {
 import type { LogActivity, NodeStatus, TopicId } from '../content'
 import { buildQueue, dueLabel } from '../data/schedule'
 import { getLiveSessions } from '../data/liveSessions'
+import { useStudentName } from '../data/profile'
 import { getProblemSets } from '../data/teacherProblemSets'
 import { refreshFor, useEngine } from '../data/students'
 import type { EngineState } from '../data/students'
+import { masteryAverage } from '../data/engine'
 import { masteryBand } from '../data/xp'
 import { FONT_MONO, FONT_SERIF, NODE_STYLE } from '../theme'
 
 /**
- * Parent POV — read-only: child progress, previous sessions (what she
- * struggled with and why, never the mark), what's coming up, and her map.
+ * Parent POV — read-only: child progress, previous sessions (what they
+ * struggled with and why, never the mark), what's coming up, and their map.
  *
  * ┌──────────────────────────────────────────────────────────────────────┐
  * │ THE ONE INVIOLABLE RULE                                              │
@@ -70,8 +72,8 @@ const kindStyle = (k: string): CSSProperties => ({
   padding: '2px 8px',
   borderRadius: 5,
   flex: 'none',
-  background: k === 'Review' ? '#e4edf3' : k === 'Problem set' ? '#f0e6d4' : '#fdf0e6',
-  color: k === 'Review' ? '#1f4e75' : k === 'Problem set' ? '#8a6d3f' : '#b6531f',
+  background: k === 'Review' ? '#e4edf3' : k === 'Problem set' ? '#f0e6d4' : k === 'Free play' ? '#e9f0e9' : '#fdf0e6',
+  color: k === 'Review' ? '#1f4e75' : k === 'Problem set' ? '#8a6d3f' : k === 'Free play' ? '#3d6b4a' : '#b6531f',
 })
 
 // ---------------------------------------------------------------------------
@@ -88,13 +90,13 @@ interface ParentMasteryRow {
 }
 
 /**
- * The same difficulty-weighted average `engine.ts` promotes on: foundations,
- * core and stretch given equal weight, so a topic cannot look secure on the
- * strength of its easiest questions alone. Feeds the bar's width, nothing else.
+ * The same average `engine.ts` promotes on — including its restriction to the
+ * tiers the topic actually offers, so the bar a parent reads and the bar the
+ * engine gates on can never drift apart. Feeds the bar's width, nothing else.
  */
-function tierAverage(mastery: EngineState['masteryByTopic'][string] | undefined): number {
+function tierAverage(topicId: TopicId, mastery: EngineState['masteryByTopic'][string] | undefined): number {
   if (!mastery) return 0
-  return (mastery.foundations + mastery.core + mastery.stretch) / 3
+  return masteryAverage(topicId, mastery)
 }
 
 /**
@@ -111,12 +113,12 @@ function tierAverage(mastery: EngineState['masteryByTopic'][string] | undefined)
  * making up curriculum judgement the data does not support, so we don't.
  *
  * 'Learning now' is anchored on the node status the map already uses for it —
- * frontier is literally "the topic she is on now" — plus anything that has
+ * frontier is literally "the topic they are on now" — plus anything that has
  * decayed below the re-lesson bar, which is what the engine routes back to a
  * lesson.
  */
 function parentBand(state: EngineState, topicId: TopicId): { label: string; c: string } {
-  const band = masteryBand(state.masteryByTopic[topicId])
+  const band = masteryBand(topicId, state.masteryByTopic[topicId])
   const status = state.nodes[topicId]?.status
   if (status === 'frontier' || band === 'relearn') return { label: 'Learning now', c: '#dd6a2f' }
   if (band === 'mastered') {
@@ -153,7 +155,7 @@ const mentionsAMark = (text: string): boolean =>
   /\d+\s*(?:of|out of|\/)\s*\d+|\d+\s*%|\b(?:scored?|marks?|grade[ds]?|percentage points)\b/i.test(text)
 
 /**
- * One activity-log entry as a parent sees it: what she found tricky and why.
+ * One activity-log entry as a parent sees it: what they found tricky and why.
  *
  * `LogQuestion.hit` is "a hiccup happened here" (the same reading TeacherApp and
  * StudentApp render it with), so the struggle list is the hit items — no count,
@@ -207,6 +209,11 @@ export default function ParentApp() {
   // own useState copy write-through'd to the same `engine.aisha` key — without
   // it, a parent opening this route after a practice session would be served
   // whatever the store happened to read first. Idempotent, so it cannot loop.
+  // The name the child set for themselves in their own view (data/profile.ts),
+  // so this header follows a rename rather than staying on the seeded demo name.
+  const childName = useStudentName(STUDENT_ID)
+  const childFirstName = childName.split(' ')[0]
+  const childInitials = childName.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase()
   const engine = useEngine(STUDENT_ID)
   useEffect(() => {
     refreshFor(STUDENT_ID)
@@ -221,10 +228,10 @@ export default function ParentApp() {
   ]
 
   /**
-   * "Where she's growing" — every topic the engine holds mastery for, in the
-   * order the engine holds them (authored profile order, then anything she has
+   * "Where they're growing" — every topic the engine holds mastery for, in the
+   * order the engine holds them (authored profile order, then anything they have
    * since worked on). Deliberately not re-sorted by strength: a list that
-   * reshuffles itself every time she answers a question is harder to read, and
+   * reshuffles itself every time they answer a question is harder to read, and
    * ranking topics against each other is a step towards the league-table
    * framing this product refuses.
    */
@@ -233,7 +240,7 @@ export default function ParentApp() {
       Object.keys(engine.masteryByTopic).map((topicId) => ({
         topicId,
         name: topicLabel(topicId),
-        pct: Math.round(tierAverage(engine.masteryByTopic[topicId]) * 100),
+        pct: Math.round(tierAverage(topicId, engine.masteryByTopic[topicId]) * 100),
         ...parentBand(engine, topicId),
       })),
     [engine],
@@ -262,7 +269,7 @@ export default function ParentApp() {
   const homework = getProblemSets()
 
   /**
-   * Live sessions she has actually completed this tab, ahead of the sample
+   * Live sessions they have actually completed this tab, ahead of the sample
    * history — the same merge StudentApp and TeacherApp do for the same student.
    */
   const sessions = [...getLiveSessions(), ...activityLogFor(STUDENT_ID)].map(toParentSession)
@@ -338,23 +345,23 @@ export default function ParentApp() {
           <div style={monoCap()}>Your child</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16, margin: '8px 0 6px', flexWrap: 'wrap' }}>
             <div style={{ width: 52, height: 52, borderRadius: '50%', background: '#dd6a2f', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, fontWeight: 600, flex: 'none' }}>
-              AB
+              {childInitials}
             </div>
             <div>
-              <h1 style={{ fontFamily: FONT_SERIF, fontWeight: 600, fontSize: 26, margin: 0, color: '#0e2a43' }}>Aisha Bello</h1>
+              <h1 style={{ fontFamily: FONT_SERIF, fontWeight: 600, fontSize: 26, margin: 0, color: '#0e2a43' }}>{childName}</h1>
               <div style={{ fontSize: 13, color: '#5c6773' }}>Year 8 · class 8M2 · maths with Ms. Okafor</div>
             </div>
           </div>
           <div style={{ background: '#eef3f7', border: '1px solid #d3e0ea', borderRadius: 11, padding: '13px 16px', margin: '16px 0 26px', display: 'flex', gap: 10, alignItems: 'flex-start' }}>
             <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#1f4e75', marginTop: 6, flex: 'none' }} />
             <div style={{ fontSize: 12.5, lineHeight: 1.5, color: '#2b4a63', textWrap: 'pretty' }}>
-              You can see where Aisha is growing, what she's found tricky and why, and what's coming up. To keep the focus on learning rather than marks, individual scores aren't shown here — those stay between Aisha and her teacher.
+              You can see where {childFirstName} is growing, what they've found tricky and why, and what's coming up. To keep the focus on learning rather than marks, individual scores aren't shown here — those stay between {childFirstName} and their teacher.
             </div>
           </div>
 
           {/* mastery */}
           <div style={{ background: '#fff', border: '1px solid #e4dccb', borderRadius: 14, padding: '22px 24px', marginBottom: 22 }}>
-            <h2 style={{ fontFamily: FONT_SERIF, fontSize: 17, fontWeight: 600, margin: '0 0 4px', color: '#0e2a43' }}>Where she's growing</h2>
+            <h2 style={{ fontFamily: FONT_SERIF, fontSize: 17, fontWeight: 600, margin: '0 0 4px', color: '#0e2a43' }}>Where {childFirstName} is growing</h2>
             <p style={{ margin: '0 0 18px', fontSize: 12.5, color: '#8a7c63', textWrap: 'pretty' }}>
               How secure each topic is, weighted by difficulty — not a test score. Longer bars mean the harder ideas are holding, too.
             </p>
@@ -374,7 +381,7 @@ export default function ParentApp() {
               </div>
             ) : (
               <div style={{ fontSize: 12.5, color: '#8a7c63', textWrap: 'pretty' }}>
-                Her topic-by-topic picture appears here once she's worked through a few sessions.
+                {childFirstName}'s topic-by-topic picture appears here once they've worked through a few sessions.
               </div>
             )}
           </div>
@@ -383,7 +390,7 @@ export default function ParentApp() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18, alignItems: 'start' }}>
             <div style={{ background: '#fff', border: '1px solid #e4dccb', borderRadius: 14, padding: '20px 22px' }}>
               <h2 style={{ fontFamily: FONT_SERIF, fontSize: 16, fontWeight: 600, margin: '0 0 4px', color: '#0e2a43' }}>Lessons coming up</h2>
-              <p style={{ margin: '0 0 14px', fontSize: 12, color: '#8a7c63', textWrap: 'pretty' }}>On her learning path this week.</p>
+              <p style={{ margin: '0 0 14px', fontSize: 12, color: '#8a7c63', textWrap: 'pretty' }}>On {childFirstName}'s learning path this week.</p>
               {comingUp.length > 0 ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
                   {comingUp.map((l) => {
@@ -405,7 +412,7 @@ export default function ParentApp() {
               ) : (
                 <div style={{ display: 'flex', gap: 9, alignItems: 'flex-start', background: '#eef3f7', border: '1px solid #d3e0ea', borderRadius: 9, padding: '12px 14px' }}>
                   <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#1f4e75', marginTop: 6, flex: 'none' }} />
-                  <div style={{ fontSize: 12.5, color: '#2b4a63', lineHeight: 1.5 }}>She's up to date — nothing due right now.</div>
+                  <div style={{ fontSize: 12.5, color: '#2b4a63', lineHeight: 1.5 }}>{childFirstName} is up to date — nothing due right now.</div>
                 </div>
               )}
             </div>
@@ -461,14 +468,14 @@ export default function ParentApp() {
       {s.screen === 'psessions' && (
         <div style={{ maxWidth: 760, margin: '0 auto', padding: '30px 24px 60px' }}>
           <div style={monoCap()}>Previous sessions</div>
-          <h1 style={{ fontFamily: FONT_SERIF, fontWeight: 600, fontSize: 26, margin: '6px 0 4px', color: '#0e2a43' }}>What Aisha has been doing</h1>
+          <h1 style={{ fontFamily: FONT_SERIF, fontWeight: 600, fontSize: 26, margin: '6px 0 4px', color: '#0e2a43' }}>What {childFirstName} has been doing</h1>
           <p style={{ margin: '0 0 22px', fontSize: 13.5, lineHeight: 1.5, color: '#5c6773', maxWidth: 560, textWrap: 'pretty' }}>
-            Every lesson, problem set and review she's completed. Open one to see what she found tricky and why — so you can support her at home. Marks aren't shown.
+            Every lesson, problem set and review {childFirstName} has completed. Open one to see what they found tricky and why — so you can support them at home. Marks aren't shown.
           </p>
           {sessions.length === 0 && (
             <div style={{ display: 'flex', gap: 9, alignItems: 'flex-start', background: '#eef3f7', border: '1px solid #d3e0ea', borderRadius: 9, padding: '12px 14px' }}>
               <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#1f4e75', marginTop: 6, flex: 'none' }} />
-              <div style={{ fontSize: 12.5, color: '#2b4a63', lineHeight: 1.5 }}>Nothing completed yet — her first session will appear here.</div>
+              <div style={{ fontSize: 12.5, color: '#2b4a63', lineHeight: 1.5 }}>Nothing completed yet — {childFirstName}'s first session will appear here.</div>
             </div>
           )}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -503,7 +510,7 @@ export default function ParentApp() {
                       {a.struggles.length > 0 ? (
                         <>
                           <div style={{ fontFamily: FONT_MONO, fontSize: 10, letterSpacing: '.5px', textTransform: 'uppercase', color: '#b6531f', marginBottom: 10 }}>
-                            What she found tricky
+                            What {childFirstName} found tricky
                           </div>
                           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                             {a.struggles.map((stg, j) => (
@@ -514,7 +521,7 @@ export default function ParentApp() {
                             ))}
                           </div>
                           <div style={{ marginTop: 12, fontSize: 11.5, color: '#8a7c63', textWrap: 'pretty' }}>
-                            Anadromos has already built the follow-up practice she needs into her path. You don't need to do anything — but talking it through can help.
+                            Anadromos has already built the follow-up practice {childFirstName} needs into their path. You don't need to do anything — but talking it through can help.
                           </div>
                         </>
                       ) : (
@@ -536,9 +543,9 @@ export default function ParentApp() {
       {s.screen === 'pmap' && (
         <div style={{ maxWidth: 880, margin: '0 auto', padding: '30px 24px 60px' }}>
           <div style={monoCap()}>Knowledge profile</div>
-          <h1 style={{ fontFamily: FONT_SERIF, fontWeight: 600, fontSize: 26, margin: '6px 0 4px', color: '#0e2a43' }}>Aisha's map of maths</h1>
+          <h1 style={{ fontFamily: FONT_SERIF, fontWeight: 600, fontSize: 26, margin: '6px 0 4px', color: '#0e2a43' }}>{childFirstName}'s map of maths</h1>
           <p style={{ margin: '0 0 12px', fontSize: 13.5, lineHeight: 1.5, color: '#5c6773', maxWidth: 600, textWrap: 'pretty' }}>
-            What she's mastered and what's next. Tap a topic to see how secure it is and when she last worked on it — including her own free-play practice.
+            What {childFirstName} has mastered and what's next. Tap a topic to see how secure it is and when they last worked on it — including their own free-play practice.
           </p>
           <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', fontSize: 11.5, color: '#8a7c63', marginBottom: 10 }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -575,7 +582,7 @@ export default function ParentApp() {
             />
           )}
           <p style={{ margin: '14px 4px 0', fontSize: 11.5, color: '#a99e88', lineHeight: 1.5, textWrap: 'pretty' }}>
-            Free play sessions count towards how recently a subtopic was studied, so this stays current with everything Aisha does.
+            Free play sessions count towards how recently a subtopic was studied, so this stays current with everything {childFirstName} does.
           </p>
         </div>
       )}

@@ -5,9 +5,13 @@ import StudentApp from './student/StudentApp'
 import ParentApp from './parent/ParentApp'
 import { resetAll, hasSavedState, isServerBacked } from './data/persist'
 import AdminApp from './admin/AdminApp'
+import { studentFirstName, studentName, useStudentName } from './data/profile'
 import { FONT_MONO, FONT_SERIF } from './theme'
 
-const POVS = [
+/** The student the demo runs as. Their name is theirs to change (data/profile.ts). */
+const DEMO_STUDENT = 'aisha'
+
+const povs = () => [
   {
     to: '/teacher',
     label: 'Teacher',
@@ -18,16 +22,16 @@ const POVS = [
   {
     to: '/student',
     label: 'Student',
-    who: 'Aisha Bello · Year 8',
+    who: `${studentName(DEMO_STUDENT)} · Year 8`,
     blurb:
       'A calm home of path lessons and homework, the diagnostic practice loop, free play over the whole curriculum, your map, and your progress.',
   },
   {
     to: '/parent',
     label: 'Parent',
-    who: "Aisha's parent",
+    who: `${studentFirstName(DEMO_STUDENT)}'s parent`,
     blurb:
-      'Read-only: where she\'s growing, what she found tricky and why — never the mark — plus what\'s coming up and her map of maths.',
+      `Read-only: where they're growing, what they found tricky and why — never the mark — plus what's coming up and their map of maths.`,
   },
   {
     to: '/admin',
@@ -39,6 +43,10 @@ const POVS = [
 ]
 
 function Landing() {
+  // Subscribes the landing page to the name store, so a rename in the student
+  // view is reflected on the POV cards without a reload.
+  useStudentName(DEMO_STUDENT)
+  const POVS = povs()
   return (
     <div style={{ minHeight: '100vh', background: '#f6f1e7', display: 'flex', flexDirection: 'column' }}>
       <div style={{ maxWidth: 880, margin: '0 auto', padding: '64px 24px 60px', width: '100%' }}>

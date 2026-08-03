@@ -28,20 +28,23 @@ import {
   topicLabel,
 } from '../content'
 import type { MasteryTier, NodeStatus, QuestionId, TopicId } from '../content'
+import { masteryAverage } from '../data/engine'
 import type { EngineNodeState, EngineState } from '../data/engine'
-import type { LogActivity } from '../content'
+import type { LogActivity, LogQuestion } from '../content'
 import { recordFor, useEngine } from '../data/students'
 import { buildQueue, dueLabel, DAILY_ITEM_CAP, PROBLEM_SET_URGENT_DAYS } from '../data/schedule'
 import type { QueueItem } from '../data/schedule'
 import { totalXp, masteryBand } from '../data/xp'
 import type { SessionKind } from '../data/xp'
-import { getProblemSets } from '../data/teacherProblemSets'
+import { getProblemSets, gradable, mintQuestions } from '../data/teacherProblemSets'
 import type { AuthoredProblemSet, AuthoredQuestion } from '../data/teacherProblemSets'
+import { setStudentName, studentFirstName, studentName, useStudentName } from '../data/profile'
 import { pushLiveFlag } from '../data/liveOversight'
 import { getLiveSessions, pushLiveSession } from '../data/liveSessions'
 import { pushGap } from '../data/liveGaps'
 import { load as loadSaved, save as saveState } from '../data/persist'
 import { FONT_MONO, FONT_SERIF, NODE_STYLE } from '../theme'
+import { isCorrectAnswer } from '../content/answer'
 
 /** StudentApp is always Aisha's own app — there's no "pick a student" concept here. */
 const STUDENT_ID = 'aisha'
@@ -103,8 +106,28 @@ interface StudentState {
   activePsId: string | null
   psIdx: number
   psAnswers: Record<number, string>
+  /** Set once the active set is submitted and marked; null before that. */
+  psResult: MarkedSet | null
   psSubmitted: boolean
   psAttach: string | null
+  /**
+   * Sets already submitted, by set id, with what they scored.
+   *
+   * Without this a set could be handed in over and over, each pass banking the
+   * same evidence again and walking mastery up off one set's worth of work -
+   * and the card went on reading "Start homework →" afterwards, so a student
+   * who had just finished one saw no sign it had landed.
+   */
+  /** Home's greeting is in name-editing mode, with `nameDraft` as the in-flight text. */
+  editingName: boolean
+  nameDraft: string
+  psDone: Record<string, MarkedSet>
+  /**
+   * Attempts made in the free-play topic currently open, flushed to the
+   * activity log on exit. Free play is one question at a time, so the honest
+   * unit for the log is the visit, not the question.
+   */
+  fpLog: Array<{ q: string; correct: boolean; note: string }>
   selectedLog: number | null
   selectedNode: string | null
   graphFilter: string
@@ -191,6 +214,13 @@ function derivePath(queue: readonly QueueItem[]): PathItem[] {
 type Urgency = 'urgent' | 'soon' | 'later'
 
 /** One homework card, however it got here — school-set sample or teacher-authored. */
+/** Outcome of marking one submitted set. `graded` <= `total`: see `gradable`. */
+interface MarkedSet {
+  correct: number
+  graded: number
+  total: number
+}
+
 interface StudentProblemSet {
   id: string
   title: string
@@ -250,14 +280,7 @@ const SAMPLE_SET_SEEDS: readonly SampleSetSeed[] = [
     title: 'Fractions & percentages',
     topicIds: ['num.fractions', 'num.fractions-to-percent'],
     dueInDays: 5,
-    questions: [
-      { topic: 'Fractions', q: 'Simplify 12⁄18 to its lowest terms.', hint: 'Divide top and bottom by their highest common factor.' },
-      { topic: 'Fractions', q: 'Work out 2⁄3 + 1⁄6.', hint: 'Use a common denominator first.' },
-      { topic: 'Percentages', q: 'Find 15% of 240.', hint: '' },
-      { topic: 'Percentages', q: 'Write 0.45 as a percentage.', hint: '' },
-      { topic: 'Fractions → %', q: 'Write 3⁄8 as a percentage.', hint: 'Divide, then multiply by 100.' },
-      { topic: 'Percentages', q: 'A £60 coat is reduced by 20%. What is the new price?', hint: '' },
-    ],
+    mint: 8,
   },
   {
     id: 'sample.percent-change',
@@ -313,27 +336,6 @@ function unmetPrereqs(topicIds: readonly TopicId[], statusOf: (id: TopicId) => N
     }
   }
   return unmet
-}
-
-/**
- * Real questions for a sample set, drawn out of the question bank for its
- * topics. `questionAt` past the end of a topic's authored pool mints a fresh
- * template instance, so a templated topic can always fill a set.
- */
-function mintQuestions(topicIds: readonly TopicId[], count: number): AuthoredQuestion[] {
-  const drawn: AuthoredQuestion[] = []
-  const perTopic = Math.ceil(count / Math.max(1, topicIds.length))
-  for (const topicId of topicIds) {
-    for (let i = 0; i < perTopic && drawn.length < count; i++) {
-      const question = questionAt(topicId, i)
-      if (!question) break
-      // No hint: the bank's per-line notes are the worked solution, and a
-      // homework hint invented here would be exactly the fabricated detail
-      // the data can't support.
-      drawn.push({ topic: topicLabel(topicId), q: `${question.prompt}: ${question.statement}`, hint: '' })
-    }
-  }
-  return drawn
 }
 
 /**
@@ -525,8 +527,13 @@ const INITIAL: StudentState = {
   activePsId: null,
   psIdx: 0,
   psAnswers: {},
+  psResult: null,
   psSubmitted: false,
   psAttach: null,
+  editingName: false,
+  nameDraft: '',
+  psDone: {},
+  fpLog: [],
   selectedLog: null,
   selectedNode: null,
   graphFilter: 'all',
@@ -541,11 +548,15 @@ export default function StudentApp() {
     const saved = loadSaved(`progress.${STUDENT_ID}`, {
       pathCompleted: INITIAL.pathCompleted,
       diagnosticDone: INITIAL.diagnosticDone,
+      psDone: INITIAL.psDone,
     })
     return {
       ...INITIAL,
       pathCompleted: saved.pathCompleted ?? INITIAL.pathCompleted,
       diagnosticDone: saved.diagnosticDone ?? INITIAL.diagnosticDone,
+      // Homework already handed in stays handed in across a reload - the engine
+      // has already banked its evidence, so re-opening it must not bank it twice.
+      psDone: saved.psDone ?? INITIAL.psDone,
       screen: saved.diagnosticDone ? 'shome' : INITIAL.screen,
     }
   })
@@ -565,6 +576,9 @@ export default function StudentApp() {
    * that matters for the demo, the teacher's dashboard sees a gap the moment
    * the student flags the line that produced it.
    */
+  // Subscribes this view to the name store, so renaming yourself on Home
+  // redraws the greeting (and everything else here that names you) immediately.
+  const myName = useStudentName(STUDENT_ID)
   const engine = useEngine(STUDENT_ID)
   const engineNode = (topicId: TopicId): EngineNodeState => engine.nodes[topicId] ?? FALLBACK_NODE_STATE
 
@@ -576,8 +590,11 @@ export default function StudentApp() {
   // Write-through persistence for the screen state this component still owns.
   // The engine persists itself inside the shared store.
   useEffect(() => {
-    saveState(`progress.${STUDENT_ID}`, { pathCompleted: s.pathCompleted, diagnosticDone: s.diagnosticDone })
-  }, [s.pathCompleted, s.diagnosticDone])
+    saveState(`progress.${STUDENT_ID}`, { pathCompleted: s.pathCompleted, diagnosticDone: s.diagnosticDone, psDone: s.psDone })
+  }, [s.pathCompleted, s.diagnosticDone, s.psDone])
+
+  /** What a set scored when it was handed in, or undefined if it hasn't been. */
+  const psDoneFor = (setId: string): MarkedSet | undefined => s.psDone[setId]
 
   const queue = useMemo(() => buildQueue(engine, { cap: DAILY_ITEM_CAP }), [engine])
   const path = useMemo(() => derivePath(queue.items), [queue])
@@ -617,8 +634,8 @@ export default function StudentApp() {
   const progressRows = useMemo(() => {
     const rows = Object.keys(engine.masteryByTopic).map((topicId) => {
       const tier = engine.masteryByTopic[topicId]
-      const pct = Math.round(((tier.foundations + tier.core + tier.stretch) / 3) * 100)
-      const band = masteryBand(tier)
+      const pct = Math.round(masteryAverage(topicId, tier) * 100)
+      const band = masteryBand(topicId, tier)
       return {
         topicId,
         name: topicLabel(topicId),
@@ -684,6 +701,80 @@ export default function StudentApp() {
    * fraction-to-decimal line inside a *percentage* question banks a fractions
    * gap without ever being served a fractions question.
    */
+  /**
+   * Marks a submitted problem set and pipes the result into the engine.
+   *
+   * This is the join between homework and everything downstream of it: mastery,
+   * the schedule, the teacher's gap list, and the prerequisite locks on other
+   * sets. Without it a student can finish every question and nothing moves —
+   * the set is a form that posts nowhere.
+   *
+   * Questions the teacher typed by hand have no answer key (see `gradable`), so
+   * they are counted as submitted-for-marking and deliberately record nothing:
+   * guessing at correctness would put invented evidence into a diagnostic.
+   *
+   * Also writes the set to the activity log, which is the only reason the
+   * teacher, the parent and the student's own Sessions list ever see that the
+   * homework happened - `LogKind` has had a 'Problem set' case all along, and
+   * nothing was writing one.
+   */
+  const markProblemSet = (set: StudentProblemSet, answers: Record<number, string>, attach: string | null): MarkedSet => {
+    let correct = 0
+    let graded = 0
+    const items: LogQuestion[] = []
+    for (let i = 0; i < set.questions.length; i++) {
+      const q = set.questions[i]
+      const given = answers[i] ?? ''
+      if (!gradable(q)) {
+        // Still shown to the teacher - they are the ones marking it - just with
+        // no verdict attached, since this app has no answer to check against.
+        items.push({ label: `Q${i + 1}`, q: q.q, hit: false, note: `Answered "${given || '—'}" · for you to mark.` })
+        continue
+      }
+      graded++
+      const wasCorrect = isCorrectAnswer(given, q.answer)
+      if (wasCorrect) correct++
+      items.push({
+        label: `Q${i + 1}`,
+        q: q.q,
+        hit: !wasCorrect,
+        note: wasCorrect ? 'Correct.' : `Answered "${given || '—'}" · the answer was ${q.answer}.`,
+      })
+      recordTopicAttempt(q.topicId, {
+        problemId: q.questionId,
+        correct: wasCorrect,
+        // Whole-question marking: homework asks for a final answer, not the
+        // line-by-line self-review the practice loop collects. Flagging every
+        // line on a miss would claim a diagnosis the submission can't support,
+        // so a wrong answer flags none and reports itself as a plain miss.
+        flaggedLines: [],
+        reasons: {},
+        notes: {},
+        attach,
+      })
+    }
+    const ungraded = set.questions.length - graded
+    logSession({
+      kind: 'Problem set',
+      date: 'Today',
+      title: set.title,
+      result: graded > 0 ? `${correct} of ${graded} right` : `${set.questions.length} handed in for marking`,
+      // "Needs a look" at anything under three-quarters right, the same bar
+      // `MASTERY_PROMOTE_THRESHOLD` uses, so the flag and the gate agree.
+      flag: graded > 0 && correct / graded >= 0.75 ? 'ok' : 'attention',
+      summary:
+        graded === 0
+          ? 'Every question here is one the teacher wrote, so it comes back to them to mark.'
+          : correct === graded
+            ? 'Handed in complete and fully correct.'
+            : `Handed in complete. ${graded - correct} to look at again.`,
+      detail: ungraded > 0 && graded > 0 ? [`${ungraded} question${ungraded === 1 ? '' : 's'} left for the teacher to mark by hand.`] : [],
+      upload: !!attach,
+      items,
+    })
+    return { correct, graded, total: set.questions.length }
+  }
+
   const recordTopicAttempt = (topicId: TopicId, result: AttemptResult) => {
     if (!isGraphTopic(topicId)) return
     const question = questionById(result.problemId)
@@ -725,6 +816,9 @@ export default function StudentApp() {
           seenInTopicLabel: topicLabel(topicId),
           lineText: question?.lines[outcome.lineIndex]?.text ?? '',
           reason: result.reasons[outcome.lineIndex],
+          // The student's own explanation, when they wrote one. PracticeLoop
+          // collected these and nothing ever read them.
+          note: result.notes[outcome.lineIndex],
           at: 'just now',
         })
       }
@@ -759,10 +853,10 @@ export default function StudentApp() {
     const kindLower = sessionKind.toLowerCase()
     pushLiveFlag({
       kind: 'gaming',
-      student: 'Aisha Bello',
+      student: myName,
       context: `${subtopic} · ${kindLower}, today`,
       title: 'Three "all wrong" answers in a row',
-      body: `Aisha marked three attempts in a row as "I got it all wrong" in this ${kindLower}, without narrowing down which lines were right or wrong first. That can be a genuine stuck point, or a way to skip straight past the diagnostic to the worked solution. Flagged for your judgement rather than assumed either way.`,
+      body: `${studentFirstName(STUDENT_ID)} marked three attempts in a row as "I got it all wrong" in this ${kindLower}, without narrowing down which lines were right or wrong first. That can be a genuine stuck point, or a way to skip straight past the diagnostic to the worked solution. Flagged for your judgement rather than assumed either way.`,
       asks: 'Genuine stuck point, or skipping the diagnostic?',
       detail: {
         kind: sessionKind,
@@ -793,7 +887,7 @@ export default function StudentApp() {
    */
   const masteryLevelFor = (topicId: TopicId): number | undefined => {
     const tier = engine.masteryByTopic[topicId]
-    return tier ? (tier.foundations + tier.core + tier.stretch) / 3 : undefined
+    return tier ? masteryAverage(topicId, tier) : undefined
   }
 
   const openPathItem = (i: number) => {
@@ -903,14 +997,35 @@ export default function StudentApp() {
   }
 
   if (s.screen === 'practice') {
-    const exitPractice = () =>
+    const exitPractice = () => {
+      // Free play is one question at a time with no end screen to hang a log
+      // entry off, so the visit is the unit and leaving is when it closes.
+      // Until this existed, free play moved mastery and banked no XP and left
+      // no row anywhere - the student's own Sessions list, the teacher's
+      // activity log and the parent view all showed nothing had happened.
+      if (s.practiceMode === 'freeplay' && s.fpLog.length > 0) {
+        const right = s.fpLog.filter((a) => a.correct).length
+        logSession({
+          kind: 'Free play',
+          date: 'Today',
+          title: s.fpLabel ?? (s.practiceTopic ? topicLabel(s.practiceTopic) : 'Free play'),
+          result: `${right} of ${s.fpLog.length} right`,
+          flag: right / s.fpLog.length >= 0.75 ? 'ok' : 'attention',
+          summary: 'Practice they chose themselves, outside the scheduled path.',
+          detail: [],
+          upload: false,
+          items: s.fpLog.map((a, i) => ({ label: `Q${i + 1}`, q: a.q, hit: !a.correct, note: a.note })),
+        })
+      }
       setState({
         screen: s.fpLabel ? 'fptopic' : 'shome',
         fpLabel: null,
         activePathId: null,
         practiceMode: null,
         practiceTopic: null,
+        fpLog: [],
       })
+    }
 
     /**
      * The honest "not built out yet" placeholder, shown instead of mismatched
@@ -1004,7 +1119,20 @@ export default function StudentApp() {
           onExit={exitPractice}
           onComplete={(result) => {
             recordTopicAttempt(topic, result)
-            setState((st) => ({ fpProblemIdx: st.fpProblemIdx + 1 }))
+            setState((st) => ({
+              fpProblemIdx: st.fpProblemIdx + 1,
+              fpLog: [
+                ...st.fpLog,
+                {
+                  q: `${problem.prompt}: ${problem.statement}`,
+                  correct: result.correct,
+                  // The question's own authored note for the line it tests, not
+                  // the student's self-flagging - same ground-truth-over-self-report
+                  // convention the lesson and review logs already follow.
+                  note: result.correct ? 'Correct.' : (problem.lines[problem.errorLineIndex]?.note || 'See the worked steps.'),
+                },
+              ],
+            }))
           }}
         />
       )
@@ -1135,7 +1263,48 @@ export default function StudentApp() {
           {topBar(680)}
           <div style={{ maxWidth: 680, margin: '0 auto', padding: '30px 24px 60px' }}>
             <div style={monoCap()}>Friday · week 9</div>
-            <h1 style={{ fontFamily: FONT_SERIF, fontWeight: 600, fontSize: 28, margin: '6px 0 22px', color: '#0e2a43' }}>Good afternoon, Aisha</h1>
+            {/* The name is the student's to set, and it is the same name the teacher's
+                class list and the parent's header read (data/profile.ts). Editing it
+                here rather than burying it in a settings screen because on a demo the
+                first thing anyone wants is to see their own name on it. */}
+            {s.editingName ? (
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  setStudentName(STUDENT_ID, s.nameDraft)
+                  setState({ editingName: false })
+                }}
+                style={{ display: 'flex', gap: 8, alignItems: 'center', margin: '6px 0 22px', flexWrap: 'wrap' }}
+              >
+                <input
+                  autoFocus
+                  value={s.nameDraft}
+                  onChange={(e) => setState({ nameDraft: e.target.value })}
+                  onBlur={() => {
+                    setStudentName(STUDENT_ID, s.nameDraft)
+                    setState({ editingName: false })
+                  }}
+                  aria-label="Your name"
+                  style={{ fontFamily: FONT_SERIF, fontWeight: 600, fontSize: 26, color: '#0e2a43', background: '#fff', border: '1px solid #d8cbb2', borderRadius: 10, padding: '6px 12px', minWidth: 0, flex: '1 1 240px' }}
+                />
+                <button
+                  type="submit"
+                  style={{ background: '#dd6a2f', color: '#fff', border: 'none', borderRadius: 9, padding: '11px 18px', fontSize: 13.5, fontWeight: 600, cursor: 'pointer' }}
+                >
+                  Save
+                </button>
+              </form>
+            ) : (
+              <h1 style={{ fontFamily: FONT_SERIF, fontWeight: 600, fontSize: 28, margin: '6px 0 22px', color: '#0e2a43' }}>
+                Good afternoon, {studentFirstName(STUDENT_ID)}
+                <button
+                  onClick={() => setState({ editingName: true, nameDraft: studentName(STUDENT_ID) })}
+                  style={{ marginLeft: 10, background: 'transparent', border: '1px solid #ddd2bd', borderRadius: 20, padding: '3px 11px', fontFamily: FONT_MONO, fontSize: 11, color: '#8a7c63', cursor: 'pointer', verticalAlign: 'middle' }}
+                >
+                  Not you?
+                </button>
+              </h1>
+            )}
 
             {/* your path: lessons + reviews */}
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 4, flexWrap: 'wrap' }}>
@@ -1253,13 +1422,29 @@ export default function StudentApp() {
                         <div style={{ fontSize: 12.5, color: '#5c6773', lineHeight: 1.5, textWrap: 'pretty' }}>{p.lockNote}</div>
                       </div>
                     )}
+                    {/* Handed-in sets say so, and say what they scored. Without this the card read
+                        "Start homework →" straight after submitting it, which is the same as telling
+                        the student it never landed. */}
+                    {psDoneFor(p.id) && (
+                      <div style={{ marginTop: 10, display: 'flex', gap: 8, alignItems: 'center', background: '#eef3f7', border: '1px solid #d3e0ea', borderRadius: 9, padding: '10px 12px' }}>
+                        <span style={{ fontSize: 13, flex: 'none' }}>✓</span>
+                        <div style={{ fontSize: 12.5, color: '#2b4a63', lineHeight: 1.5, textWrap: 'pretty' }}>
+                          Handed in
+                          {psDoneFor(p.id)!.graded > 0
+                            ? ` · ${psDoneFor(p.id)!.correct} of ${psDoneFor(p.id)!.graded} right, and it moved your mastery.`
+                            : ' · with your teacher for marking.'}
+                        </div>
+                      </div>
+                    )}
                     <button
                       onClick={() => {
-                        if (p.openable) setState({ screen: 'psolve', psIdx: 0, psAnswers: {}, psSubmitted: false, activePsId: p.id })
+                        // psAttach reset too: an attachment left over from the last set
+                        // would otherwise silently satisfy this one's handwriting gate.
+                        if (p.openable) setState({ screen: 'psolve', psIdx: 0, psAnswers: {}, psSubmitted: false, psResult: null, psAttach: null, activePsId: p.id })
                       }}
-                      style={{ marginTop: 12, background: p.openable ? '#dd6a2f' : '#f2ece0', color: p.openable ? '#fff' : '#a99e88', border: 'none', borderRadius: 9, padding: '11px 16px', fontSize: 13.5, fontWeight: 600, cursor: p.openable ? 'pointer' : 'not-allowed' }}
+                      style={{ marginTop: 12, background: p.openable ? (psDoneFor(p.id) ? '#fff' : '#dd6a2f') : '#f2ece0', color: p.openable ? (psDoneFor(p.id) ? '#0e2a43' : '#fff') : '#a99e88', border: psDoneFor(p.id) && p.openable ? '1px solid #cdbfa6' : 'none', borderRadius: 9, padding: '11px 16px', fontSize: 13.5, fontWeight: 600, cursor: p.openable ? 'pointer' : 'not-allowed' }}
                     >
-                      {p.locked ? '🔒 Locked' : p.openable ? 'Start homework →' : 'Not built out yet'}
+                      {p.locked ? '🔒 Locked' : !p.openable ? 'Not built out yet' : psDoneFor(p.id) ? 'Look at it again' : 'Start homework →'}
                     </button>
                   </div>
                 ))}
@@ -1532,7 +1717,7 @@ export default function StudentApp() {
         <div style={{ minHeight: '100vh', background: '#f6f1e7' }}>
           <div style={{ background: '#0e2a43', color: '#dbe6ef', padding: '11px 22px' }}>
             <div style={{ maxWidth: 720, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 12 }}>
-              <div onClick={() => setState({ screen: 'shome', psSubmitted: false })} style={{ fontSize: 13, color: '#9fb4c7', cursor: 'pointer' }}>
+              <div onClick={() => setState({ screen: 'shome', psSubmitted: false, psResult: null })} style={{ fontSize: 13, color: '#9fb4c7', cursor: 'pointer' }}>
                 ← Today
               </div>
               <span style={{ marginLeft: 'auto', fontSize: 13, color: '#dbe6ef', fontFamily: FONT_SERIF }}>{curPS.title}</span>
@@ -1547,11 +1732,18 @@ export default function StudentApp() {
                 <p style={{ margin: '0 0 4px', fontSize: 14, color: '#5c6773', textWrap: 'pretty' }}>
                   Sent to Ms. Okafor · {psAnsweredCount} of {curPS.questions.length} answered
                 </p>
+                {s.psResult && s.psResult.graded > 0 && (
+                  <p style={{ margin: '0 0 4px', fontSize: 14.5, color: '#0e2a43', fontWeight: 600 }}>
+                    {s.psResult.correct} of {s.psResult.graded} marked right
+                  </p>
+                )}
                 <p style={{ margin: '0 0 22px', fontSize: 12.5, color: '#8a7c63', textWrap: 'pretty' }}>
-                  You'll see it marked in Sessions once your teacher has reviewed it.
+                  {s.psResult && s.psResult.graded > 0
+                    ? 'This has gone into your mastery for these topics — check Today to see what it moved.'
+                    : "You'll see it marked in Sessions once your teacher has reviewed it."}
                 </p>
                 <button
-                  onClick={() => setState({ screen: 'shome', psSubmitted: false })}
+                  onClick={() => setState({ screen: 'shome', psSubmitted: false, psResult: null })}
                   style={{ background: '#dd6a2f', color: '#fff', border: 'none', borderRadius: 10, padding: '13px 26px', fontSize: 14.5, fontWeight: 600, cursor: 'pointer' }}
                 >
                   Back to Today
@@ -1695,7 +1887,12 @@ export default function StudentApp() {
                   <button
                     onClick={() => {
                       if (psBlocked) return
-                      setState({ psSubmitted: true })
+                      // A set already handed in is never marked again: its
+                      // evidence is in the engine, and re-recording it would
+                      // walk mastery up off one set's worth of work.
+                      const already = s.psDone[curPS.id]
+                      const result = already ?? markProblemSet(curPS, psAns, s.psAttach)
+                      setState((st) => ({ psSubmitted: true, psResult: result, psDone: { ...st.psDone, [curPS.id]: result } }))
                     }}
                     disabled={psBlocked}
                     style={{ marginLeft: 'auto', color: '#fff', border: 'none', borderRadius: 10, padding: '13px 28px', fontSize: 14.5, fontWeight: 600, background: psBlocked ? '#e7c3ab' : '#dd6a2f', cursor: psBlocked ? 'not-allowed' : 'pointer' }}

@@ -14,7 +14,7 @@
           "summary": "Sign errors when moving a term across the equals sign.",
           "detail": [
             "3 of 5 items failed on the same step: moving a term across = without flipping its sign.",
-            "She flagged two as \"silly mistake\"; the pattern says otherwise - third time this fortnight.",
+            "They flagged two as \"silly mistake\"; the pattern says otherwise - third time this fortnight.",
             "Routed a focused re-teach of inverse operations before the next review."
           ],
           "upload": true,
@@ -126,7 +126,7 @@
           "flag": "ok",
           "summary": "One method slip, corroborated as a genuine one-off.",
           "detail": [
-            "Single error on a conversion; her wider pattern is strong here.",
+            "Single error on a conversion; their wider pattern is strong here.",
             "No re-teach needed - logged and closed."
           ],
           "upload": false,
@@ -191,10 +191,10 @@
           "title": "Negatives · spaced review",
           "result": "5 of 5 correct",
           "flag": "ok",
-          "summary": "Comfortable, well within his range.",
+          "summary": "Comfortable, well within their range.",
           "detail": [
             "All five correct on delayed retrieval - this one is genuinely solid.",
-            "Consistent with his pattern: strong on foundational number work."
+            "Consistent with their pattern: strong on foundational number work."
           ],
           "upload": false,
           "items": [
@@ -229,7 +229,7 @@
           "title": "Substitution · spaced review",
           "result": "4 of 5 correct",
           "flag": "ok",
-          "summary": "Solid when he’s doing it - the gap is how rarely that is.",
+          "summary": "Solid when they’re doing it - the gap is how rarely that is.",
           "detail": [
             "Accurate in the moment; only 2 sessions logged on this subtopic in the last fortnight.",
             "Not a misconception - a volume problem. Durability is the open question, not understanding."

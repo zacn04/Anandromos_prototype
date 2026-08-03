@@ -144,7 +144,9 @@ console.log('\ntemplates · instances are safe to serve')
   for (const t of templates) {
     for (let seed = 0; seed < 300; seed++) {
       const q = instantiate(t, seed)
-      const all = [q.statement, q.correctAnswer, ...q.lines.map((l) => l.text), ...q.lines.map((l) => l.note)]
+      const all = [q.prompt, q.answerLabel, q.statement, q.correctAnswer,
+                   ...q.lines.map((l) => l.text), ...q.lines.map((l) => l.note),
+                   ...(q.distractors ?? []).flatMap((d) => [d.text, d.cause])]
       if (all.some((s) => /[{}]/.test(s))) unrendered ||= `${t.id}#${seed}`
       if (all.some((s) => s.includes('NaN') || s.includes('Infinity'))) emptyish ||= `${t.id}#${seed}`
       if (q.distractors?.some((d) => d.text === q.correctAnswer)) collided ||= `${t.id}#${seed}`

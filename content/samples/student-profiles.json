@@ -85,7 +85,7 @@
         "label": "Linear equations",
         "topicId": "alg.linear",
         "detail": "Two-step equations with the unknown on one side.",
-        "note": "Scaffolding is still high here - hints show full worked steps, and will fade automatically as her mastery of this topic rises."
+        "note": "Scaffolding is still high here - hints show full worked steps, and will fade automatically as their mastery of this topic rises."
       },
       "classId": "8M2"
     },
@@ -93,7 +93,7 @@
       "studentId": "daniel",
       "whereToStart": [
         "Plateaued on Fractions → % for two weeks - accuracy looks fine, but only on the easy items.",
-        "Likely root cause: an ineffective practice pattern - he clears simple conversions and avoids the harder non-calculator ones, so his average overstates his real mastery.",
+        "Likely root cause: an ineffective practice pattern - they clear simple conversions and avoid the harder non-calculator ones, so their average overstates their real mastery.",
         "Best next move: graded, must-attempt-in-order practice on the harder items, not free choice of what to practise."
       ],
       "pace": [
@@ -163,8 +163,8 @@
       "workingOnNow": {
         "label": "Fractions → %",
         "topicId": "num.fractions-to-percent",
-        "detail": "Harder non-calculator conversions - the items he currently avoids.",
-        "note": "Deliberately routing him into these rather than letting him choose, since free choice is exactly how the plateau happened."
+        "detail": "Harder non-calculator conversions - the items they currently avoid.",
+        "note": "Deliberately routing them into these rather than letting them choose, since free choice is exactly how the plateau happened."
       },
       "classId": "8M2"
     },
@@ -172,8 +172,8 @@
       "studentId": "reuben",
       "whereToStart": [
         "Only 2 sessions logged on Substitution this fortnight - the gap itself is the signal, not a specific misconception.",
-        "Likely root cause: low practice volume. He's accurate when he's actually working on it, so this isn't a knowledge gap so much as it not being durable yet.",
-        "Best next move: a couple of short, low-stakes practice nudges this week rather than a re-teach - he doesn't need reteaching, he needs reps."
+        "Likely root cause: low practice volume. They're accurate when they're actually working on it, so this isn't a knowledge gap so much as it not being durable yet.",
+        "Best next move: a couple of short, low-stakes practice nudges this week rather than a re-teach - they don't need reteaching, they need reps."
       ],
       "pace": [
         {
@@ -252,7 +252,7 @@
       "whereToStart": [
         "Fractions → % is genuinely secure - the same accuracy on the harder non-calculator items as on the easy ones.",
         "Nothing to unpick. Both prerequisites for % change - fractions → % and proportion - are mastered, so that topic opened on its own.",
-        "Best next move: let her start % change. No re-teach is needed first."
+        "Best next move: let them start % change. No re-teach is needed first."
       ],
       "pace": [
         {
@@ -338,8 +338,8 @@
       "studentId": "tom",
       "whereToStart": [
         "One-step equations are secure, and the two-step form started landing this week.",
-        "The shift shows up as a jump in his core-tier items on linear equations rather than as errors clearing, so it reads as new method, not tidier arithmetic.",
-        "Best next move: keep him on two-step items for a few more sessions. The gain is a week old and not yet durable."
+        "The shift shows up as a jump in their core-tier items on linear equations rather than as errors clearing, so it reads as new method, not tidier arithmetic.",
+        "Best next move: keep them on two-step items for a few more sessions. The gain is a week old and not yet durable."
       ],
       "pace": [
         {
@@ -409,7 +409,7 @@
         "label": "Linear equations",
         "topicId": "alg.linear",
         "detail": "Two-step equations with the unknown on one side.",
-        "note": "Hints are already fading - he is asking for fewer than he was a fortnight ago."
+        "note": "Hints are already fading - they are asking for fewer than they were a fortnight ago."
       },
       "classId": "8M2"
     },
@@ -417,8 +417,8 @@
       "studentId": "grace",
       "whereToStart": [
         "Proportion is holding at fourteen-day review intervals, which is retention rather than recency.",
-        "Her intervals have widened steadily for a month with no drop in accuracy - that is the pattern the spacing is meant to produce.",
-        "Best next move: nothing on number. Algebra basics is the one place she is behind, and substitution stays shut until it masters."
+        "Their intervals have widened steadily for a month with no drop in accuracy - that is the pattern the spacing is meant to produce.",
+        "Best next move: nothing on number. Algebra basics is the one place they are behind, and substitution stays shut until it masters."
       ],
       "pace": [
         {
@@ -496,7 +496,7 @@
         "label": "% change",
         "topicId": "num.percent-change",
         "detail": "Percentage increase and decrease, first pass.",
-        "note": "Her long review intervals free up most of her session time for new material rather than revisiting old topics."
+        "note": "Their long review intervals free up most of their session time for new material rather than revisiting old topics."
       },
       "classId": "8M2"
     },
@@ -504,7 +504,7 @@
       "studentId": "marcus",
       "whereToStart": [
         "The sign errors on expanding brackets stopped about three weeks ago and have not come back.",
-        "The root cause was negatives arithmetic rather than the expanding rule itself - that prerequisite is now his strongest topic.",
+        "The root cause was negatives arithmetic rather than the expanding rule itself - that prerequisite is now their strongest topic.",
         "Best next move: no re-teach on brackets. Keep the negatives review on schedule, and note that fractions is the soft side of an otherwise strong profile - it is holding fractions → % and proportion shut."
       ],
       "pace": [
@@ -582,7 +582,7 @@
       "workingOnNow": {
         "label": "Expanding ( )",
         "topicId": "alg.expanding",
-        "detail": "Single brackets with a negative multiplier - the case he used to slip on.",
+        "detail": "Single brackets with a negative multiplier - the case they used to slip on.",
         "note": "Still including the sign cases deliberately rather than moving on, to confirm the fix holds under spacing."
       },
       "classId": "8M2"
@@ -590,8 +590,8 @@
     {
       "studentId": "sofia",
       "whereToStart": [
-        "Substitution is methodical - she writes the substitution line out in full before evaluating, every time.",
-        "No gap to find here. Her accuracy is flat across the three difficulty tiers rather than falling away on the harder items.",
+        "Substitution is methodical - they write the substitution line out in full before evaluating, every time.",
+        "No gap to find here. Their accuracy is flat across the three difficulty tiers rather than falling away on the harder items.",
         "Best next move: leave the method alone. Linear equations opens as soon as substitution masters."
       ],
       "pace": [
@@ -662,16 +662,16 @@
         "label": "Substitution",
         "topicId": "alg.substitution",
         "detail": "Two-variable substitution with negative values.",
-        "note": "Timing her own working is her own habit, not a scaffold that was added - worth not interfering with."
+        "note": "Timing their own working is their own habit, not a scaffold that was added - worth not interfering with."
       },
       "classId": "8M2"
     },
     {
       "studentId": "jack",
       "whereToStart": [
-        "Two quiet weeks, then five sessions in the last four days. He is back.",
-        "The fortnight pushed a lot of reviews past their due date rather than opening a gap - his accuracy on return is where he left it.",
-        "Best next move: let the backlog clear at its own pace. Ratio is the one topic he missed outright rather than fell behind on, so it needs teaching, not a review."
+        "Two quiet weeks, then five sessions in the last four days. They are back.",
+        "The fortnight pushed a lot of reviews past their due date rather than opening a gap - their accuracy on return is where they left it.",
+        "Best next move: let the backlog clear at its own pace. Ratio is the one topic they missed outright rather than fell behind on, so it needs teaching, not a review."
       ],
       "pace": [
         {
@@ -748,7 +748,7 @@
       "workingOnNow": {
         "label": "Linear equations",
         "topicId": "alg.linear",
-        "detail": "One-step equations, rebuilding the run he had going before the gap.",
+        "detail": "One-step equations, rebuilding the run they had going before the gap.",
         "note": "The reviews that fell due during the fortnight are being released a few a day, not all at once."
       },
       "classId": "8M2"
@@ -756,8 +756,8 @@
     {
       "studentId": "amara",
       "whereToStart": [
-        "Ratio came due for review today - eight days since she last worked it.",
-        "Not a gap. The interval simply came round, and it is already out at eight days because she has been reliable on the topic.",
+        "Ratio came due for review today - eight days since they last worked it.",
+        "Not a gap. The interval simply came round, and it is already out at eight days because they have been reliable on the topic.",
         "Best next move: nothing beyond letting the review run. If it holds, the interval widens again."
       ],
       "pace": [
@@ -844,7 +844,7 @@
       "studentId": "leo",
       "whereToStart": [
         "Plotting is confident, including the negative quadrants, which is usually where coordinates comes apart.",
-        "That holds up because negatives is his single strongest topic - the prerequisite is doing the work here.",
+        "That holds up because negatives is their single strongest topic - the prerequisite is doing the work here.",
         "Best next move: keep going. Nothing on this profile needs teacher time this week."
       ],
       "pace": [
@@ -915,7 +915,7 @@
         "label": "Coordinates",
         "topicId": "geo.coordinates",
         "detail": "Plotting and reading points across all four quadrants.",
-        "note": "The negatives work he did earlier in the year is why this is going smoothly - worth telling him that."
+        "note": "The negatives work they did earlier in the year is why this is going smoothly - worth telling them that."
       },
       "classId": "8M4"
     },
@@ -923,8 +923,8 @@
       "studentId": "hana",
       "whereToStart": [
         "Fifteen reps on fractions → %, and the recent ones are the harder non-calculator items rather than the easy conversions.",
-        "This is the opposite of a plateau: her foundation-tier accuracy has been flat for a fortnight while the core and stretch tiers have climbed.",
-        "Best next move: nothing to change. She is already choosing the items that move her."
+        "This is the opposite of a plateau: their foundation-tier accuracy has been flat for a fortnight while the core and stretch tiers have climbed.",
+        "Best next move: nothing to change. They are already choosing the items that move them."
       ],
       "pace": [
         {
@@ -994,7 +994,7 @@
         "label": "Fractions → %",
         "topicId": "num.fractions-to-percent",
         "detail": "Non-calculator conversions with awkward denominators.",
-        "note": "She picked these herself. The scaffolding is already low and can stay there."
+        "note": "They picked these themselves. The scaffolding is already low and can stay there."
       },
       "classId": "8M4"
     },
@@ -1002,7 +1002,7 @@
       "studentId": "noah",
       "whereToStart": [
         "Fourteen reps on substitution, most of them free play in the evenings rather than assigned work.",
-        "Volume is not his problem. Nearly all of it sits at foundation and core difficulty on material he has already cleared - he even opened expanding brackets himself, ahead of the class.",
+        "Volume is not their problem. Nearly all of it sits at foundation and core difficulty on material they have already cleared - they even opened expanding brackets themselves, ahead of the class.",
         "Best next move: point some of that volume at the harder tier rather than asking for more of it."
       ],
       "pace": [
@@ -1088,8 +1088,8 @@
     {
       "studentId": "ivy",
       "whereToStart": [
-        "Proportion is going well, and her written working is unusually complete - it shows the step, not just the answer.",
-        "That matters here: legible working is what lets a method slip be told apart from an arithmetic slip, and on her sessions it can be.",
+        "Proportion is going well, and their written working is unusually complete - it shows the step, not just the answer.",
+        "That matters here: legible working is what lets a method slip be told apart from an arithmetic slip, and on their sessions it can be.",
         "Best next move: nothing. Fractions → % is already mastered, so % change opens as soon as proportion does."
       ],
       "pace": [
@@ -1160,7 +1160,7 @@
         "label": "Proportion",
         "topicId": "num.proportion",
         "detail": "Direct proportion with a scaling step in the middle.",
-        "note": "Her working is legible enough that the line-level check is doing real diagnostic work on her sessions."
+        "note": "Their working is legible enough that the line-level check is doing real diagnostic work on their sessions."
       },
       "classId": "8M4"
     },
@@ -1169,7 +1169,7 @@
       "whereToStart": [
         "Linear equations is moving steadily, and expanding brackets is already mastered.",
         "Those two are exactly the prerequisites for equations with brackets, so that topic opens the moment linear equations masters.",
-        "Best next move: nothing yet. Worth knowing bracket equations is next so the harder material is ready when he arrives."
+        "Best next move: nothing yet. Worth knowing bracket equations is next so the harder material is ready when they arrive."
       ],
       "pace": [
         {
@@ -1334,7 +1334,7 @@
       "studentId": "sam",
       "whereToStart": [
         "Coordinates is progressing at a steady rate with nothing flagged - no misconception, no plateau, no missing prerequisite.",
-        "His tier profile is unusually even. Where most students show a wide foundations-to-stretch spread, his three tiers move together.",
+        "Their tier profile is unusually even. Where most students show a wide foundations-to-stretch spread, their three tiers move together.",
         "Best next move: none. This is the profile that needs the least of your time, which is worth saying out loud rather than leaving implicit."
       ],
       "pace": [
@@ -1405,7 +1405,7 @@
         "label": "Coordinates",
         "topicId": "geo.coordinates",
         "detail": "Reading and plotting points, moving on towards midpoints.",
-        "note": "Nothing has been flagged on his work for six weeks. The quiet ones are the easiest to lose track of."
+        "note": "Nothing has been flagged on their work for six weeks. The quiet ones are the easiest to lose track of."
       },
       "classId": "8M4"
     },
@@ -1414,7 +1414,7 @@
       "whereToStart": [
         "Working on simultaneous equations - a Year 9 topic - while the class is on Year 8 algebra. That is roughly a full term ahead.",
         "Elimination is clean. The errors that do appear are arithmetic rather than method, and they are not repeating.",
-        "Best next move: harder simultaneous-equation work. She does not need the material the rest of the class is on."
+        "Best next move: harder simultaneous-equation work. They do not need the material the rest of the class is on."
       ],
       "pace": [
         {
@@ -1492,15 +1492,15 @@
         "label": "Simultaneous eqns",
         "topicId": "alg.simultaneous",
         "detail": "Elimination where one equation has to be scaled first.",
-        "note": "A Year 9 topic reached in a Year 8 class. Every prerequisite underneath it is mastered, so nothing is holding her back."
+        "note": "A Year 9 topic reached in a Year 8 class. Every prerequisite underneath it is mastered, so nothing is holding them back."
       },
       "classId": "9S1"
     },
     {
       "studentId": "oscar",
       "whereToStart": [
-        "Equations with brackets opened for him last week and he cleared the core-tier items inside three sessions.",
-        "Both prerequisites - linear equations and expanding - are mastered, so nothing underneath is slowing him down.",
+        "Equations with brackets opened for them last week and they cleared the core-tier items inside three sessions.",
+        "Both prerequisites - linear equations and expanding - are mastered, so nothing underneath is slowing them down.",
         "Best next move: harder bracket work. The stretch tier is the only one on that topic with room left in it."
       ],
       "pace": [
@@ -1571,7 +1571,7 @@
         "label": "Bracket eqns",
         "topicId": "alg.bracket-equations",
         "detail": "Equations with a bracket on one side, expanding before solving.",
-        "note": "Proportion is the one topic he is behind on. Worth not letting the algebra hide it."
+        "note": "Proportion is the one topic they are behind on. Worth not letting the algebra hide it."
       },
       "classId": "9S1"
     },
@@ -1579,8 +1579,8 @@
       "studentId": "maya",
       "whereToStart": [
         "Coordinates is mastered including the stretch tier - midpoints, and gradient between two points.",
-        "Linear equations is mastered too, so simultaneous equations - a Year 9 topic - has already opened for her.",
-        "Best next move: straight-line graphs, which she has begun early, and the newly-open simultaneous equations."
+        "Linear equations is mastered too, so simultaneous equations - a Year 9 topic - has already opened for them.",
+        "Best next move: straight-line graphs, which they have begun early, and the newly-open simultaneous equations."
       ],
       "pace": [
         {
@@ -1658,7 +1658,7 @@
         "label": "Coordinates",
         "topicId": "geo.coordinates",
         "detail": "Stretch items - gradient between two points, and midpoints.",
-        "note": "She is working past this topic rather than through it. Expanding brackets is the one place she is not ahead."
+        "note": "They are working past this topic rather than through it. Expanding brackets is the one place they are not ahead."
       },
       "classId": "9S1"
     },
@@ -1666,8 +1666,8 @@
       "studentId": "finn",
       "whereToStart": [
         "Takes the hardest available item almost every session, and asks for a hint on roughly one in ten.",
-        "His stretch tier sits close to his core tier across algebra, which is unusual - for most students the two are far apart - and that is where nearly all his recent reps have gone.",
-        "Best next move: keep the hard material coming. The risk with him is running out of stretch items, not running out of road."
+        "Their stretch tier sits close to their core tier across algebra, which is unusual - for most students the two are far apart - and that is where nearly all their recent reps have gone.",
+        "Best next move: keep the hard material coming. The risk with them is running out of stretch items, not running out of road."
       ],
       "pace": [
         {
@@ -1737,7 +1737,7 @@
         "label": "Simultaneous eqns",
         "topicId": "alg.simultaneous",
         "detail": "Elimination and substitution methods, at the hardest tier available.",
-        "note": "He rarely takes a hint. Worth checking there is enough stretch material ahead of him rather than assuming there is."
+        "note": "They rarely take a hint. Worth checking there is enough stretch material ahead of them rather than assuming there is."
       },
       "classId": "9S1"
     },
@@ -1745,8 +1745,8 @@
       "studentId": "zara",
       "whereToStart": [
         "Fast and accurate on bracket equations - eight reps, nearly all at core difficulty, nearly all correct.",
-        "Her stretch tier is the one that has not moved, and that reads as supply rather than ability: she has barely met a stretch item on any topic.",
-        "Best next move: put harder items in front of her explicitly. At this core accuracy she is unlikely to meet one by accident."
+        "Their stretch tier is the one that has not moved, and that reads as supply rather than ability: they have barely met a stretch item on any topic.",
+        "Best next move: put harder items in front of them explicitly. At this core accuracy they are unlikely to meet one by accident."
       ],
       "pace": [
         {
@@ -1816,7 +1816,7 @@
         "label": "Bracket eqns",
         "topicId": "alg.bracket-equations",
         "detail": "Expanding then solving, at core difficulty.",
-        "note": "The flat stretch tier runs across all four of her topics, so it is a pattern in what she has been given, not something about brackets."
+        "note": "The flat stretch tier runs across all four of their topics, so it is a pattern in what they have been given, not something about brackets."
       },
       "classId": "9S1"
     },
@@ -1824,8 +1824,8 @@
       "studentId": "louis",
       "whereToStart": [
         "Coordinates is mastered with midpoints and gradients secure at the stretch tier.",
-        "Linear equations is mastered too, which is what opened simultaneous equations - a Year 9 topic - for him this week.",
-        "Best next move: let him start simultaneous equations. Proportion is the one thing worth not losing sight of while he does."
+        "Linear equations is mastered too, which is what opened simultaneous equations - a Year 9 topic - for them this week.",
+        "Best next move: let them start simultaneous equations. Proportion is the one thing worth not losing sight of while they do."
       ],
       "pace": [
         {
@@ -1903,7 +1903,7 @@
       "studentId": "nina",
       "whereToStart": [
         "Ahead of pace across algebra, with two reviews falling due today and two more later this week.",
-        "The reviews are the reason it has stayed ahead. Her intervals are long, but they are being honoured rather than skipped.",
+        "The reviews are the reason it has stayed ahead. Their intervals are long, but they are being honoured rather than skipped.",
         "Best next move: nothing to add. Protect the review time rather than replacing it with new material."
       ],
       "pace": [
