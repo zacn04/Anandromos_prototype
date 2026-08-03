@@ -860,6 +860,23 @@ function checkReferentialIntegrity(): number {
     }
   })
 
+
+  // Every student profile must name a class that exists. A dangling classId
+  // does not throw — it silently yields an empty roster, which is exactly the
+  // failure this check exists to make loud.
+  const classIdSet = new Set(rowsOf(classes).map((c) => c.id))
+  rowsOf(profiles).forEach((pr, i) => {
+    const cid = pr.classId
+    if (!isString(cid)) {
+      err('E_PROFILE_CLASS_MISSING', fileLabel(PROFILES_PATH), i, pr.studentId ?? null,
+        'profile has no classId, so it appears on no class roster')
+      return
+    }
+    if (!classIdSet.has(cid)) {
+      err('E_REF_PROFILE_CLASS', fileLabel(PROFILES_PATH), i, pr.studentId ?? null,
+        `classId "${cid}" names no class in ${CLASSES_PATH}`)
+    }
+  })
   nodeStates.forEach((ns, i) => {
     const nodes = isPlainObject(ns.nodes) ? ns.nodes : {}
     for (const key of Object.keys(nodes)) {

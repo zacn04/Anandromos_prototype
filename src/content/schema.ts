@@ -349,6 +349,8 @@ export interface WorkingOnNow {
  */
 export interface StudentProfile {
   studentId: StudentId
+  /** The class this student is on the roster for. */
+  classId: string
   whereToStart: readonly string[]
   pace: readonly PaceRow[]
   mastery: readonly MasteryRow[]

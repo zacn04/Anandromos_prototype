@@ -31,7 +31,8 @@
         "topicId": "alg.linear",
         "detail": "Cross-equals",
         "note": "Steady."
-      }
+      },
+      "classId": "8M2"
     }
   ]
 }

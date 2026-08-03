@@ -10,19 +10,84 @@
         "Best next move: a short re-teach of that step, not more equation practice."
       ],
       "pace": [
-        { "label": "Ratio & proportion", "topicId": null, "tag": "Ahead · +1 term", "kind": "ahead", "actual": 0.88, "expected": 0.6 },
-        { "label": "Negatives", "topicId": "num.negatives", "tag": "Ahead", "kind": "ahead", "actual": 1, "expected": 0.9 },
-        { "label": "Fractions & %", "topicId": "num.fractions-to-percent", "tag": "On pace", "kind": "onpace", "actual": 0.78, "expected": 0.75 },
-        { "label": "Algebra basics", "topicId": "alg.basics", "tag": "Behind", "kind": "behind", "actual": 0.55, "expected": 0.78 },
-        { "label": "Linear equations", "topicId": "alg.linear", "tag": "Behind · ½ term", "kind": "behind", "actual": 0.32, "expected": 0.7 }
+        {
+          "label": "Ratio & proportion",
+          "topicId": null,
+          "tag": "Ahead · +1 term",
+          "kind": "ahead",
+          "actual": 0.88,
+          "expected": 0.6
+        },
+        {
+          "label": "Negatives",
+          "topicId": "num.negatives",
+          "tag": "Ahead",
+          "kind": "ahead",
+          "actual": 1,
+          "expected": 0.9
+        },
+        {
+          "label": "Fractions & %",
+          "topicId": "num.fractions-to-percent",
+          "tag": "On pace",
+          "kind": "onpace",
+          "actual": 0.78,
+          "expected": 0.75
+        },
+        {
+          "label": "Algebra basics",
+          "topicId": "alg.basics",
+          "tag": "Behind",
+          "kind": "behind",
+          "actual": 0.55,
+          "expected": 0.78
+        },
+        {
+          "label": "Linear equations",
+          "topicId": "alg.linear",
+          "tag": "Behind · ½ term",
+          "kind": "behind",
+          "actual": 0.32,
+          "expected": 0.7
+        }
       ],
       "mastery": [
-        { "label": "Negatives", "topicId": "num.negatives", "foundations": 1, "core": 0.9, "stretch": 0.6 },
-        { "label": "Substitution", "topicId": "alg.substitution", "foundations": 0.8, "core": 0.4, "stretch": 0 },
-        { "label": "Linear equations", "topicId": "alg.linear", "foundations": 0.5, "core": 0.15, "stretch": 0 },
-        { "label": "Fractions & %", "topicId": "num.fractions-to-percent", "foundations": 0.95, "core": 0.75, "stretch": 0.4 }
+        {
+          "label": "Negatives",
+          "topicId": "num.negatives",
+          "foundations": 1,
+          "core": 0.9,
+          "stretch": 0.6
+        },
+        {
+          "label": "Substitution",
+          "topicId": "alg.substitution",
+          "foundations": 0.8,
+          "core": 0.4,
+          "stretch": 0
+        },
+        {
+          "label": "Linear equations",
+          "topicId": "alg.linear",
+          "foundations": 0.5,
+          "core": 0.15,
+          "stretch": 0
+        },
+        {
+          "label": "Fractions & %",
+          "topicId": "num.fractions-to-percent",
+          "foundations": 0.95,
+          "core": 0.75,
+          "stretch": 0.4
+        }
       ],
-      "workingOnNow": { "label": "Linear equations", "topicId": "alg.linear", "detail": "Two-step equations with the unknown on one side.", "note": "Scaffolding is still high here - hints show full worked steps, and will fade automatically as her mastery of this topic rises." }
+      "workingOnNow": {
+        "label": "Linear equations",
+        "topicId": "alg.linear",
+        "detail": "Two-step equations with the unknown on one side.",
+        "note": "Scaffolding is still high here - hints show full worked steps, and will fade automatically as her mastery of this topic rises."
+      },
+      "classId": "8M2"
     },
     {
       "studentId": "daniel",
@@ -32,18 +97,76 @@
         "Best next move: graded, must-attempt-in-order practice on the harder items, not free choice of what to practise."
       ],
       "pace": [
-        { "label": "Negatives", "topicId": "num.negatives", "tag": "Ahead", "kind": "ahead", "actual": 0.95, "expected": 0.85 },
-        { "label": "Algebra basics", "topicId": "alg.basics", "tag": "On pace", "kind": "onpace", "actual": 0.7, "expected": 0.72 },
-        { "label": "Fractions & %", "topicId": "num.fractions-to-percent", "tag": "Behind · stalled", "kind": "behind", "actual": 0.42, "expected": 0.75 },
-        { "label": "Substitution", "topicId": "alg.substitution", "tag": "Behind", "kind": "behind", "actual": 0.35, "expected": 0.55 }
+        {
+          "label": "Negatives",
+          "topicId": "num.negatives",
+          "tag": "Ahead",
+          "kind": "ahead",
+          "actual": 0.95,
+          "expected": 0.85
+        },
+        {
+          "label": "Algebra basics",
+          "topicId": "alg.basics",
+          "tag": "On pace",
+          "kind": "onpace",
+          "actual": 0.7,
+          "expected": 0.72
+        },
+        {
+          "label": "Fractions & %",
+          "topicId": "num.fractions-to-percent",
+          "tag": "Behind · stalled",
+          "kind": "behind",
+          "actual": 0.42,
+          "expected": 0.75
+        },
+        {
+          "label": "Substitution",
+          "topicId": "alg.substitution",
+          "tag": "Behind",
+          "kind": "behind",
+          "actual": 0.35,
+          "expected": 0.55
+        }
       ],
       "mastery": [
-        { "label": "Negatives", "topicId": "num.negatives", "foundations": 1, "core": 0.85, "stretch": 0.5 },
-        { "label": "Fractions & %", "topicId": "num.fractions-to-percent", "foundations": 0.95, "core": 0.3, "stretch": 0 },
-        { "label": "Algebra basics", "topicId": "alg.basics", "foundations": 0.85, "core": 0.5, "stretch": 0.1 },
-        { "label": "Substitution", "topicId": "alg.substitution", "foundations": 0.6, "core": 0.2, "stretch": 0 }
+        {
+          "label": "Negatives",
+          "topicId": "num.negatives",
+          "foundations": 1,
+          "core": 0.85,
+          "stretch": 0.5
+        },
+        {
+          "label": "Fractions & %",
+          "topicId": "num.fractions-to-percent",
+          "foundations": 0.95,
+          "core": 0.3,
+          "stretch": 0
+        },
+        {
+          "label": "Algebra basics",
+          "topicId": "alg.basics",
+          "foundations": 0.85,
+          "core": 0.5,
+          "stretch": 0.1
+        },
+        {
+          "label": "Substitution",
+          "topicId": "alg.substitution",
+          "foundations": 0.6,
+          "core": 0.2,
+          "stretch": 0
+        }
       ],
-      "workingOnNow": { "label": "Fractions → %", "topicId": "num.fractions-to-percent", "detail": "Harder non-calculator conversions - the items he currently avoids.", "note": "Deliberately routing him into these rather than letting him choose, since free choice is exactly how the plateau happened." }
+      "workingOnNow": {
+        "label": "Fractions → %",
+        "topicId": "num.fractions-to-percent",
+        "detail": "Harder non-calculator conversions - the items he currently avoids.",
+        "note": "Deliberately routing him into these rather than letting him choose, since free choice is exactly how the plateau happened."
+      },
+      "classId": "8M2"
     },
     {
       "studentId": "reuben",
@@ -53,18 +176,76 @@
         "Best next move: a couple of short, low-stakes practice nudges this week rather than a re-teach - he doesn't need reteaching, he needs reps."
       ],
       "pace": [
-        { "label": "Ratio & proportion", "topicId": null, "tag": "On pace", "kind": "onpace", "actual": 0.72, "expected": 0.7 },
-        { "label": "Negatives", "topicId": "num.negatives", "tag": "On pace", "kind": "onpace", "actual": 0.88, "expected": 0.85 },
-        { "label": "Algebra basics", "topicId": "alg.basics", "tag": "On pace", "kind": "onpace", "actual": 0.68, "expected": 0.72 },
-        { "label": "Substitution", "topicId": "alg.substitution", "tag": "Behind · low volume", "kind": "behind", "actual": 0.4, "expected": 0.55 }
+        {
+          "label": "Ratio & proportion",
+          "topicId": null,
+          "tag": "On pace",
+          "kind": "onpace",
+          "actual": 0.72,
+          "expected": 0.7
+        },
+        {
+          "label": "Negatives",
+          "topicId": "num.negatives",
+          "tag": "On pace",
+          "kind": "onpace",
+          "actual": 0.88,
+          "expected": 0.85
+        },
+        {
+          "label": "Algebra basics",
+          "topicId": "alg.basics",
+          "tag": "On pace",
+          "kind": "onpace",
+          "actual": 0.68,
+          "expected": 0.72
+        },
+        {
+          "label": "Substitution",
+          "topicId": "alg.substitution",
+          "tag": "Behind · low volume",
+          "kind": "behind",
+          "actual": 0.4,
+          "expected": 0.55
+        }
       ],
       "mastery": [
-        { "label": "Negatives", "topicId": "num.negatives", "foundations": 0.9, "core": 0.7, "stretch": 0.35 },
-        { "label": "Algebra basics", "topicId": "alg.basics", "foundations": 0.8, "core": 0.55, "stretch": 0.2 },
-        { "label": "Substitution", "topicId": "alg.substitution", "foundations": 0.55, "core": 0.25, "stretch": 0.05 },
-        { "label": "Ratio & proportion", "topicId": null, "foundations": 0.85, "core": 0.6, "stretch": 0.3 }
+        {
+          "label": "Negatives",
+          "topicId": "num.negatives",
+          "foundations": 0.9,
+          "core": 0.7,
+          "stretch": 0.35
+        },
+        {
+          "label": "Algebra basics",
+          "topicId": "alg.basics",
+          "foundations": 0.8,
+          "core": 0.55,
+          "stretch": 0.2
+        },
+        {
+          "label": "Substitution",
+          "topicId": "alg.substitution",
+          "foundations": 0.55,
+          "core": 0.25,
+          "stretch": 0.05
+        },
+        {
+          "label": "Ratio & proportion",
+          "topicId": null,
+          "foundations": 0.85,
+          "core": 0.6,
+          "stretch": 0.3
+        }
       ],
-      "workingOnNow": { "label": "Substitution", "topicId": "alg.substitution", "detail": "Short, low-stakes practice nudges to build up reps.", "note": "No re-teach needed here - the priority is frequency, not content." }
+      "workingOnNow": {
+        "label": "Substitution",
+        "topicId": "alg.substitution",
+        "detail": "Short, low-stakes practice nudges to build up reps.",
+        "note": "No re-teach needed here - the priority is frequency, not content."
+      },
+      "classId": "8M2"
     },
     {
       "studentId": "priya",
@@ -74,19 +255,84 @@
         "Best next move: let her start % change. No re-teach is needed first."
       ],
       "pace": [
-        { "label": "Fractions & %", "topicId": "num.fractions-to-percent", "tag": "Ahead", "kind": "ahead", "actual": 0.9, "expected": 0.75 },
-        { "label": "Proportion", "topicId": "num.proportion", "tag": "On pace", "kind": "onpace", "actual": 0.82, "expected": 0.78 },
-        { "label": "Negatives", "topicId": "num.negatives", "tag": "On pace", "kind": "onpace", "actual": 0.88, "expected": 0.85 },
-        { "label": "% change", "topicId": "num.percent-change", "tag": "On pace · just opened", "kind": "onpace", "actual": 0.12, "expected": 0.1 },
-        { "label": "Substitution", "topicId": "alg.substitution", "tag": "Behind", "kind": "behind", "actual": 0.45, "expected": 0.55 }
+        {
+          "label": "Fractions & %",
+          "topicId": "num.fractions-to-percent",
+          "tag": "Ahead",
+          "kind": "ahead",
+          "actual": 0.9,
+          "expected": 0.75
+        },
+        {
+          "label": "Proportion",
+          "topicId": "num.proportion",
+          "tag": "On pace",
+          "kind": "onpace",
+          "actual": 0.82,
+          "expected": 0.78
+        },
+        {
+          "label": "Negatives",
+          "topicId": "num.negatives",
+          "tag": "On pace",
+          "kind": "onpace",
+          "actual": 0.88,
+          "expected": 0.85
+        },
+        {
+          "label": "% change",
+          "topicId": "num.percent-change",
+          "tag": "On pace · just opened",
+          "kind": "onpace",
+          "actual": 0.12,
+          "expected": 0.1
+        },
+        {
+          "label": "Substitution",
+          "topicId": "alg.substitution",
+          "tag": "Behind",
+          "kind": "behind",
+          "actual": 0.45,
+          "expected": 0.55
+        }
       ],
       "mastery": [
-        { "label": "Fractions & %", "topicId": "num.fractions-to-percent", "foundations": 0.98, "core": 0.88, "stretch": 0.7 },
-        { "label": "Proportion", "topicId": "num.proportion", "foundations": 0.92, "core": 0.8, "stretch": 0.55 },
-        { "label": "Negatives", "topicId": "num.negatives", "foundations": 0.95, "core": 0.85, "stretch": 0.6 },
-        { "label": "Substitution", "topicId": "alg.substitution", "foundations": 0.65, "core": 0.35, "stretch": 0.05 }
+        {
+          "label": "Fractions & %",
+          "topicId": "num.fractions-to-percent",
+          "foundations": 0.98,
+          "core": 0.88,
+          "stretch": 0.7
+        },
+        {
+          "label": "Proportion",
+          "topicId": "num.proportion",
+          "foundations": 0.92,
+          "core": 0.8,
+          "stretch": 0.55
+        },
+        {
+          "label": "Negatives",
+          "topicId": "num.negatives",
+          "foundations": 0.95,
+          "core": 0.85,
+          "stretch": 0.6
+        },
+        {
+          "label": "Substitution",
+          "topicId": "alg.substitution",
+          "foundations": 0.65,
+          "core": 0.35,
+          "stretch": 0.05
+        }
       ],
-      "workingOnNow": { "label": "% change", "topicId": "num.percent-change", "detail": "First pass at percentage increase and decrease.", "note": "This unlocked because both prerequisites are mastered - it was the graph, not a decision anyone made." }
+      "workingOnNow": {
+        "label": "% change",
+        "topicId": "num.percent-change",
+        "detail": "First pass at percentage increase and decrease.",
+        "note": "This unlocked because both prerequisites are mastered - it was the graph, not a decision anyone made."
+      },
+      "classId": "8M2"
     },
     {
       "studentId": "tom",
@@ -96,18 +342,76 @@
         "Best next move: keep him on two-step items for a few more sessions. The gain is a week old and not yet durable."
       ],
       "pace": [
-        { "label": "Linear equations", "topicId": "alg.linear", "tag": "On pace", "kind": "onpace", "actual": 0.48, "expected": 0.45 },
-        { "label": "Substitution", "topicId": "alg.substitution", "tag": "Ahead", "kind": "ahead", "actual": 0.86, "expected": 0.7 },
-        { "label": "Algebra basics", "topicId": "alg.basics", "tag": "On pace", "kind": "onpace", "actual": 0.85, "expected": 0.8 },
-        { "label": "Ratio", "topicId": "num.ratio", "tag": "Behind", "kind": "behind", "actual": 0.42, "expected": 0.6 }
+        {
+          "label": "Linear equations",
+          "topicId": "alg.linear",
+          "tag": "On pace",
+          "kind": "onpace",
+          "actual": 0.48,
+          "expected": 0.45
+        },
+        {
+          "label": "Substitution",
+          "topicId": "alg.substitution",
+          "tag": "Ahead",
+          "kind": "ahead",
+          "actual": 0.86,
+          "expected": 0.7
+        },
+        {
+          "label": "Algebra basics",
+          "topicId": "alg.basics",
+          "tag": "On pace",
+          "kind": "onpace",
+          "actual": 0.85,
+          "expected": 0.8
+        },
+        {
+          "label": "Ratio",
+          "topicId": "num.ratio",
+          "tag": "Behind",
+          "kind": "behind",
+          "actual": 0.42,
+          "expected": 0.6
+        }
       ],
       "mastery": [
-        { "label": "Substitution", "topicId": "alg.substitution", "foundations": 0.95, "core": 0.85, "stretch": 0.55 },
-        { "label": "Algebra basics", "topicId": "alg.basics", "foundations": 0.95, "core": 0.8, "stretch": 0.6 },
-        { "label": "Linear equations", "topicId": "alg.linear", "foundations": 0.75, "core": 0.4, "stretch": 0.1 },
-        { "label": "Ratio", "topicId": "num.ratio", "foundations": 0.6, "core": 0.3, "stretch": 0.05 }
+        {
+          "label": "Substitution",
+          "topicId": "alg.substitution",
+          "foundations": 0.95,
+          "core": 0.85,
+          "stretch": 0.55
+        },
+        {
+          "label": "Algebra basics",
+          "topicId": "alg.basics",
+          "foundations": 0.95,
+          "core": 0.8,
+          "stretch": 0.6
+        },
+        {
+          "label": "Linear equations",
+          "topicId": "alg.linear",
+          "foundations": 0.75,
+          "core": 0.4,
+          "stretch": 0.1
+        },
+        {
+          "label": "Ratio",
+          "topicId": "num.ratio",
+          "foundations": 0.6,
+          "core": 0.3,
+          "stretch": 0.05
+        }
       ],
-      "workingOnNow": { "label": "Linear equations", "topicId": "alg.linear", "detail": "Two-step equations with the unknown on one side.", "note": "Hints are already fading - he is asking for fewer than he was a fortnight ago." }
+      "workingOnNow": {
+        "label": "Linear equations",
+        "topicId": "alg.linear",
+        "detail": "Two-step equations with the unknown on one side.",
+        "note": "Hints are already fading - he is asking for fewer than he was a fortnight ago."
+      },
+      "classId": "8M2"
     },
     {
       "studentId": "grace",
@@ -117,19 +421,84 @@
         "Best next move: nothing on number. Algebra basics is the one place she is behind, and substitution stays shut until it masters."
       ],
       "pace": [
-        { "label": "Proportion", "topicId": "num.proportion", "tag": "Ahead", "kind": "ahead", "actual": 0.9, "expected": 0.75 },
-        { "label": "Ratio", "topicId": "num.ratio", "tag": "Ahead", "kind": "ahead", "actual": 0.88, "expected": 0.75 },
-        { "label": "Fractions & %", "topicId": "num.fractions-to-percent", "tag": "On pace", "kind": "onpace", "actual": 0.84, "expected": 0.8 },
-        { "label": "% change", "topicId": "num.percent-change", "tag": "On pace", "kind": "onpace", "actual": 0.22, "expected": 0.2 },
-        { "label": "Algebra basics", "topicId": "alg.basics", "tag": "Behind", "kind": "behind", "actual": 0.55, "expected": 0.8 }
+        {
+          "label": "Proportion",
+          "topicId": "num.proportion",
+          "tag": "Ahead",
+          "kind": "ahead",
+          "actual": 0.9,
+          "expected": 0.75
+        },
+        {
+          "label": "Ratio",
+          "topicId": "num.ratio",
+          "tag": "Ahead",
+          "kind": "ahead",
+          "actual": 0.88,
+          "expected": 0.75
+        },
+        {
+          "label": "Fractions & %",
+          "topicId": "num.fractions-to-percent",
+          "tag": "On pace",
+          "kind": "onpace",
+          "actual": 0.84,
+          "expected": 0.8
+        },
+        {
+          "label": "% change",
+          "topicId": "num.percent-change",
+          "tag": "On pace",
+          "kind": "onpace",
+          "actual": 0.22,
+          "expected": 0.2
+        },
+        {
+          "label": "Algebra basics",
+          "topicId": "alg.basics",
+          "tag": "Behind",
+          "kind": "behind",
+          "actual": 0.55,
+          "expected": 0.8
+        }
       ],
       "mastery": [
-        { "label": "Proportion", "topicId": "num.proportion", "foundations": 0.98, "core": 0.9, "stretch": 0.65 },
-        { "label": "Ratio", "topicId": "num.ratio", "foundations": 0.95, "core": 0.85, "stretch": 0.6 },
-        { "label": "Fractions & %", "topicId": "num.fractions-to-percent", "foundations": 0.95, "core": 0.82, "stretch": 0.55 },
-        { "label": "Algebra basics", "topicId": "alg.basics", "foundations": 0.72, "core": 0.42, "stretch": 0.12 }
+        {
+          "label": "Proportion",
+          "topicId": "num.proportion",
+          "foundations": 0.98,
+          "core": 0.9,
+          "stretch": 0.65
+        },
+        {
+          "label": "Ratio",
+          "topicId": "num.ratio",
+          "foundations": 0.95,
+          "core": 0.85,
+          "stretch": 0.6
+        },
+        {
+          "label": "Fractions & %",
+          "topicId": "num.fractions-to-percent",
+          "foundations": 0.95,
+          "core": 0.82,
+          "stretch": 0.55
+        },
+        {
+          "label": "Algebra basics",
+          "topicId": "alg.basics",
+          "foundations": 0.72,
+          "core": 0.42,
+          "stretch": 0.12
+        }
       ],
-      "workingOnNow": { "label": "% change", "topicId": "num.percent-change", "detail": "Percentage increase and decrease, first pass.", "note": "Her long review intervals free up most of her session time for new material rather than revisiting old topics." }
+      "workingOnNow": {
+        "label": "% change",
+        "topicId": "num.percent-change",
+        "detail": "Percentage increase and decrease, first pass.",
+        "note": "Her long review intervals free up most of her session time for new material rather than revisiting old topics."
+      },
+      "classId": "8M2"
     },
     {
       "studentId": "marcus",
@@ -139,19 +508,84 @@
         "Best next move: no re-teach on brackets. Keep the negatives review on schedule, and note that fractions is the soft side of an otherwise strong profile - it is holding fractions → % and proportion shut."
       ],
       "pace": [
-        { "label": "Expanding ( )", "topicId": "alg.expanding", "tag": "On pace", "kind": "onpace", "actual": 0.62, "expected": 0.6 },
-        { "label": "Neg. arithmetic", "topicId": "num.negatives-arithmetic", "tag": "Ahead", "kind": "ahead", "actual": 0.92, "expected": 0.8 },
-        { "label": "Substitution", "topicId": "alg.substitution", "tag": "On pace", "kind": "onpace", "actual": 0.8, "expected": 0.75 },
-        { "label": "Linear equations", "topicId": "alg.linear", "tag": "On pace", "kind": "onpace", "actual": 0.38, "expected": 0.35 },
-        { "label": "Fractions", "topicId": "num.fractions", "tag": "Behind", "kind": "behind", "actual": 0.5, "expected": 0.72 }
+        {
+          "label": "Expanding ( )",
+          "topicId": "alg.expanding",
+          "tag": "On pace",
+          "kind": "onpace",
+          "actual": 0.62,
+          "expected": 0.6
+        },
+        {
+          "label": "Neg. arithmetic",
+          "topicId": "num.negatives-arithmetic",
+          "tag": "Ahead",
+          "kind": "ahead",
+          "actual": 0.92,
+          "expected": 0.8
+        },
+        {
+          "label": "Substitution",
+          "topicId": "alg.substitution",
+          "tag": "On pace",
+          "kind": "onpace",
+          "actual": 0.8,
+          "expected": 0.75
+        },
+        {
+          "label": "Linear equations",
+          "topicId": "alg.linear",
+          "tag": "On pace",
+          "kind": "onpace",
+          "actual": 0.38,
+          "expected": 0.35
+        },
+        {
+          "label": "Fractions",
+          "topicId": "num.fractions",
+          "tag": "Behind",
+          "kind": "behind",
+          "actual": 0.5,
+          "expected": 0.72
+        }
       ],
       "mastery": [
-        { "label": "Neg. arithmetic", "topicId": "num.negatives-arithmetic", "foundations": 0.98, "core": 0.9, "stretch": 0.68 },
-        { "label": "Substitution", "topicId": "alg.substitution", "foundations": 0.94, "core": 0.82, "stretch": 0.55 },
-        { "label": "Expanding ( )", "topicId": "alg.expanding", "foundations": 0.8, "core": 0.5, "stretch": 0.15 },
-        { "label": "Linear equations", "topicId": "alg.linear", "foundations": 0.55, "core": 0.25, "stretch": 0 }
+        {
+          "label": "Neg. arithmetic",
+          "topicId": "num.negatives-arithmetic",
+          "foundations": 0.98,
+          "core": 0.9,
+          "stretch": 0.68
+        },
+        {
+          "label": "Substitution",
+          "topicId": "alg.substitution",
+          "foundations": 0.94,
+          "core": 0.82,
+          "stretch": 0.55
+        },
+        {
+          "label": "Expanding ( )",
+          "topicId": "alg.expanding",
+          "foundations": 0.8,
+          "core": 0.5,
+          "stretch": 0.15
+        },
+        {
+          "label": "Linear equations",
+          "topicId": "alg.linear",
+          "foundations": 0.55,
+          "core": 0.25,
+          "stretch": 0
+        }
       ],
-      "workingOnNow": { "label": "Expanding ( )", "topicId": "alg.expanding", "detail": "Single brackets with a negative multiplier - the case he used to slip on.", "note": "Still including the sign cases deliberately rather than moving on, to confirm the fix holds under spacing." }
+      "workingOnNow": {
+        "label": "Expanding ( )",
+        "topicId": "alg.expanding",
+        "detail": "Single brackets with a negative multiplier - the case he used to slip on.",
+        "note": "Still including the sign cases deliberately rather than moving on, to confirm the fix holds under spacing."
+      },
+      "classId": "8M2"
     },
     {
       "studentId": "sofia",
@@ -161,18 +595,76 @@
         "Best next move: leave the method alone. Linear equations opens as soon as substitution masters."
       ],
       "pace": [
-        { "label": "Substitution", "topicId": "alg.substitution", "tag": "On pace", "kind": "onpace", "actual": 0.66, "expected": 0.62 },
-        { "label": "Algebra basics", "topicId": "alg.basics", "tag": "On pace", "kind": "onpace", "actual": 0.85, "expected": 0.82 },
-        { "label": "Fractions & %", "topicId": "num.fractions-to-percent", "tag": "On pace", "kind": "onpace", "actual": 0.58, "expected": 0.6 },
-        { "label": "Proportion", "topicId": "num.proportion", "tag": "Behind", "kind": "behind", "actual": 0.5, "expected": 0.6 }
+        {
+          "label": "Substitution",
+          "topicId": "alg.substitution",
+          "tag": "On pace",
+          "kind": "onpace",
+          "actual": 0.66,
+          "expected": 0.62
+        },
+        {
+          "label": "Algebra basics",
+          "topicId": "alg.basics",
+          "tag": "On pace",
+          "kind": "onpace",
+          "actual": 0.85,
+          "expected": 0.82
+        },
+        {
+          "label": "Fractions & %",
+          "topicId": "num.fractions-to-percent",
+          "tag": "On pace",
+          "kind": "onpace",
+          "actual": 0.58,
+          "expected": 0.6
+        },
+        {
+          "label": "Proportion",
+          "topicId": "num.proportion",
+          "tag": "Behind",
+          "kind": "behind",
+          "actual": 0.5,
+          "expected": 0.6
+        }
       ],
       "mastery": [
-        { "label": "Algebra basics", "topicId": "alg.basics", "foundations": 0.95, "core": 0.82, "stretch": 0.58 },
-        { "label": "Substitution", "topicId": "alg.substitution", "foundations": 0.85, "core": 0.6, "stretch": 0.3 },
-        { "label": "Fractions & %", "topicId": "num.fractions-to-percent", "foundations": 0.8, "core": 0.5, "stretch": 0.2 },
-        { "label": "Proportion", "topicId": "num.proportion", "foundations": 0.72, "core": 0.42, "stretch": 0.15 }
+        {
+          "label": "Algebra basics",
+          "topicId": "alg.basics",
+          "foundations": 0.95,
+          "core": 0.82,
+          "stretch": 0.58
+        },
+        {
+          "label": "Substitution",
+          "topicId": "alg.substitution",
+          "foundations": 0.85,
+          "core": 0.6,
+          "stretch": 0.3
+        },
+        {
+          "label": "Fractions & %",
+          "topicId": "num.fractions-to-percent",
+          "foundations": 0.8,
+          "core": 0.5,
+          "stretch": 0.2
+        },
+        {
+          "label": "Proportion",
+          "topicId": "num.proportion",
+          "foundations": 0.72,
+          "core": 0.42,
+          "stretch": 0.15
+        }
       ],
-      "workingOnNow": { "label": "Substitution", "topicId": "alg.substitution", "detail": "Two-variable substitution with negative values.", "note": "Timing her own working is her own habit, not a scaffold that was added - worth not interfering with." }
+      "workingOnNow": {
+        "label": "Substitution",
+        "topicId": "alg.substitution",
+        "detail": "Two-variable substitution with negative values.",
+        "note": "Timing her own working is her own habit, not a scaffold that was added - worth not interfering with."
+      },
+      "classId": "8M2"
     },
     {
       "studentId": "jack",
@@ -182,19 +674,84 @@
         "Best next move: let the backlog clear at its own pace. Ratio is the one topic he missed outright rather than fell behind on, so it needs teaching, not a review."
       ],
       "pace": [
-        { "label": "Linear equations", "topicId": "alg.linear", "tag": "On pace", "kind": "onpace", "actual": 0.3, "expected": 0.32 },
-        { "label": "Substitution", "topicId": "alg.substitution", "tag": "On pace", "kind": "onpace", "actual": 0.78, "expected": 0.75 },
-        { "label": "Algebra basics", "topicId": "alg.basics", "tag": "On pace", "kind": "onpace", "actual": 0.8, "expected": 0.78 },
-        { "label": "Fractions & %", "topicId": "num.fractions-to-percent", "tag": "Behind · missed fortnight", "kind": "behind", "actual": 0.45, "expected": 0.68 },
-        { "label": "Decimals", "topicId": "num.decimals", "tag": "On pace", "kind": "onpace", "actual": 0.8, "expected": 0.78 }
+        {
+          "label": "Linear equations",
+          "topicId": "alg.linear",
+          "tag": "On pace",
+          "kind": "onpace",
+          "actual": 0.3,
+          "expected": 0.32
+        },
+        {
+          "label": "Substitution",
+          "topicId": "alg.substitution",
+          "tag": "On pace",
+          "kind": "onpace",
+          "actual": 0.78,
+          "expected": 0.75
+        },
+        {
+          "label": "Algebra basics",
+          "topicId": "alg.basics",
+          "tag": "On pace",
+          "kind": "onpace",
+          "actual": 0.8,
+          "expected": 0.78
+        },
+        {
+          "label": "Fractions & %",
+          "topicId": "num.fractions-to-percent",
+          "tag": "Behind · missed fortnight",
+          "kind": "behind",
+          "actual": 0.45,
+          "expected": 0.68
+        },
+        {
+          "label": "Decimals",
+          "topicId": "num.decimals",
+          "tag": "On pace",
+          "kind": "onpace",
+          "actual": 0.8,
+          "expected": 0.78
+        }
       ],
       "mastery": [
-        { "label": "Substitution", "topicId": "alg.substitution", "foundations": 0.92, "core": 0.8, "stretch": 0.55 },
-        { "label": "Algebra basics", "topicId": "alg.basics", "foundations": 0.94, "core": 0.8, "stretch": 0.55 },
-        { "label": "Fractions & %", "topicId": "num.fractions-to-percent", "foundations": 0.72, "core": 0.4, "stretch": 0.1 },
-        { "label": "Linear equations", "topicId": "alg.linear", "foundations": 0.5, "core": 0.18, "stretch": 0 }
+        {
+          "label": "Substitution",
+          "topicId": "alg.substitution",
+          "foundations": 0.92,
+          "core": 0.8,
+          "stretch": 0.55
+        },
+        {
+          "label": "Algebra basics",
+          "topicId": "alg.basics",
+          "foundations": 0.94,
+          "core": 0.8,
+          "stretch": 0.55
+        },
+        {
+          "label": "Fractions & %",
+          "topicId": "num.fractions-to-percent",
+          "foundations": 0.72,
+          "core": 0.4,
+          "stretch": 0.1
+        },
+        {
+          "label": "Linear equations",
+          "topicId": "alg.linear",
+          "foundations": 0.5,
+          "core": 0.18,
+          "stretch": 0
+        }
       ],
-      "workingOnNow": { "label": "Linear equations", "topicId": "alg.linear", "detail": "One-step equations, rebuilding the run he had going before the gap.", "note": "The reviews that fell due during the fortnight are being released a few a day, not all at once." }
+      "workingOnNow": {
+        "label": "Linear equations",
+        "topicId": "alg.linear",
+        "detail": "One-step equations, rebuilding the run he had going before the gap.",
+        "note": "The reviews that fell due during the fortnight are being released a few a day, not all at once."
+      },
+      "classId": "8M2"
     },
     {
       "studentId": "amara",
@@ -204,19 +761,84 @@
         "Best next move: nothing beyond letting the review run. If it holds, the interval widens again."
       ],
       "pace": [
-        { "label": "Ratio", "topicId": "num.ratio", "tag": "On pace", "kind": "onpace", "actual": 0.86, "expected": 0.82 },
-        { "label": "Proportion", "topicId": "num.proportion", "tag": "Ahead", "kind": "ahead", "actual": 0.84, "expected": 0.72 },
-        { "label": "Fractions & %", "topicId": "num.fractions-to-percent", "tag": "On pace", "kind": "onpace", "actual": 0.82, "expected": 0.78 },
-        { "label": "% change", "topicId": "num.percent-change", "tag": "On pace", "kind": "onpace", "actual": 0.18, "expected": 0.16 },
-        { "label": "Substitution", "topicId": "alg.substitution", "tag": "Behind", "kind": "behind", "actual": 0.48, "expected": 0.58 }
+        {
+          "label": "Ratio",
+          "topicId": "num.ratio",
+          "tag": "On pace",
+          "kind": "onpace",
+          "actual": 0.86,
+          "expected": 0.82
+        },
+        {
+          "label": "Proportion",
+          "topicId": "num.proportion",
+          "tag": "Ahead",
+          "kind": "ahead",
+          "actual": 0.84,
+          "expected": 0.72
+        },
+        {
+          "label": "Fractions & %",
+          "topicId": "num.fractions-to-percent",
+          "tag": "On pace",
+          "kind": "onpace",
+          "actual": 0.82,
+          "expected": 0.78
+        },
+        {
+          "label": "% change",
+          "topicId": "num.percent-change",
+          "tag": "On pace",
+          "kind": "onpace",
+          "actual": 0.18,
+          "expected": 0.16
+        },
+        {
+          "label": "Substitution",
+          "topicId": "alg.substitution",
+          "tag": "Behind",
+          "kind": "behind",
+          "actual": 0.48,
+          "expected": 0.58
+        }
       ],
       "mastery": [
-        { "label": "Ratio", "topicId": "num.ratio", "foundations": 0.95, "core": 0.85, "stretch": 0.6 },
-        { "label": "Proportion", "topicId": "num.proportion", "foundations": 0.92, "core": 0.82, "stretch": 0.55 },
-        { "label": "Fractions & %", "topicId": "num.fractions-to-percent", "foundations": 0.95, "core": 0.82, "stretch": 0.55 },
-        { "label": "Substitution", "topicId": "alg.substitution", "foundations": 0.68, "core": 0.38, "stretch": 0.1 }
+        {
+          "label": "Ratio",
+          "topicId": "num.ratio",
+          "foundations": 0.95,
+          "core": 0.85,
+          "stretch": 0.6
+        },
+        {
+          "label": "Proportion",
+          "topicId": "num.proportion",
+          "foundations": 0.92,
+          "core": 0.82,
+          "stretch": 0.55
+        },
+        {
+          "label": "Fractions & %",
+          "topicId": "num.fractions-to-percent",
+          "foundations": 0.95,
+          "core": 0.82,
+          "stretch": 0.55
+        },
+        {
+          "label": "Substitution",
+          "topicId": "alg.substitution",
+          "foundations": 0.68,
+          "core": 0.38,
+          "stretch": 0.1
+        }
       ],
-      "workingOnNow": { "label": "Ratio", "topicId": "num.ratio", "detail": "Spaced review - simplifying, and dividing in a given ratio.", "note": "A review, not new teaching. If it goes cleanly the next one is further out again." }
+      "workingOnNow": {
+        "label": "Ratio",
+        "topicId": "num.ratio",
+        "detail": "Spaced review - simplifying, and dividing in a given ratio.",
+        "note": "A review, not new teaching. If it goes cleanly the next one is further out again."
+      },
+      "classId": "8M4"
     },
     {
       "studentId": "leo",
@@ -226,18 +848,76 @@
         "Best next move: keep going. Nothing on this profile needs teacher time this week."
       ],
       "pace": [
-        { "label": "Coordinates", "topicId": "geo.coordinates", "tag": "On pace", "kind": "onpace", "actual": 0.6, "expected": 0.55 },
-        { "label": "Negatives", "topicId": "num.negatives", "tag": "Ahead", "kind": "ahead", "actual": 0.94, "expected": 0.85 },
-        { "label": "Algebra basics", "topicId": "alg.basics", "tag": "On pace", "kind": "onpace", "actual": 0.82, "expected": 0.8 },
-        { "label": "Substitution", "topicId": "alg.substitution", "tag": "Behind", "kind": "behind", "actual": 0.52, "expected": 0.6 }
+        {
+          "label": "Coordinates",
+          "topicId": "geo.coordinates",
+          "tag": "On pace",
+          "kind": "onpace",
+          "actual": 0.6,
+          "expected": 0.55
+        },
+        {
+          "label": "Negatives",
+          "topicId": "num.negatives",
+          "tag": "Ahead",
+          "kind": "ahead",
+          "actual": 0.94,
+          "expected": 0.85
+        },
+        {
+          "label": "Algebra basics",
+          "topicId": "alg.basics",
+          "tag": "On pace",
+          "kind": "onpace",
+          "actual": 0.82,
+          "expected": 0.8
+        },
+        {
+          "label": "Substitution",
+          "topicId": "alg.substitution",
+          "tag": "Behind",
+          "kind": "behind",
+          "actual": 0.52,
+          "expected": 0.6
+        }
       ],
       "mastery": [
-        { "label": "Negatives", "topicId": "num.negatives", "foundations": 1, "core": 0.92, "stretch": 0.7 },
-        { "label": "Algebra basics", "topicId": "alg.basics", "foundations": 0.92, "core": 0.8, "stretch": 0.55 },
-        { "label": "Coordinates", "topicId": "geo.coordinates", "foundations": 0.85, "core": 0.55, "stretch": 0.2 },
-        { "label": "Substitution", "topicId": "alg.substitution", "foundations": 0.72, "core": 0.42, "stretch": 0.12 }
+        {
+          "label": "Negatives",
+          "topicId": "num.negatives",
+          "foundations": 1,
+          "core": 0.92,
+          "stretch": 0.7
+        },
+        {
+          "label": "Algebra basics",
+          "topicId": "alg.basics",
+          "foundations": 0.92,
+          "core": 0.8,
+          "stretch": 0.55
+        },
+        {
+          "label": "Coordinates",
+          "topicId": "geo.coordinates",
+          "foundations": 0.85,
+          "core": 0.55,
+          "stretch": 0.2
+        },
+        {
+          "label": "Substitution",
+          "topicId": "alg.substitution",
+          "foundations": 0.72,
+          "core": 0.42,
+          "stretch": 0.12
+        }
       ],
-      "workingOnNow": { "label": "Coordinates", "topicId": "geo.coordinates", "detail": "Plotting and reading points across all four quadrants.", "note": "The negatives work he did earlier in the year is why this is going smoothly - worth telling him that." }
+      "workingOnNow": {
+        "label": "Coordinates",
+        "topicId": "geo.coordinates",
+        "detail": "Plotting and reading points across all four quadrants.",
+        "note": "The negatives work he did earlier in the year is why this is going smoothly - worth telling him that."
+      },
+      "classId": "8M4"
     },
     {
       "studentId": "hana",
@@ -247,18 +927,76 @@
         "Best next move: nothing to change. She is already choosing the items that move her."
       ],
       "pace": [
-        { "label": "Fractions & %", "topicId": "num.fractions-to-percent", "tag": "On pace", "kind": "onpace", "actual": 0.7, "expected": 0.68 },
-        { "label": "Fractions", "topicId": "num.fractions", "tag": "Ahead", "kind": "ahead", "actual": 0.9, "expected": 0.82 },
-        { "label": "Decimals", "topicId": "num.decimals", "tag": "On pace", "kind": "onpace", "actual": 0.86, "expected": 0.82 },
-        { "label": "Substitution", "topicId": "alg.substitution", "tag": "Behind", "kind": "behind", "actual": 0.45, "expected": 0.55 }
+        {
+          "label": "Fractions & %",
+          "topicId": "num.fractions-to-percent",
+          "tag": "On pace",
+          "kind": "onpace",
+          "actual": 0.7,
+          "expected": 0.68
+        },
+        {
+          "label": "Fractions",
+          "topicId": "num.fractions",
+          "tag": "Ahead",
+          "kind": "ahead",
+          "actual": 0.9,
+          "expected": 0.82
+        },
+        {
+          "label": "Decimals",
+          "topicId": "num.decimals",
+          "tag": "On pace",
+          "kind": "onpace",
+          "actual": 0.86,
+          "expected": 0.82
+        },
+        {
+          "label": "Substitution",
+          "topicId": "alg.substitution",
+          "tag": "Behind",
+          "kind": "behind",
+          "actual": 0.45,
+          "expected": 0.55
+        }
       ],
       "mastery": [
-        { "label": "Fractions", "topicId": "num.fractions", "foundations": 0.98, "core": 0.88, "stretch": 0.62 },
-        { "label": "Decimals", "topicId": "num.decimals", "foundations": 0.95, "core": 0.85, "stretch": 0.58 },
-        { "label": "Fractions & %", "topicId": "num.fractions-to-percent", "foundations": 0.95, "core": 0.68, "stretch": 0.35 },
-        { "label": "Substitution", "topicId": "alg.substitution", "foundations": 0.65, "core": 0.35, "stretch": 0.08 }
+        {
+          "label": "Fractions",
+          "topicId": "num.fractions",
+          "foundations": 0.98,
+          "core": 0.88,
+          "stretch": 0.62
+        },
+        {
+          "label": "Decimals",
+          "topicId": "num.decimals",
+          "foundations": 0.95,
+          "core": 0.85,
+          "stretch": 0.58
+        },
+        {
+          "label": "Fractions & %",
+          "topicId": "num.fractions-to-percent",
+          "foundations": 0.95,
+          "core": 0.68,
+          "stretch": 0.35
+        },
+        {
+          "label": "Substitution",
+          "topicId": "alg.substitution",
+          "foundations": 0.65,
+          "core": 0.35,
+          "stretch": 0.08
+        }
       ],
-      "workingOnNow": { "label": "Fractions → %", "topicId": "num.fractions-to-percent", "detail": "Non-calculator conversions with awkward denominators.", "note": "She picked these herself. The scaffolding is already low and can stay there." }
+      "workingOnNow": {
+        "label": "Fractions → %",
+        "topicId": "num.fractions-to-percent",
+        "detail": "Non-calculator conversions with awkward denominators.",
+        "note": "She picked these herself. The scaffolding is already low and can stay there."
+      },
+      "classId": "8M4"
     },
     {
       "studentId": "noah",
@@ -268,19 +1006,84 @@
         "Best next move: point some of that volume at the harder tier rather than asking for more of it."
       ],
       "pace": [
-        { "label": "Substitution", "topicId": "alg.substitution", "tag": "On pace", "kind": "onpace", "actual": 0.68, "expected": 0.65 },
-        { "label": "Negatives", "topicId": "num.negatives", "tag": "Ahead", "kind": "ahead", "actual": 0.95, "expected": 0.85 },
-        { "label": "Algebra basics", "topicId": "alg.basics", "tag": "Ahead", "kind": "ahead", "actual": 0.88, "expected": 0.8 },
-        { "label": "Fractions & %", "topicId": "num.fractions-to-percent", "tag": "On pace", "kind": "onpace", "actual": 0.62, "expected": 0.62 },
-        { "label": "Expanding ( )", "topicId": "alg.expanding", "tag": "On pace · self-started", "kind": "onpace", "actual": 0.3, "expected": 0.28 }
+        {
+          "label": "Substitution",
+          "topicId": "alg.substitution",
+          "tag": "On pace",
+          "kind": "onpace",
+          "actual": 0.68,
+          "expected": 0.65
+        },
+        {
+          "label": "Negatives",
+          "topicId": "num.negatives",
+          "tag": "Ahead",
+          "kind": "ahead",
+          "actual": 0.95,
+          "expected": 0.85
+        },
+        {
+          "label": "Algebra basics",
+          "topicId": "alg.basics",
+          "tag": "Ahead",
+          "kind": "ahead",
+          "actual": 0.88,
+          "expected": 0.8
+        },
+        {
+          "label": "Fractions & %",
+          "topicId": "num.fractions-to-percent",
+          "tag": "On pace",
+          "kind": "onpace",
+          "actual": 0.62,
+          "expected": 0.62
+        },
+        {
+          "label": "Expanding ( )",
+          "topicId": "alg.expanding",
+          "tag": "On pace · self-started",
+          "kind": "onpace",
+          "actual": 0.3,
+          "expected": 0.28
+        }
       ],
       "mastery": [
-        { "label": "Negatives", "topicId": "num.negatives", "foundations": 1, "core": 0.92, "stretch": 0.68 },
-        { "label": "Algebra basics", "topicId": "alg.basics", "foundations": 0.96, "core": 0.85, "stretch": 0.6 },
-        { "label": "Substitution", "topicId": "alg.substitution", "foundations": 0.9, "core": 0.6, "stretch": 0.22 },
-        { "label": "Fractions & %", "topicId": "num.fractions-to-percent", "foundations": 0.85, "core": 0.55, "stretch": 0.2 }
+        {
+          "label": "Negatives",
+          "topicId": "num.negatives",
+          "foundations": 1,
+          "core": 0.92,
+          "stretch": 0.68
+        },
+        {
+          "label": "Algebra basics",
+          "topicId": "alg.basics",
+          "foundations": 0.96,
+          "core": 0.85,
+          "stretch": 0.6
+        },
+        {
+          "label": "Substitution",
+          "topicId": "alg.substitution",
+          "foundations": 0.9,
+          "core": 0.6,
+          "stretch": 0.22
+        },
+        {
+          "label": "Fractions & %",
+          "topicId": "num.fractions-to-percent",
+          "foundations": 0.85,
+          "core": 0.55,
+          "stretch": 0.2
+        }
       ],
-      "workingOnNow": { "label": "Substitution", "topicId": "alg.substitution", "detail": "Free-play sets, mostly at foundation and core difficulty.", "note": "Worth nudging the difficulty up rather than the volume. The volume is already there." }
+      "workingOnNow": {
+        "label": "Substitution",
+        "topicId": "alg.substitution",
+        "detail": "Free-play sets, mostly at foundation and core difficulty.",
+        "note": "Worth nudging the difficulty up rather than the volume. The volume is already there."
+      },
+      "classId": "8M4"
     },
     {
       "studentId": "ivy",
@@ -290,18 +1093,76 @@
         "Best next move: nothing. Fractions → % is already mastered, so % change opens as soon as proportion does."
       ],
       "pace": [
-        { "label": "Proportion", "topicId": "num.proportion", "tag": "On pace", "kind": "onpace", "actual": 0.66, "expected": 0.62 },
-        { "label": "Ratio", "topicId": "num.ratio", "tag": "Ahead", "kind": "ahead", "actual": 0.9, "expected": 0.8 },
-        { "label": "Fractions & %", "topicId": "num.fractions-to-percent", "tag": "On pace", "kind": "onpace", "actual": 0.84, "expected": 0.8 },
-        { "label": "Substitution", "topicId": "alg.substitution", "tag": "Behind", "kind": "behind", "actual": 0.42, "expected": 0.55 }
+        {
+          "label": "Proportion",
+          "topicId": "num.proportion",
+          "tag": "On pace",
+          "kind": "onpace",
+          "actual": 0.66,
+          "expected": 0.62
+        },
+        {
+          "label": "Ratio",
+          "topicId": "num.ratio",
+          "tag": "Ahead",
+          "kind": "ahead",
+          "actual": 0.9,
+          "expected": 0.8
+        },
+        {
+          "label": "Fractions & %",
+          "topicId": "num.fractions-to-percent",
+          "tag": "On pace",
+          "kind": "onpace",
+          "actual": 0.84,
+          "expected": 0.8
+        },
+        {
+          "label": "Substitution",
+          "topicId": "alg.substitution",
+          "tag": "Behind",
+          "kind": "behind",
+          "actual": 0.42,
+          "expected": 0.55
+        }
       ],
       "mastery": [
-        { "label": "Ratio", "topicId": "num.ratio", "foundations": 0.96, "core": 0.88, "stretch": 0.6 },
-        { "label": "Fractions & %", "topicId": "num.fractions-to-percent", "foundations": 0.95, "core": 0.82, "stretch": 0.55 },
-        { "label": "Proportion", "topicId": "num.proportion", "foundations": 0.88, "core": 0.58, "stretch": 0.25 },
-        { "label": "Substitution", "topicId": "alg.substitution", "foundations": 0.6, "core": 0.3, "stretch": 0.05 }
+        {
+          "label": "Ratio",
+          "topicId": "num.ratio",
+          "foundations": 0.96,
+          "core": 0.88,
+          "stretch": 0.6
+        },
+        {
+          "label": "Fractions & %",
+          "topicId": "num.fractions-to-percent",
+          "foundations": 0.95,
+          "core": 0.82,
+          "stretch": 0.55
+        },
+        {
+          "label": "Proportion",
+          "topicId": "num.proportion",
+          "foundations": 0.88,
+          "core": 0.58,
+          "stretch": 0.25
+        },
+        {
+          "label": "Substitution",
+          "topicId": "alg.substitution",
+          "foundations": 0.6,
+          "core": 0.3,
+          "stretch": 0.05
+        }
       ],
-      "workingOnNow": { "label": "Proportion", "topicId": "num.proportion", "detail": "Direct proportion with a scaling step in the middle.", "note": "Her working is legible enough that the line-level check is doing real diagnostic work on her sessions." }
+      "workingOnNow": {
+        "label": "Proportion",
+        "topicId": "num.proportion",
+        "detail": "Direct proportion with a scaling step in the middle.",
+        "note": "Her working is legible enough that the line-level check is doing real diagnostic work on her sessions."
+      },
+      "classId": "8M4"
     },
     {
       "studentId": "ben",
@@ -311,18 +1172,76 @@
         "Best next move: nothing yet. Worth knowing bracket equations is next so the harder material is ready when he arrives."
       ],
       "pace": [
-        { "label": "Linear equations", "topicId": "alg.linear", "tag": "On pace", "kind": "onpace", "actual": 0.44, "expected": 0.42 },
-        { "label": "Expanding ( )", "topicId": "alg.expanding", "tag": "Ahead", "kind": "ahead", "actual": 0.85, "expected": 0.7 },
-        { "label": "Substitution", "topicId": "alg.substitution", "tag": "On pace", "kind": "onpace", "actual": 0.82, "expected": 0.78 },
-        { "label": "Algebra basics", "topicId": "alg.basics", "tag": "On pace", "kind": "onpace", "actual": 0.86, "expected": 0.82 }
+        {
+          "label": "Linear equations",
+          "topicId": "alg.linear",
+          "tag": "On pace",
+          "kind": "onpace",
+          "actual": 0.44,
+          "expected": 0.42
+        },
+        {
+          "label": "Expanding ( )",
+          "topicId": "alg.expanding",
+          "tag": "Ahead",
+          "kind": "ahead",
+          "actual": 0.85,
+          "expected": 0.7
+        },
+        {
+          "label": "Substitution",
+          "topicId": "alg.substitution",
+          "tag": "On pace",
+          "kind": "onpace",
+          "actual": 0.82,
+          "expected": 0.78
+        },
+        {
+          "label": "Algebra basics",
+          "topicId": "alg.basics",
+          "tag": "On pace",
+          "kind": "onpace",
+          "actual": 0.86,
+          "expected": 0.82
+        }
       ],
       "mastery": [
-        { "label": "Expanding ( )", "topicId": "alg.expanding", "foundations": 0.95, "core": 0.85, "stretch": 0.55 },
-        { "label": "Algebra basics", "topicId": "alg.basics", "foundations": 0.95, "core": 0.85, "stretch": 0.58 },
-        { "label": "Substitution", "topicId": "alg.substitution", "foundations": 0.94, "core": 0.82, "stretch": 0.52 },
-        { "label": "Linear equations", "topicId": "alg.linear", "foundations": 0.72, "core": 0.35, "stretch": 0.08 }
+        {
+          "label": "Expanding ( )",
+          "topicId": "alg.expanding",
+          "foundations": 0.95,
+          "core": 0.85,
+          "stretch": 0.55
+        },
+        {
+          "label": "Algebra basics",
+          "topicId": "alg.basics",
+          "foundations": 0.95,
+          "core": 0.85,
+          "stretch": 0.58
+        },
+        {
+          "label": "Substitution",
+          "topicId": "alg.substitution",
+          "foundations": 0.94,
+          "core": 0.82,
+          "stretch": 0.52
+        },
+        {
+          "label": "Linear equations",
+          "topicId": "alg.linear",
+          "foundations": 0.72,
+          "core": 0.35,
+          "stretch": 0.08
+        }
       ],
-      "workingOnNow": { "label": "Linear equations", "topicId": "alg.linear", "detail": "Two-step equations with the unknown on one side.", "note": "Equations with brackets is the next node along, and one of its two prerequisites is already mastered." }
+      "workingOnNow": {
+        "label": "Linear equations",
+        "topicId": "alg.linear",
+        "detail": "Two-step equations with the unknown on one side.",
+        "note": "Equations with brackets is the next node along, and one of its two prerequisites is already mastered."
+      },
+      "classId": "8M4"
     },
     {
       "studentId": "ruth",
@@ -332,19 +1251,84 @@
         "Best next move: let that review run before adding anything. If it holds, this one is done."
       ],
       "pace": [
-        { "label": "Expanding ( )", "topicId": "alg.expanding", "tag": "On pace", "kind": "onpace", "actual": 0.45, "expected": 0.42 },
-        { "label": "Algebra basics", "topicId": "alg.basics", "tag": "On pace", "kind": "onpace", "actual": 0.84, "expected": 0.8 },
-        { "label": "Substitution", "topicId": "alg.substitution", "tag": "On pace", "kind": "onpace", "actual": 0.6, "expected": 0.58 },
-        { "label": "Fractions & %", "topicId": "num.fractions-to-percent", "tag": "Behind", "kind": "behind", "actual": 0.5, "expected": 0.6 },
-        { "label": "Ratio", "topicId": "num.ratio", "tag": "Behind", "kind": "behind", "actual": 0.45, "expected": 0.62 }
+        {
+          "label": "Expanding ( )",
+          "topicId": "alg.expanding",
+          "tag": "On pace",
+          "kind": "onpace",
+          "actual": 0.45,
+          "expected": 0.42
+        },
+        {
+          "label": "Algebra basics",
+          "topicId": "alg.basics",
+          "tag": "On pace",
+          "kind": "onpace",
+          "actual": 0.84,
+          "expected": 0.8
+        },
+        {
+          "label": "Substitution",
+          "topicId": "alg.substitution",
+          "tag": "On pace",
+          "kind": "onpace",
+          "actual": 0.6,
+          "expected": 0.58
+        },
+        {
+          "label": "Fractions & %",
+          "topicId": "num.fractions-to-percent",
+          "tag": "Behind",
+          "kind": "behind",
+          "actual": 0.5,
+          "expected": 0.6
+        },
+        {
+          "label": "Ratio",
+          "topicId": "num.ratio",
+          "tag": "Behind",
+          "kind": "behind",
+          "actual": 0.45,
+          "expected": 0.62
+        }
       ],
       "mastery": [
-        { "label": "Algebra basics", "topicId": "alg.basics", "foundations": 0.94, "core": 0.82, "stretch": 0.55 },
-        { "label": "Substitution", "topicId": "alg.substitution", "foundations": 0.8, "core": 0.48, "stretch": 0.18 },
-        { "label": "Fractions & %", "topicId": "num.fractions-to-percent", "foundations": 0.75, "core": 0.42, "stretch": 0.12 },
-        { "label": "Expanding ( )", "topicId": "alg.expanding", "foundations": 0.72, "core": 0.4, "stretch": 0.1 }
+        {
+          "label": "Algebra basics",
+          "topicId": "alg.basics",
+          "foundations": 0.94,
+          "core": 0.82,
+          "stretch": 0.55
+        },
+        {
+          "label": "Substitution",
+          "topicId": "alg.substitution",
+          "foundations": 0.8,
+          "core": 0.48,
+          "stretch": 0.18
+        },
+        {
+          "label": "Fractions & %",
+          "topicId": "num.fractions-to-percent",
+          "foundations": 0.75,
+          "core": 0.42,
+          "stretch": 0.12
+        },
+        {
+          "label": "Expanding ( )",
+          "topicId": "alg.expanding",
+          "foundations": 0.72,
+          "core": 0.4,
+          "stretch": 0.1
+        }
       ],
-      "workingOnNow": { "label": "Expanding ( )", "topicId": "alg.expanding", "detail": "Single brackets, positive and negative multipliers.", "note": "The next review lands in three days. Four reps is a start, not yet retention." }
+      "workingOnNow": {
+        "label": "Expanding ( )",
+        "topicId": "alg.expanding",
+        "detail": "Single brackets, positive and negative multipliers.",
+        "note": "The next review lands in three days. Four reps is a start, not yet retention."
+      },
+      "classId": "8M4"
     },
     {
       "studentId": "sam",
@@ -354,18 +1338,76 @@
         "Best next move: none. This is the profile that needs the least of your time, which is worth saying out loud rather than leaving implicit."
       ],
       "pace": [
-        { "label": "Coordinates", "topicId": "geo.coordinates", "tag": "On pace", "kind": "onpace", "actual": 0.56, "expected": 0.55 },
-        { "label": "Algebra basics", "topicId": "alg.basics", "tag": "On pace", "kind": "onpace", "actual": 0.82, "expected": 0.8 },
-        { "label": "Substitution", "topicId": "alg.substitution", "tag": "On pace", "kind": "onpace", "actual": 0.58, "expected": 0.58 },
-        { "label": "Fractions & %", "topicId": "num.fractions-to-percent", "tag": "On pace", "kind": "onpace", "actual": 0.6, "expected": 0.6 }
+        {
+          "label": "Coordinates",
+          "topicId": "geo.coordinates",
+          "tag": "On pace",
+          "kind": "onpace",
+          "actual": 0.56,
+          "expected": 0.55
+        },
+        {
+          "label": "Algebra basics",
+          "topicId": "alg.basics",
+          "tag": "On pace",
+          "kind": "onpace",
+          "actual": 0.82,
+          "expected": 0.8
+        },
+        {
+          "label": "Substitution",
+          "topicId": "alg.substitution",
+          "tag": "On pace",
+          "kind": "onpace",
+          "actual": 0.58,
+          "expected": 0.58
+        },
+        {
+          "label": "Fractions & %",
+          "topicId": "num.fractions-to-percent",
+          "tag": "On pace",
+          "kind": "onpace",
+          "actual": 0.6,
+          "expected": 0.6
+        }
       ],
       "mastery": [
-        { "label": "Algebra basics", "topicId": "alg.basics", "foundations": 0.92, "core": 0.8, "stretch": 0.56 },
-        { "label": "Coordinates", "topicId": "geo.coordinates", "foundations": 0.78, "core": 0.52, "stretch": 0.22 },
-        { "label": "Substitution", "topicId": "alg.substitution", "foundations": 0.75, "core": 0.5, "stretch": 0.2 },
-        { "label": "Fractions & %", "topicId": "num.fractions-to-percent", "foundations": 0.78, "core": 0.5, "stretch": 0.2 }
+        {
+          "label": "Algebra basics",
+          "topicId": "alg.basics",
+          "foundations": 0.92,
+          "core": 0.8,
+          "stretch": 0.56
+        },
+        {
+          "label": "Coordinates",
+          "topicId": "geo.coordinates",
+          "foundations": 0.78,
+          "core": 0.52,
+          "stretch": 0.22
+        },
+        {
+          "label": "Substitution",
+          "topicId": "alg.substitution",
+          "foundations": 0.75,
+          "core": 0.5,
+          "stretch": 0.2
+        },
+        {
+          "label": "Fractions & %",
+          "topicId": "num.fractions-to-percent",
+          "foundations": 0.78,
+          "core": 0.5,
+          "stretch": 0.2
+        }
       ],
-      "workingOnNow": { "label": "Coordinates", "topicId": "geo.coordinates", "detail": "Reading and plotting points, moving on towards midpoints.", "note": "Nothing has been flagged on his work for six weeks. The quiet ones are the easiest to lose track of." }
+      "workingOnNow": {
+        "label": "Coordinates",
+        "topicId": "geo.coordinates",
+        "detail": "Reading and plotting points, moving on towards midpoints.",
+        "note": "Nothing has been flagged on his work for six weeks. The quiet ones are the easiest to lose track of."
+      },
+      "classId": "8M4"
     },
     {
       "studentId": "elif",
@@ -375,19 +1417,84 @@
         "Best next move: harder simultaneous-equation work. She does not need the material the rest of the class is on."
       ],
       "pace": [
-        { "label": "Simultaneous eqns", "topicId": "alg.simultaneous", "tag": "Ahead · +1 term", "kind": "ahead", "actual": 0.55, "expected": 0.15 },
-        { "label": "Linear equations", "topicId": "alg.linear", "tag": "Ahead", "kind": "ahead", "actual": 0.92, "expected": 0.7 },
-        { "label": "Coordinates", "topicId": "geo.coordinates", "tag": "Ahead", "kind": "ahead", "actual": 0.88, "expected": 0.6 },
-        { "label": "Bracket eqns", "topicId": "alg.bracket-equations", "tag": "Ahead", "kind": "ahead", "actual": 0.42, "expected": 0.1 },
-        { "label": "Algebra basics", "topicId": "alg.basics", "tag": "Ahead", "kind": "ahead", "actual": 0.95, "expected": 0.82 }
+        {
+          "label": "Simultaneous eqns",
+          "topicId": "alg.simultaneous",
+          "tag": "Ahead · +1 term",
+          "kind": "ahead",
+          "actual": 0.55,
+          "expected": 0.15
+        },
+        {
+          "label": "Linear equations",
+          "topicId": "alg.linear",
+          "tag": "Ahead",
+          "kind": "ahead",
+          "actual": 0.92,
+          "expected": 0.7
+        },
+        {
+          "label": "Coordinates",
+          "topicId": "geo.coordinates",
+          "tag": "Ahead",
+          "kind": "ahead",
+          "actual": 0.88,
+          "expected": 0.6
+        },
+        {
+          "label": "Bracket eqns",
+          "topicId": "alg.bracket-equations",
+          "tag": "Ahead",
+          "kind": "ahead",
+          "actual": 0.42,
+          "expected": 0.1
+        },
+        {
+          "label": "Algebra basics",
+          "topicId": "alg.basics",
+          "tag": "Ahead",
+          "kind": "ahead",
+          "actual": 0.95,
+          "expected": 0.82
+        }
       ],
       "mastery": [
-        { "label": "Linear equations", "topicId": "alg.linear", "foundations": 0.98, "core": 0.92, "stretch": 0.75 },
-        { "label": "Coordinates", "topicId": "geo.coordinates", "foundations": 0.95, "core": 0.88, "stretch": 0.68 },
-        { "label": "Simultaneous eqns", "topicId": "alg.simultaneous", "foundations": 0.8, "core": 0.55, "stretch": 0.28 },
-        { "label": "Bracket eqns", "topicId": "alg.bracket-equations", "foundations": 0.6, "core": 0.32, "stretch": 0.1 }
+        {
+          "label": "Linear equations",
+          "topicId": "alg.linear",
+          "foundations": 0.98,
+          "core": 0.92,
+          "stretch": 0.75
+        },
+        {
+          "label": "Coordinates",
+          "topicId": "geo.coordinates",
+          "foundations": 0.95,
+          "core": 0.88,
+          "stretch": 0.68
+        },
+        {
+          "label": "Simultaneous eqns",
+          "topicId": "alg.simultaneous",
+          "foundations": 0.8,
+          "core": 0.55,
+          "stretch": 0.28
+        },
+        {
+          "label": "Bracket eqns",
+          "topicId": "alg.bracket-equations",
+          "foundations": 0.6,
+          "core": 0.32,
+          "stretch": 0.1
+        }
       ],
-      "workingOnNow": { "label": "Simultaneous eqns", "topicId": "alg.simultaneous", "detail": "Elimination where one equation has to be scaled first.", "note": "A Year 9 topic reached in a Year 8 class. Every prerequisite underneath it is mastered, so nothing is holding her back." }
+      "workingOnNow": {
+        "label": "Simultaneous eqns",
+        "topicId": "alg.simultaneous",
+        "detail": "Elimination where one equation has to be scaled first.",
+        "note": "A Year 9 topic reached in a Year 8 class. Every prerequisite underneath it is mastered, so nothing is holding her back."
+      },
+      "classId": "9S1"
     },
     {
       "studentId": "oscar",
@@ -397,18 +1504,76 @@
         "Best next move: harder bracket work. The stretch tier is the only one on that topic with room left in it."
       ],
       "pace": [
-        { "label": "Bracket eqns", "topicId": "alg.bracket-equations", "tag": "Ahead · +1 term", "kind": "ahead", "actual": 0.5, "expected": 0.12 },
-        { "label": "Linear equations", "topicId": "alg.linear", "tag": "Ahead", "kind": "ahead", "actual": 0.9, "expected": 0.7 },
-        { "label": "Expanding ( )", "topicId": "alg.expanding", "tag": "Ahead", "kind": "ahead", "actual": 0.88, "expected": 0.68 },
-        { "label": "Proportion", "topicId": "num.proportion", "tag": "Behind", "kind": "behind", "actual": 0.5, "expected": 0.65 }
+        {
+          "label": "Bracket eqns",
+          "topicId": "alg.bracket-equations",
+          "tag": "Ahead · +1 term",
+          "kind": "ahead",
+          "actual": 0.5,
+          "expected": 0.12
+        },
+        {
+          "label": "Linear equations",
+          "topicId": "alg.linear",
+          "tag": "Ahead",
+          "kind": "ahead",
+          "actual": 0.9,
+          "expected": 0.7
+        },
+        {
+          "label": "Expanding ( )",
+          "topicId": "alg.expanding",
+          "tag": "Ahead",
+          "kind": "ahead",
+          "actual": 0.88,
+          "expected": 0.68
+        },
+        {
+          "label": "Proportion",
+          "topicId": "num.proportion",
+          "tag": "Behind",
+          "kind": "behind",
+          "actual": 0.5,
+          "expected": 0.65
+        }
       ],
       "mastery": [
-        { "label": "Linear equations", "topicId": "alg.linear", "foundations": 0.98, "core": 0.9, "stretch": 0.68 },
-        { "label": "Expanding ( )", "topicId": "alg.expanding", "foundations": 0.96, "core": 0.88, "stretch": 0.65 },
-        { "label": "Bracket eqns", "topicId": "alg.bracket-equations", "foundations": 0.72, "core": 0.45, "stretch": 0.15 },
-        { "label": "Proportion", "topicId": "num.proportion", "foundations": 0.7, "core": 0.42, "stretch": 0.15 }
+        {
+          "label": "Linear equations",
+          "topicId": "alg.linear",
+          "foundations": 0.98,
+          "core": 0.9,
+          "stretch": 0.68
+        },
+        {
+          "label": "Expanding ( )",
+          "topicId": "alg.expanding",
+          "foundations": 0.96,
+          "core": 0.88,
+          "stretch": 0.65
+        },
+        {
+          "label": "Bracket eqns",
+          "topicId": "alg.bracket-equations",
+          "foundations": 0.72,
+          "core": 0.45,
+          "stretch": 0.15
+        },
+        {
+          "label": "Proportion",
+          "topicId": "num.proportion",
+          "foundations": 0.7,
+          "core": 0.42,
+          "stretch": 0.15
+        }
       ],
-      "workingOnNow": { "label": "Bracket eqns", "topicId": "alg.bracket-equations", "detail": "Equations with a bracket on one side, expanding before solving.", "note": "Proportion is the one topic he is behind on. Worth not letting the algebra hide it." }
+      "workingOnNow": {
+        "label": "Bracket eqns",
+        "topicId": "alg.bracket-equations",
+        "detail": "Equations with a bracket on one side, expanding before solving.",
+        "note": "Proportion is the one topic he is behind on. Worth not letting the algebra hide it."
+      },
+      "classId": "9S1"
     },
     {
       "studentId": "maya",
@@ -418,19 +1583,84 @@
         "Best next move: straight-line graphs, which she has begun early, and the newly-open simultaneous equations."
       ],
       "pace": [
-        { "label": "Coordinates", "topicId": "geo.coordinates", "tag": "Ahead · +1 term", "kind": "ahead", "actual": 0.9, "expected": 0.55 },
-        { "label": "Linear equations", "topicId": "alg.linear", "tag": "Ahead", "kind": "ahead", "actual": 0.9, "expected": 0.7 },
-        { "label": "Linear graphs", "topicId": "geo.linear-graphs", "tag": "Ahead · started early", "kind": "ahead", "actual": 0.25, "expected": 0.05 },
-        { "label": "Simultaneous eqns", "topicId": "alg.simultaneous", "tag": "Ahead", "kind": "ahead", "actual": 0.2, "expected": 0.08 },
-        { "label": "Proportion", "topicId": "num.proportion", "tag": "On pace", "kind": "onpace", "actual": 0.8, "expected": 0.75 }
+        {
+          "label": "Coordinates",
+          "topicId": "geo.coordinates",
+          "tag": "Ahead · +1 term",
+          "kind": "ahead",
+          "actual": 0.9,
+          "expected": 0.55
+        },
+        {
+          "label": "Linear equations",
+          "topicId": "alg.linear",
+          "tag": "Ahead",
+          "kind": "ahead",
+          "actual": 0.9,
+          "expected": 0.7
+        },
+        {
+          "label": "Linear graphs",
+          "topicId": "geo.linear-graphs",
+          "tag": "Ahead · started early",
+          "kind": "ahead",
+          "actual": 0.25,
+          "expected": 0.05
+        },
+        {
+          "label": "Simultaneous eqns",
+          "topicId": "alg.simultaneous",
+          "tag": "Ahead",
+          "kind": "ahead",
+          "actual": 0.2,
+          "expected": 0.08
+        },
+        {
+          "label": "Proportion",
+          "topicId": "num.proportion",
+          "tag": "On pace",
+          "kind": "onpace",
+          "actual": 0.8,
+          "expected": 0.75
+        }
       ],
       "mastery": [
-        { "label": "Coordinates", "topicId": "geo.coordinates", "foundations": 0.98, "core": 0.92, "stretch": 0.72 },
-        { "label": "Linear equations", "topicId": "alg.linear", "foundations": 0.96, "core": 0.88, "stretch": 0.65 },
-        { "label": "Expanding ( )", "topicId": "alg.expanding", "foundations": 0.75, "core": 0.45, "stretch": 0.15 },
-        { "label": "Simultaneous eqns", "topicId": "alg.simultaneous", "foundations": 0.45, "core": 0.15, "stretch": 0 }
+        {
+          "label": "Coordinates",
+          "topicId": "geo.coordinates",
+          "foundations": 0.98,
+          "core": 0.92,
+          "stretch": 0.72
+        },
+        {
+          "label": "Linear equations",
+          "topicId": "alg.linear",
+          "foundations": 0.96,
+          "core": 0.88,
+          "stretch": 0.65
+        },
+        {
+          "label": "Expanding ( )",
+          "topicId": "alg.expanding",
+          "foundations": 0.75,
+          "core": 0.45,
+          "stretch": 0.15
+        },
+        {
+          "label": "Simultaneous eqns",
+          "topicId": "alg.simultaneous",
+          "foundations": 0.45,
+          "core": 0.15,
+          "stretch": 0
+        }
       ],
-      "workingOnNow": { "label": "Coordinates", "topicId": "geo.coordinates", "detail": "Stretch items - gradient between two points, and midpoints.", "note": "She is working past this topic rather than through it. Expanding brackets is the one place she is not ahead." }
+      "workingOnNow": {
+        "label": "Coordinates",
+        "topicId": "geo.coordinates",
+        "detail": "Stretch items - gradient between two points, and midpoints.",
+        "note": "She is working past this topic rather than through it. Expanding brackets is the one place she is not ahead."
+      },
+      "classId": "9S1"
     },
     {
       "studentId": "finn",
@@ -440,18 +1670,76 @@
         "Best next move: keep the hard material coming. The risk with him is running out of stretch items, not running out of road."
       ],
       "pace": [
-        { "label": "Simultaneous eqns", "topicId": "alg.simultaneous", "tag": "Ahead · +1 term", "kind": "ahead", "actual": 0.58, "expected": 0.15 },
-        { "label": "Bracket eqns", "topicId": "alg.bracket-equations", "tag": "Ahead", "kind": "ahead", "actual": 0.62, "expected": 0.12 },
-        { "label": "Linear equations", "topicId": "alg.linear", "tag": "Ahead", "kind": "ahead", "actual": 0.94, "expected": 0.7 },
-        { "label": "Algebra basics", "topicId": "alg.basics", "tag": "Ahead", "kind": "ahead", "actual": 0.96, "expected": 0.82 }
+        {
+          "label": "Simultaneous eqns",
+          "topicId": "alg.simultaneous",
+          "tag": "Ahead · +1 term",
+          "kind": "ahead",
+          "actual": 0.58,
+          "expected": 0.15
+        },
+        {
+          "label": "Bracket eqns",
+          "topicId": "alg.bracket-equations",
+          "tag": "Ahead",
+          "kind": "ahead",
+          "actual": 0.62,
+          "expected": 0.12
+        },
+        {
+          "label": "Linear equations",
+          "topicId": "alg.linear",
+          "tag": "Ahead",
+          "kind": "ahead",
+          "actual": 0.94,
+          "expected": 0.7
+        },
+        {
+          "label": "Algebra basics",
+          "topicId": "alg.basics",
+          "tag": "Ahead",
+          "kind": "ahead",
+          "actual": 0.96,
+          "expected": 0.82
+        }
       ],
       "mastery": [
-        { "label": "Linear equations", "topicId": "alg.linear", "foundations": 0.98, "core": 0.94, "stretch": 0.82 },
-        { "label": "Algebra basics", "topicId": "alg.basics", "foundations": 1, "core": 0.95, "stretch": 0.85 },
-        { "label": "Bracket eqns", "topicId": "alg.bracket-equations", "foundations": 0.85, "core": 0.62, "stretch": 0.4 },
-        { "label": "Simultaneous eqns", "topicId": "alg.simultaneous", "foundations": 0.82, "core": 0.58, "stretch": 0.35 }
+        {
+          "label": "Linear equations",
+          "topicId": "alg.linear",
+          "foundations": 0.98,
+          "core": 0.94,
+          "stretch": 0.82
+        },
+        {
+          "label": "Algebra basics",
+          "topicId": "alg.basics",
+          "foundations": 1,
+          "core": 0.95,
+          "stretch": 0.85
+        },
+        {
+          "label": "Bracket eqns",
+          "topicId": "alg.bracket-equations",
+          "foundations": 0.85,
+          "core": 0.62,
+          "stretch": 0.4
+        },
+        {
+          "label": "Simultaneous eqns",
+          "topicId": "alg.simultaneous",
+          "foundations": 0.82,
+          "core": 0.58,
+          "stretch": 0.35
+        }
       ],
-      "workingOnNow": { "label": "Simultaneous eqns", "topicId": "alg.simultaneous", "detail": "Elimination and substitution methods, at the hardest tier available.", "note": "He rarely takes a hint. Worth checking there is enough stretch material ahead of him rather than assuming there is." }
+      "workingOnNow": {
+        "label": "Simultaneous eqns",
+        "topicId": "alg.simultaneous",
+        "detail": "Elimination and substitution methods, at the hardest tier available.",
+        "note": "He rarely takes a hint. Worth checking there is enough stretch material ahead of him rather than assuming there is."
+      },
+      "classId": "9S1"
     },
     {
       "studentId": "zara",
@@ -461,18 +1749,76 @@
         "Best next move: put harder items in front of her explicitly. At this core accuracy she is unlikely to meet one by accident."
       ],
       "pace": [
-        { "label": "Bracket eqns", "topicId": "alg.bracket-equations", "tag": "Ahead · +1 term", "kind": "ahead", "actual": 0.52, "expected": 0.12 },
-        { "label": "Linear equations", "topicId": "alg.linear", "tag": "Ahead", "kind": "ahead", "actual": 0.9, "expected": 0.7 },
-        { "label": "Expanding ( )", "topicId": "alg.expanding", "tag": "Ahead", "kind": "ahead", "actual": 0.86, "expected": 0.68 },
-        { "label": "Fractions & %", "topicId": "num.fractions-to-percent", "tag": "On pace", "kind": "onpace", "actual": 0.82, "expected": 0.78 }
+        {
+          "label": "Bracket eqns",
+          "topicId": "alg.bracket-equations",
+          "tag": "Ahead · +1 term",
+          "kind": "ahead",
+          "actual": 0.52,
+          "expected": 0.12
+        },
+        {
+          "label": "Linear equations",
+          "topicId": "alg.linear",
+          "tag": "Ahead",
+          "kind": "ahead",
+          "actual": 0.9,
+          "expected": 0.7
+        },
+        {
+          "label": "Expanding ( )",
+          "topicId": "alg.expanding",
+          "tag": "Ahead",
+          "kind": "ahead",
+          "actual": 0.86,
+          "expected": 0.68
+        },
+        {
+          "label": "Fractions & %",
+          "topicId": "num.fractions-to-percent",
+          "tag": "On pace",
+          "kind": "onpace",
+          "actual": 0.82,
+          "expected": 0.78
+        }
       ],
       "mastery": [
-        { "label": "Linear equations", "topicId": "alg.linear", "foundations": 0.98, "core": 0.92, "stretch": 0.5 },
-        { "label": "Expanding ( )", "topicId": "alg.expanding", "foundations": 0.96, "core": 0.88, "stretch": 0.45 },
-        { "label": "Fractions & %", "topicId": "num.fractions-to-percent", "foundations": 0.96, "core": 0.85, "stretch": 0.45 },
-        { "label": "Bracket eqns", "topicId": "alg.bracket-equations", "foundations": 0.85, "core": 0.65, "stretch": 0.12 }
+        {
+          "label": "Linear equations",
+          "topicId": "alg.linear",
+          "foundations": 0.98,
+          "core": 0.92,
+          "stretch": 0.5
+        },
+        {
+          "label": "Expanding ( )",
+          "topicId": "alg.expanding",
+          "foundations": 0.96,
+          "core": 0.88,
+          "stretch": 0.45
+        },
+        {
+          "label": "Fractions & %",
+          "topicId": "num.fractions-to-percent",
+          "foundations": 0.96,
+          "core": 0.85,
+          "stretch": 0.45
+        },
+        {
+          "label": "Bracket eqns",
+          "topicId": "alg.bracket-equations",
+          "foundations": 0.85,
+          "core": 0.65,
+          "stretch": 0.12
+        }
       ],
-      "workingOnNow": { "label": "Bracket eqns", "topicId": "alg.bracket-equations", "detail": "Expanding then solving, at core difficulty.", "note": "The flat stretch tier runs across all four of her topics, so it is a pattern in what she has been given, not something about brackets." }
+      "workingOnNow": {
+        "label": "Bracket eqns",
+        "topicId": "alg.bracket-equations",
+        "detail": "Expanding then solving, at core difficulty.",
+        "note": "The flat stretch tier runs across all four of her topics, so it is a pattern in what she has been given, not something about brackets."
+      },
+      "classId": "9S1"
     },
     {
       "studentId": "louis",
@@ -482,18 +1828,76 @@
         "Best next move: let him start simultaneous equations. Proportion is the one thing worth not losing sight of while he does."
       ],
       "pace": [
-        { "label": "Coordinates", "topicId": "geo.coordinates", "tag": "Ahead · +1 term", "kind": "ahead", "actual": 0.92, "expected": 0.55 },
-        { "label": "Linear equations", "topicId": "alg.linear", "tag": "Ahead", "kind": "ahead", "actual": 0.88, "expected": 0.7 },
-        { "label": "Simultaneous eqns", "topicId": "alg.simultaneous", "tag": "Ahead", "kind": "ahead", "actual": 0.18, "expected": 0.08 },
-        { "label": "Proportion", "topicId": "num.proportion", "tag": "Behind", "kind": "behind", "actual": 0.5, "expected": 0.65 }
+        {
+          "label": "Coordinates",
+          "topicId": "geo.coordinates",
+          "tag": "Ahead · +1 term",
+          "kind": "ahead",
+          "actual": 0.92,
+          "expected": 0.55
+        },
+        {
+          "label": "Linear equations",
+          "topicId": "alg.linear",
+          "tag": "Ahead",
+          "kind": "ahead",
+          "actual": 0.88,
+          "expected": 0.7
+        },
+        {
+          "label": "Simultaneous eqns",
+          "topicId": "alg.simultaneous",
+          "tag": "Ahead",
+          "kind": "ahead",
+          "actual": 0.18,
+          "expected": 0.08
+        },
+        {
+          "label": "Proportion",
+          "topicId": "num.proportion",
+          "tag": "Behind",
+          "kind": "behind",
+          "actual": 0.5,
+          "expected": 0.65
+        }
       ],
       "mastery": [
-        { "label": "Coordinates", "topicId": "geo.coordinates", "foundations": 0.98, "core": 0.92, "stretch": 0.75 },
-        { "label": "Linear equations", "topicId": "alg.linear", "foundations": 0.95, "core": 0.85, "stretch": 0.62 },
-        { "label": "Expanding ( )", "topicId": "alg.expanding", "foundations": 0.7, "core": 0.4, "stretch": 0.12 },
-        { "label": "Proportion", "topicId": "num.proportion", "foundations": 0.68, "core": 0.4, "stretch": 0.12 }
+        {
+          "label": "Coordinates",
+          "topicId": "geo.coordinates",
+          "foundations": 0.98,
+          "core": 0.92,
+          "stretch": 0.75
+        },
+        {
+          "label": "Linear equations",
+          "topicId": "alg.linear",
+          "foundations": 0.95,
+          "core": 0.85,
+          "stretch": 0.62
+        },
+        {
+          "label": "Expanding ( )",
+          "topicId": "alg.expanding",
+          "foundations": 0.7,
+          "core": 0.4,
+          "stretch": 0.12
+        },
+        {
+          "label": "Proportion",
+          "topicId": "num.proportion",
+          "foundations": 0.68,
+          "core": 0.4,
+          "stretch": 0.12
+        }
       ],
-      "workingOnNow": { "label": "Simultaneous eqns", "topicId": "alg.simultaneous", "detail": "First pass at elimination.", "note": "This opened because coordinates and linear equations are both mastered - the graph unlocked it, nobody decided it." }
+      "workingOnNow": {
+        "label": "Simultaneous eqns",
+        "topicId": "alg.simultaneous",
+        "detail": "First pass at elimination.",
+        "note": "This opened because coordinates and linear equations are both mastered - the graph unlocked it, nobody decided it."
+      },
+      "classId": "9S1"
     },
     {
       "studentId": "nina",
@@ -503,18 +1907,76 @@
         "Best next move: nothing to add. Protect the review time rather than replacing it with new material."
       ],
       "pace": [
-        { "label": "Simultaneous eqns", "topicId": "alg.simultaneous", "tag": "Ahead · +1 term", "kind": "ahead", "actual": 0.48, "expected": 0.15 },
-        { "label": "Linear equations", "topicId": "alg.linear", "tag": "Ahead", "kind": "ahead", "actual": 0.9, "expected": 0.7 },
-        { "label": "Coordinates", "topicId": "geo.coordinates", "tag": "Ahead", "kind": "ahead", "actual": 0.85, "expected": 0.6 },
-        { "label": "Negatives", "topicId": "num.negatives", "tag": "On pace · due today", "kind": "onpace", "actual": 0.88, "expected": 0.85 }
+        {
+          "label": "Simultaneous eqns",
+          "topicId": "alg.simultaneous",
+          "tag": "Ahead · +1 term",
+          "kind": "ahead",
+          "actual": 0.48,
+          "expected": 0.15
+        },
+        {
+          "label": "Linear equations",
+          "topicId": "alg.linear",
+          "tag": "Ahead",
+          "kind": "ahead",
+          "actual": 0.9,
+          "expected": 0.7
+        },
+        {
+          "label": "Coordinates",
+          "topicId": "geo.coordinates",
+          "tag": "Ahead",
+          "kind": "ahead",
+          "actual": 0.85,
+          "expected": 0.6
+        },
+        {
+          "label": "Negatives",
+          "topicId": "num.negatives",
+          "tag": "On pace · due today",
+          "kind": "onpace",
+          "actual": 0.88,
+          "expected": 0.85
+        }
       ],
       "mastery": [
-        { "label": "Linear equations", "topicId": "alg.linear", "foundations": 0.96, "core": 0.88, "stretch": 0.62 },
-        { "label": "Coordinates", "topicId": "geo.coordinates", "foundations": 0.94, "core": 0.85, "stretch": 0.58 },
-        { "label": "Negatives", "topicId": "num.negatives", "foundations": 0.95, "core": 0.85, "stretch": 0.6 },
-        { "label": "Simultaneous eqns", "topicId": "alg.simultaneous", "foundations": 0.78, "core": 0.5, "stretch": 0.22 }
+        {
+          "label": "Linear equations",
+          "topicId": "alg.linear",
+          "foundations": 0.96,
+          "core": 0.88,
+          "stretch": 0.62
+        },
+        {
+          "label": "Coordinates",
+          "topicId": "geo.coordinates",
+          "foundations": 0.94,
+          "core": 0.85,
+          "stretch": 0.58
+        },
+        {
+          "label": "Negatives",
+          "topicId": "num.negatives",
+          "foundations": 0.95,
+          "core": 0.85,
+          "stretch": 0.6
+        },
+        {
+          "label": "Simultaneous eqns",
+          "topicId": "alg.simultaneous",
+          "foundations": 0.78,
+          "core": 0.5,
+          "stretch": 0.22
+        }
       ],
-      "workingOnNow": { "label": "Simultaneous eqns", "topicId": "alg.simultaneous", "detail": "Elimination where both equations need scaling.", "note": "Two reviews are due today. Those matter more this week than progress on the new topic does." }
+      "workingOnNow": {
+        "label": "Simultaneous eqns",
+        "topicId": "alg.simultaneous",
+        "detail": "Elimination where both equations need scaling.",
+        "note": "Two reviews are due today. Those matter more this week than progress on the new topic does."
+      },
+      "classId": "9S1"
     }
   ]
 }

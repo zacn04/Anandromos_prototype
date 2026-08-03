@@ -253,10 +253,8 @@ const T = (f: number, c: number, st: number) => [
 // design brief rules out anything that reads as a class league table.
 
 /** The one class in this prototype with a roster of real student state behind it. */
-const SAMPLE_ROSTER_CLASS = '8M2'
 
 /** Stable empty roster, so a class with no students does not reallocate per render. */
-const NO_IDS: readonly string[] = []
 
 /** Whose dashboard this is. Matches `content/school/teachers.json`. */
 const TEACHER_ID = 'teacher.okafor'
@@ -863,7 +861,11 @@ export default function TeacherApp() {
   // content change can never white-screen the dashboard.
   const ac = classes.find((c) => c.id === s.activeClass) ?? classes[0]
   const activeClassId = ac?.id ?? s.activeClass
-  const rosterIds = activeClassId === SAMPLE_ROSTER_CLASS ? knownIds : NO_IDS
+  // Roster comes from the content store: each student profile names its class.
+  // This used to key off a single hardcoded class id,
+  // which put every student in one class and left the other two permanently
+  // empty however real their data was.
+  const rosterIds = knownIds.filter((id) => studentProfile(id)?.classId === activeClassId)
   const hasRoster = rosterIds.length > 0
 
   // Deliberately not memoised. Triaging twenty-four students is a few thousand
@@ -1402,8 +1404,7 @@ export default function TeacherApp() {
                 <div style={{ marginTop: 26, background: '#fff', border: '1px dashed #d8cfbb', borderRadius: 12, padding: '30px 24px' }}>
                   <p style={{ margin: 0, fontSize: 14, fontWeight: 600, color: '#0e2a43' }}>No roster imported for {activeClassId}</p>
                   <p style={{ margin: '6px 0 0', fontSize: 13, color: '#8a7c63', maxWidth: 560, textWrap: 'pretty' }}>
-                    {activeClassId} exists in the school's class list, but no students have been brought in against
-                    it in this prototype. {SAMPLE_ROSTER_CLASS} is the class with live practice behind it.
+                    {activeClassId} exists in the school's class list, but no students are on its roster yet.
                     Bring a roster in from Class setup, or from a transferring student's profile.
                   </p>
                 </div>

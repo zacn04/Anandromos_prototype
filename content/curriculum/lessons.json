@@ -57,6 +57,316 @@
           }
         }
       ]
+    },
+    {
+      "topicId": "geo.coordinates",
+      "prerequisites": [
+        {
+          "subtopicId": "geo.coordinates.midpoint",
+          "transferIn": {
+            "hook": "Meeting exactly halfway",
+            "body": [
+              "Two friends live at opposite ends of a straight road and want to meet where neither walks further than the other. You would not guess — you would find the point exactly halfway between the two front doors.",
+              "A midpoint on a grid is that same idea, done once for how far across you are and once for how far up. Nothing more complicated is going on."
+            ]
+          },
+          "teach": {
+            "heading": "The midpoint is the average of each coordinate",
+            "body": [
+              "To find the point halfway between two others, average the two x values, then average the two y values. Those two answers are the x and y of the midpoint.",
+              "Averaging means add the pair and halve it. Do the x pair and the y pair completely separately — they never mix."
+            ],
+            "exampleTitle": "Halfway between (2, 3) and (8, 11)",
+            "exampleSteps": [
+              "x: (2 + 8) ÷ 2 = 5",
+              "y: (3 + 11) ÷ 2 = 7",
+              "Midpoint = (5, 7)"
+            ]
+          },
+          "transferOut": {
+            "prompt": "Where else do you find something exactly halfway between two values — splitting a bill, a halfway point on a journey, the middle of a temperature range? Describe your own example.",
+            "placeholder": "e.g. when my sister and I split the cost of a present, we each pay halfway between nothing and the full price..."
+          }
+        }
+      ]
+    },
+    {
+      "topicId": "num.percent-change",
+      "prerequisites": [
+        {
+          "subtopicId": "num.percent-change.increase",
+          "transferIn": {
+            "hook": "The price that went up",
+            "body": [
+              "A £40 game goes up by 15%. The shop does not throw away the £40 and start again — the new price is the old price plus a bit more, and the 'bit more' is what the percentage describes.",
+              "Getting this right depends on being clear about what the percentage is a percentage *of*. It is always of the original amount, not of the new one."
+            ]
+          },
+          "teach": {
+            "heading": "Find the increase, then add it on",
+            "body": [
+              "A percentage increase has two steps. First work out the increase itself: that is the percentage of the ORIGINAL amount. Then add it to the original.",
+              "Finding the increase and stopping there is the commonest slip — that answer is how much it went up by, not what it costs now."
+            ],
+            "exampleTitle": "Increase £40 by 15%",
+            "exampleSteps": [
+              "10% of 40 = 4, so 15% of 40 = 6",
+              "The increase is £6",
+              "New price = 40 + 6 = £46"
+            ]
+          },
+          "transferOut": {
+            "prompt": "Where have you seen an amount go up by a percentage rather than a fixed amount — a price rise, interest on savings, a tip? Describe your own example.",
+            "placeholder": "e.g. my bus fare went up by 5% rather than by a set number of pence, so the longer journeys went up more..."
+          }
+        }
+      ]
+    },
+    {
+      "topicId": "num.proportion",
+      "prerequisites": [
+        {
+          "subtopicId": "num.proportion.unitary-method",
+          "transferIn": {
+            "hook": "The cost of one",
+            "body": [
+              "If six identical pens cost 90p, you can answer almost any question about pens the moment you know what one costs. Everything else is multiplying up from there.",
+              "This is the single most useful trick in proportion, and it is why it has a name: find the value of one unit first."
+            ]
+          },
+          "teach": {
+            "heading": "Find one, then scale up",
+            "body": [
+              "Divide to find the value of a single item, then multiply by however many you actually want. Two steps, always the same two steps.",
+              "The temptation is to jump straight from one quantity to the other. Going via one keeps it reliable even when the numbers are awkward."
+            ],
+            "exampleTitle": "6 pens cost 90p. What do 10 cost?",
+            "exampleSteps": [
+              "1 pen: 90 ÷ 6 = 15p",
+              "10 pens: 15 × 10",
+              "= 150p"
+            ]
+          },
+          "transferOut": {
+            "prompt": "Where do you work out the cost or size of one thing before scaling up — shopping, cooking, splitting something between people? Describe your own example.",
+            "placeholder": "e.g. working out the price per 100g to see which packet is actually better value..."
+          }
+        },
+        {
+          "subtopicId": "num.proportion.direct",
+          "transferIn": {
+            "hook": "Doubling the recipe",
+            "body": [
+              "A recipe for four people needs 200g of rice. Cooking for eight, nobody calculates from scratch — you double everything, because twice the people needs twice of each ingredient.",
+              "That is direct proportion: both quantities move together by the same multiplier."
+            ]
+          },
+          "teach": {
+            "heading": "Find the multiplier, then apply it to everything",
+            "body": [
+              "When two quantities are in direct proportion, doubling one doubles the other. So find the number you multiplied by, then use that same number on the quantity you want.",
+              "The multiplier need not be a whole number — scaling a recipe for four up to six means multiplying by 1.5."
+            ],
+            "exampleTitle": "4 cakes need 300g of flour. How much for 12 cakes?",
+            "exampleSteps": [
+              "12 ÷ 4 = 3, so the multiplier is 3",
+              "300 × 3",
+              "= 900g"
+            ]
+          },
+          "transferOut": {
+            "prompt": "Where have you scaled a whole set of quantities up or down together — a recipe, a paint mix, a plan drawn to scale? Describe your own example.",
+            "placeholder": "e.g. doubling a pancake recipe meant doubling the flour, the milk and the eggs, all by the same amount..."
+          }
+        }
+      ]
+    },
+    {
+      "topicId": "alg.expanding",
+      "prerequisites": [
+        {
+          "subtopicId": "alg.expanding.single-bracket",
+          "transferIn": {
+            "hook": "Three of everything in the bag",
+            "body": [
+              "A party bag holds a drink and two sweets. Handing out three bags means three drinks and six sweets — the three multiplies everything inside, not just the first thing you happened to think of.",
+              "A bracket in algebra is that bag. The number outside multiplies every single term inside it."
+            ]
+          },
+          "teach": {
+            "heading": "Multiply every term inside the bracket",
+            "body": [
+              "The number outside a bracket multiplies each term inside, one at a time. Two terms inside means two multiplications.",
+              "Multiplying only the first term and leaving the rest untouched is the classic mistake, and it is worth checking for deliberately every time."
+            ],
+            "exampleTitle": "Expand 3(2x + 5)",
+            "exampleSteps": [
+              "3 × 2x = 6x",
+              "3 × 5 = 15",
+              "= 6x + 15"
+            ]
+          },
+          "transferOut": {
+            "prompt": "Where have you multiplied up a whole set of things at once rather than one of them — packing bags, ordering for a group, scaling a plan? Describe your own example.",
+            "placeholder": "e.g. ordering five meal deals means five sandwiches AND five drinks AND five packets of crisps..."
+          }
+        }
+      ]
+    },
+    {
+      "topicId": "alg.bracket-equations",
+      "prerequisites": [
+        {
+          "subtopicId": "alg.bracket-equations.expand-then-solve",
+          "transferIn": {
+            "hook": "Unwrap before you unpick",
+            "body": [
+              "If a parcel is inside a box inside a bag, you take the bag off first. Order matters, and the outermost wrapping goes first.",
+              "An equation with a bracket is wrapped the same way. Deal with the bracket, and what is left is an ordinary equation you already know how to solve."
+            ]
+          },
+          "teach": {
+            "heading": "Expand first, then solve as usual",
+            "body": [
+              "Expand the bracket to get rid of it, then solve the equation exactly as you would any other: get the letters on one side, the numbers on the other, then divide.",
+              "Trying to solve before expanding is where this goes wrong — the bracket keeps the terms locked together and they cannot be moved independently until it is gone."
+            ],
+            "exampleTitle": "Solve 3(x + 2) = 18",
+            "exampleSteps": [
+              "Expand: 3x + 6 = 18",
+              "3x = 18 − 6 = 12",
+              "x = 4"
+            ]
+          },
+          "transferOut": {
+            "prompt": "Where do you have to undo something in a particular order — getting dressed, following a recipe, taking apart something you built? Describe your own example.",
+            "placeholder": "e.g. you cannot take the wheel off before you have loosened the nuts, no matter how keen you are..."
+          }
+        }
+      ]
+    },
+    {
+      "topicId": "alg.simultaneous",
+      "prerequisites": [
+        {
+          "subtopicId": "alg.simultaneous.elimination-add",
+          "transferIn": {
+            "hook": "Two clues, one answer",
+            "body": [
+              "A puzzle tells you two numbers add to 20, and that one is 4 bigger than the other. Neither clue alone is enough. Together they pin both numbers down exactly.",
+              "Simultaneous equations are two clues about two unknowns, and the trick is combining them so one unknown disappears."
+            ]
+          },
+          "teach": {
+            "heading": "Add the equations to make a letter vanish",
+            "body": [
+              "When one equation has +y and the other has −y, adding them together cancels y completely, leaving a simple equation in x alone.",
+              "Once you have x, put it back into either original equation to find y. The cancelling is the whole point — you are choosing the move that removes a letter."
+            ],
+            "exampleTitle": "Solve x + y = 12 and x − y = 4",
+            "exampleSteps": [
+              "Add: (x + y) + (x − y) = 12 + 4",
+              "The +y and −y cancel: 2x = 16",
+              "x = 8, then y = 4"
+            ]
+          },
+          "transferOut": {
+            "prompt": "Where have two separate pieces of information together told you something neither could alone — a bill and a receipt, two witnesses, two measurements? Describe your own example.",
+            "placeholder": "e.g. knowing the total shopping bill and the price of one item let me work out what the rest cost..."
+          }
+        }
+      ]
+    },
+    {
+      "topicId": "alg.substitution",
+      "prerequisites": [
+        {
+          "subtopicId": "alg.substitution.single-term",
+          "transferIn": {
+            "hook": "A letter is a box waiting for a number",
+            "body": [
+              "A recipe that says 'cook for n minutes per kilogram' is useless until you weigh the joint. The n is a space waiting to be filled in.",
+              "Letters in algebra work the same way. Substituting is just filling the space with the number you have been given."
+            ]
+          },
+          "teach": {
+            "heading": "Replace the letter, then work it out",
+            "body": [
+              "Swap the letter for its value, then do the arithmetic. Remember that 4p means 4 × p — the multiplication sign is invisible but it is definitely there.",
+              "Writing the × in yourself before calculating stops the commonest error, which is adding the number to the letter's value instead of multiplying."
+            ],
+            "exampleTitle": "Work out 4p when p = 9",
+            "exampleSteps": [
+              "4p means 4 × p",
+              "4 × 9",
+              "= 36"
+            ]
+          },
+          "transferOut": {
+            "prompt": "Where have you filled a number into a rule that was written in general terms — a cooking time, a delivery charge, a phone tariff? Describe your own example.",
+            "placeholder": "e.g. the parking sign said £2 per hour, so for 3 hours I worked out 2 × 3..."
+          }
+        },
+        {
+          "subtopicId": "alg.substitution.two-term",
+          "transferIn": {
+            "hook": "Two blanks to fill",
+            "body": [
+              "A journey cost is often 'so much per mile, plus a fixed booking fee'. Two different numbers, doing two different jobs, in one calculation.",
+              "An expression with two letters is the same. Each letter gets its own value and neither borrows from the other."
+            ]
+          },
+          "teach": {
+            "heading": "Substitute each letter separately",
+            "body": [
+              "Replace every letter with its own value, then work through the arithmetic in the usual order: multiplications first, then the additions and subtractions.",
+              "Keep the two letters apart. Swapping which value goes with which letter is easy to do and impossible to spot afterwards."
+            ],
+            "exampleTitle": "Work out 3a + 2b when a = 4 and b = 5",
+            "exampleSteps": [
+              "3 × 4 + 2 × 5",
+              "12 + 10",
+              "= 22"
+            ]
+          },
+          "transferOut": {
+            "prompt": "Where does a total depend on two different quantities at once — a taxi fare, a phone bill, a shopping trip with two kinds of item? Describe your own example.",
+            "placeholder": "e.g. my phone bill is a monthly fee plus a charge for every gigabyte over the limit..."
+          }
+        }
+      ]
+    },
+    {
+      "topicId": "num.fractions-to-percent",
+      "prerequisites": [
+        {
+          "subtopicId": "num.fractions-to-percent.convert",
+          "transferIn": {
+            "hook": "Same amount, three costumes",
+            "body": [
+              "A half, 0.5 and 50% are the same quantity wearing different clothes. Which one you use is about convenience, not about the amount changing.",
+              "Being able to move between them freely is what lets you compare things that were written down in different ways."
+            ]
+          },
+          "teach": {
+            "heading": "Divide, then multiply by 100",
+            "body": [
+              "A fraction is a division waiting to happen. Do the division to get a decimal, then multiply by 100 to turn that decimal into a percentage.",
+              "Stopping after the division is the usual slip: that answer is the decimal, and calling it a percentage makes it a hundred times too small."
+            ],
+            "exampleTitle": "Write 3/8 as a percentage",
+            "exampleSteps": [
+              "3 ÷ 8 = 0.375",
+              "0.375 × 100",
+              "= 37.5%"
+            ]
+          },
+          "transferOut": {
+            "prompt": "Where have you seen the same amount written as a fraction in one place and a percentage in another — a sale, a test score, a battery indicator? Describe your own example.",
+            "placeholder": "e.g. my phone showed 25% battery and I thought of it as a quarter left..."
+          }
+        }
+      ]
     }
   ]
 }
