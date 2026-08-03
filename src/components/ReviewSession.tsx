@@ -75,6 +75,12 @@ function buildReviewLogEntry(subtopicLabel: string, st: RState): LogActivity {
   const passed = st.outcome === 'passed'
   const items: LogQuestion[] = st.attemptLog.map(({ problem, result }, i) => {
     const explanation = problem.lines[problem.errorLineIndex]?.note || 'See the worked steps above.'
+    // Anything the student typed under "Something else - let me explain". It was
+    // collected by PracticeLoop and read by nobody; the teacher opening this
+    // entry is exactly who it was written for.
+    const inTheirWords = Object.values(result.notes)
+      .map((n) => n.trim())
+      .filter((n) => n.length > 0)
     return {
       label: `Q${i + 1}`,
       q: `${problem.prompt}: ${problem.statement}`,
@@ -82,7 +88,9 @@ function buildReviewLogEntry(subtopicLabel: string, st: RState): LogActivity {
       note: result.correct ? 'Correct.' : explanation,
       work: result.correct ? undefined : lineTexts(problem),
       wrong: result.correct ? undefined : [problem.errorLineIndex],
-      why: result.correct ? undefined : [explanation],
+      why: result.correct
+        ? undefined
+        : [explanation, ...inTheirWords.map((n) => `In their words: “${n}”`)],
     }
   })
   return {

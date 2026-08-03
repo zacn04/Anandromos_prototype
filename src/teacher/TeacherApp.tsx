@@ -9,7 +9,6 @@ import {
   activityLogFor,
   catalogueGroups,
   defaultBasket,
-  defaultRoster,
   edgePairs,
   edgePath,
   graphFilters,
@@ -32,11 +31,12 @@ import { exportProfile, importProfile, importSummary } from '../data/transfer'
 import type { ImportResult, TransferableProfile } from '../data/transfer'
 import { buildQueue, dueLabel } from '../data/schedule'
 import { masteryBand } from '../data/xp'
-import { engineFor, setEngineFor, useEngineVersion, useKnownStudentIds } from '../data/students'
+import { engineFor, isKnownStudent, setEngineFor, useEngineVersion, useKnownStudentIds } from '../data/students'
 import type { EngineState } from '../data/students'
+import { initEngineState } from '../data/engine'
 import type { TierMastery } from '../data/engine'
 import { getLiveSessions } from '../data/liveSessions'
-import { studentName, useStudentName } from '../data/profile'
+import { enrolledClassOf, enrolStudent, setStudentName, studentIdForName, studentName, unenrolStudent, useStudentName } from '../data/profile'
 import { addProblemSet, getProblemSets, gradable, mintQuestions } from '../data/teacherProblemSets'
 import type { AuthoredQuestion } from '../data/teacherProblemSets'
 import { FONT_MONO, FONT_SERIF, NODE_STYLE, OVERSIGHT_KIND_META } from '../theme'
@@ -110,6 +110,8 @@ interface TeacherState {
   detailReturn: 'student' | 'oversight'
   addressList: AddressItem[]
   dismissedOv: string[]
+  /** How far through the selected student's topic the practice preview has walked. */
+  previewIdx: number
   addSeq: number
   addingNote: boolean
   noteDraft: string
@@ -118,7 +120,6 @@ interface TeacherState {
   suGrade: string
   suYear: string
   suSearch: string
-  suRoster: string[]
   suDraft: string
   suBasket: Record<string, boolean>
   // ---- Homework (teacher problem-set authoring) ----
@@ -261,11 +262,12 @@ const T = (f: number, c: number, st: number) => [
 const TEACHER_ID = 'teacher.okafor'
 
 /**
- * Roster display names. The content store holds student *ids* (lowercase first
- * names) and no display names at all — `defaultRoster()` is eight names for the
- * class-setup form, not the twenty-four this class actually has. Surnames are
- * therefore the one authored thing left on this screen; who is in the class,
- * and everything shown about them, comes from content. An id with no entry here
+ * Roster display names for the seeded cohort. The content store holds student
+ * *ids* (lowercase first names) and no display names at all, so surnames are the
+ * one authored thing left on this screen; who is in the class, and everything
+ * shown about them, comes from content or from a student enrolled on the setup
+ * screen. Checked only after `studentName` (data/profile.ts), so a student who
+ * has named themselves is never overridden by this table. An id in neither
  * still renders, under its capitalised first name.
  */
 const ROSTER_NAMES: Record<string, string> = {
@@ -300,6 +302,17 @@ const ROSTER_NAMES: Record<string, string> = {
  * the teacher's class list should call them what they call themselves. Falls
  * back to this file's roster surnames, then to the capitalised id.
  */
+/**
+ * Which class a student is in.
+ *
+ * A student enrolled on the setup screen (data/profile.ts) wins over the
+ * content store, which is what turns "add a student" from a form that appended
+ * to a local string array into something that actually puts a person on the
+ * class dashboard, in the drill-down, and in range of assigned homework.
+ */
+const classOfStudent = (id: string): string | undefined =>
+  enrolledClassOf(id) ?? studentProfile(id)?.classId
+
 const displayName = (id: string): string => {
   const chosen = studentName(id)
   if (chosen !== id) return chosen
@@ -805,7 +818,7 @@ function buildFrontierGroups(studentId: string) {
 export default function TeacherApp() {
   // Lazy initialiser, not a module-scope constant: the store is installed by
   // main.tsx's `await loadContent()`, which runs AFTER this module is
-  // evaluated. Reading defaultRoster()/defaultBasket() at module scope would
+  // evaluated. Reading defaultBasket() at module scope would
   // throw before the first render. See content-schema-spec §6.12.
   const [s, setS] = useState<TeacherState>(() => ({
     screen: 'dashboard',
@@ -825,6 +838,7 @@ export default function TeacherApp() {
     detailReturn: 'student',
     addressList: [],
     dismissedOv: [],
+    previewIdx: 0,
     addSeq: 0,
     addingNote: false,
     noteDraft: '',
@@ -833,7 +847,6 @@ export default function TeacherApp() {
     suGrade: 'Year 8',
     suYear: 'all',
     suSearch: '',
-    suRoster: [...defaultRoster()],
     suDraft: '',
     suBasket: { ...defaultBasket() },
     hwTitle: '',
@@ -878,7 +891,7 @@ export default function TeacherApp() {
   // This used to key off a single hardcoded class id,
   // which put every student in one class and left the other two permanently
   // empty however real their data was.
-  const rosterIds = knownIds.filter((id) => studentProfile(id)?.classId === activeClassId)
+  const rosterIds = knownIds.filter((id) => classOfStudent(id) === activeClassId)
   const hasRoster = rosterIds.length > 0
 
   // Deliberately not memoised. Triaging twenty-four students is a few thousand
@@ -960,21 +973,6 @@ export default function TeacherApp() {
     (it) => !s.dismissedOv.includes(it.id),
   )
 
-  // Read inside the component, never at module scope: the store is not installed
-  // until main.tsx awaits loadContent(). See content-schema-spec §6.12.
-  const PREVIEW_PROBLEM = questionAt('alg.linear', 0)!
-
-  if (s.screen === 'practice') {
-    return (
-      <PracticeLoop
-        variant="preview"
-        problem={PREVIEW_PROBLEM}
-        backLabel="← Exit preview"
-        onExit={() => setState({ screen: 'student' })}
-        onComplete={() => setState({ screen: 'student' })}
-      />
-    )
-  }
 
   // ---- nav ----
   const activeNav =
@@ -1042,6 +1040,36 @@ export default function TeacherApp() {
     ? mkStudent(selectedSignal)
     : { id: s.selectedStudentId, name: displayName(s.selectedStudentId), topic: 'Not started', sub: 'Not started', last: 'not started', insight: '', initials: displayName(s.selectedStudentId).slice(0, 2).toUpperCase(), status: 'ontrack', statusLabel: 'On track', avatarStyle: avatar('#1f4e75'), chipStyle: chip('ontrack') }
   const selectedProfile = studentProfile(s.selectedStudentId)
+
+  if (s.screen === 'practice') {
+    // The preview shows what THIS student is actually being served: the topic
+    // they are on now, walked question by question. It used to be hardwired to
+    // alg.linear's first question no matter whose profile it was opened from,
+    // so a teacher looking at a student stuck on percentages was shown a linear
+    // equation. Falls back to alg.linear only when the selected student has no
+    // current topic at all.
+    //
+    // Read inside the component, never at module scope: the store is not
+    // installed until main.tsx awaits loadContent(). See content-schema-spec §6.12.
+    const previewTopic = selectedSignal?.topicId ?? 'alg.linear'
+    // questionAt past the authored pool mints a fresh template instance, so a
+    // teacher can keep pressing on without the preview wrapping to the start.
+    const previewProblem = questionAt(previewTopic, s.previewIdx) ?? questionAt('alg.linear', 0)!
+    return (
+      <PracticeLoop
+        key={`${previewProblem.id}-${s.previewIdx}`}
+        variant="preview"
+        problem={previewProblem}
+        title={topicLabel(previewTopic)}
+        previewSubject={selectedRoster.name.split(' ')[0]}
+        backLabel="← Exit preview"
+        onExit={() => setState({ screen: 'student', previewIdx: 0 })}
+        // Advances rather than exiting: a teacher checking what the loop feels
+        // like wants the next question, not to be thrown back to the dashboard.
+        onComplete={() => setState((st) => ({ previewIdx: st.previewIdx + 1 }))}
+      />
+    )
+  }
 
   // "Where to start" leads with the live weakest link where the graph gives one,
   // then the authored diagnostic bullets. The derived line is what actually
@@ -1144,6 +1172,38 @@ export default function TeacherApp() {
   const basketGroups = catalogueGroups()
     .map((g) => ({ group: g.label, topics: g.topics.filter(matchTopic) }))
     .filter((g) => g.topics.length > 0)
+  /**
+   * The roster for the class named in step 1, derived rather than stored.
+   *
+   * It used to be a `string[]` of display names seeded from `defaultRoster()`
+   * that nothing else in the app ever read: a student "added" here appeared in
+   * this one list and nowhere else. Deriving it from the same source the
+   * dashboard uses means the step shows the truth, and the buttons below change
+   * it for real.
+   */
+  const suRoster = knownIds
+    .filter((id) => classOfStudent(id) === s.suClass)
+    .map((id) => ({ id, name: displayName(id), removable: enrolledClassOf(id) !== null }))
+
+  /**
+   * Adds a student to the class named in step 1, for real: mints a semantic id,
+   * records the name they go by, enrols them, and seeds their engine state so
+   * the store counts them as a student who exists rather than one nobody has
+   * heard of. Seeding also registers them, which is what puts them on the
+   * dashboard and in the drill-down.
+   */
+  const addStudentToClass = (rawName: string) => {
+    const name = rawName.trim()
+    if (!name || !s.suClass.trim()) return
+    const id = studentIdForName(name, (candidate) => isKnownStudent(candidate) || enrolledClassOf(candidate) !== null)
+    setStudentName(id, name)
+    enrolStudent(id, s.suClass)
+    // A brand-new student has no sample overlay behind them, so this is an
+    // honest all-zero start rather than invented history.
+    setEngineFor(id, initEngineState(id))
+    setState({ suDraft: '' })
+  }
+
   const basketCount = Object.values(s.suBasket).filter(Boolean).length
 
   // ---- homework (teacher problem-set authoring) ----
@@ -1358,6 +1418,22 @@ export default function TeacherApp() {
                             {g.latest.lineText && (
                               <div style={{ fontFamily: FONT_MONO, fontSize: 12, color: '#5c6773', marginTop: 6, background: '#fff', border: '1px solid #d3e0ea', borderRadius: 7, padding: '7px 10px' }}>
                                 {g.latest.lineText}
+                              </div>
+                            )}
+                            {/* What the student typed when the four canned reasons didn't fit.
+                                It is the only unprompted thing in the whole diagnosis, so it is
+                                worth more than the code beside it - and it used to be collected
+                                and then dropped. */}
+                            {g.notes.length > 0 && (
+                              <div style={{ marginTop: 8 }}>
+                                <div style={monoCap({ fontSize: 10, marginBottom: 5 })}>In their words</div>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                                  {g.notes.map((n, i) => (
+                                    <div key={i} style={{ fontSize: 12.5, lineHeight: 1.5, color: '#2b4a63', background: '#fff', border: '1px solid #d3e0ea', borderLeft: '3px solid #dd6a2f', borderRadius: 7, padding: '8px 11px', textWrap: 'pretty' }}>
+                                      “{n}”
+                                    </div>
+                                  ))}
+                                </div>
                               </div>
                             )}
                           </div>
@@ -1786,7 +1862,7 @@ export default function TeacherApp() {
                   onClick={() => setState({ screen: 'practice' })}
                   style={{ marginLeft: 'auto', background: '#0e2a43', color: '#fff', border: 'none', borderRadius: 9, padding: '11px 18px', fontWeight: 600, fontSize: 13.5, cursor: 'pointer' }}
                 >
-                  Preview practice view →
+                  Preview {selectedRoster.name.split(' ')[0]}'s practice view →
                 </button>
               </div>
 
@@ -2324,51 +2400,69 @@ export default function TeacherApp() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
                   <span style={{ fontFamily: FONT_MONO, fontSize: 12, fontWeight: 600, color: '#fff', background: '#0e2a43', width: 22, height: 22, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }}>2</span>
                   <h2 style={{ fontFamily: FONT_SERIF, fontSize: 17, fontWeight: 600, margin: 0, color: '#0e2a43' }}>Roster</h2>
-                  <span style={{ fontFamily: FONT_MONO, fontSize: 12, color: '#8a7c63' }}>{s.suRoster.length} students</span>
+                  <span style={{ fontFamily: FONT_MONO, fontSize: 12, color: '#8a7c63' }}>{suRoster.length} students</span>
                 </div>
-                <p style={{ margin: '0 0 14px', fontSize: 12.5, color: '#8a7c63' }}>Import from your school's MIS, or add students by hand.</p>
+                <p style={{ margin: '0 0 14px', fontSize: 12.5, color: '#8a7c63', maxWidth: 600, textWrap: 'pretty' }}>
+                  Import from your school's MIS, or add students by hand. This is the real roster for{' '}
+                  <strong>{s.suClass || 'this class'}</strong> — anyone added here appears on the dashboard, can be
+                  drilled into, and is in range of homework you set.
+                </p>
                 <div style={{ display: 'flex', gap: 8, marginBottom: 14, flexWrap: 'wrap' }}>
                   <input
                     value={s.suDraft}
                     onChange={(e) => setState({ suDraft: e.target.value })}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') addStudentToClass(s.suDraft)
+                    }}
                     placeholder="Add a student by name"
                     style={{ flex: 1, minWidth: 180, border: '1px solid #e0d4bd', borderRadius: 8, background: '#faf6ee', padding: '10px 12px', fontSize: 14, color: '#1a2129', outline: 'none' }}
                   />
                   <button
-                    onClick={() => {
-                      const d = s.suDraft.trim()
-                      if (d) setState((st) => ({ suRoster: [...st.suRoster, d], suDraft: '' }))
-                    }}
+                    onClick={() => addStudentToClass(s.suDraft)}
                     style={{ background: '#0e2a43', color: '#fff', border: 'none', borderRadius: 8, padding: '0 18px', fontSize: 13.5, fontWeight: 600, cursor: 'pointer' }}
                   >
                     Add
                   </button>
                   <button
-                    onClick={() => setState((st) => ({ suRoster: [...st.suRoster, 'Maya Kumar', 'Finn Walsh', 'Zara Haq', 'Noah Pratt'] }))}
+                    onClick={() => {
+                      for (const name of ['Maya Kumar', 'Finn Walsh', 'Zara Haq', 'Noah Pratt']) addStudentToClass(name)
+                    }}
                     style={{ background: '#fff', color: '#0e2a43', border: '1px solid #cdbfa6', borderRadius: 8, padding: '10px 16px', fontSize: 13.5, fontWeight: 600, cursor: 'pointer' }}
                   >
                     Import from MIS / CSV
                   </button>
                 </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                  {s.suRoster.map((name, i) => (
-                    <div key={`${name}-${i}`} style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#faf6ee', border: '1px solid #ece3d2', borderRadius: 20, padding: '5px 8px 5px 5px' }}>
+                  {suRoster.map((student) => (
+                    <div key={student.id} style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#faf6ee', border: '1px solid #ece3d2', borderRadius: 20, padding: '5px 8px 5px 5px' }}>
                       <div style={{ width: 26, height: 26, borderRadius: '50%', background: '#0e2a43', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 600, flex: 'none' }}>
-                        {name
+                        {student.name
                           .split(' ')
                           .map((w) => w[0])
                           .join('')
                           .slice(0, 2)}
                       </div>
-                      <span style={{ fontSize: 13, fontWeight: 500, color: '#1a2129' }}>{name}</span>
-                      <button
-                        onClick={() => setState((st) => ({ suRoster: st.suRoster.filter((_, j) => j !== i) }))}
-                        style={{ border: 'none', background: 'transparent', color: '#b1a58c', fontSize: 16, lineHeight: 1, cursor: 'pointer' }}
-                      >
-                        ×
-                      </button>
+                      <span style={{ fontSize: 13, fontWeight: 500, color: '#1a2129' }}>{student.name}</span>
+                      {/* Only students enrolled here can be taken off the roster. A student the
+                          content store puts in this class is not this screen's to remove. */}
+                      {student.removable ? (
+                        <button
+                          onClick={() => unenrolStudent(student.id)}
+                          title={`Remove ${student.name} from ${s.suClass}`}
+                          style={{ border: 'none', background: 'transparent', color: '#b1a58c', fontSize: 16, lineHeight: 1, cursor: 'pointer' }}
+                        >
+                          ×
+                        </button>
+                      ) : (
+                        <span title="On this class from the school's records" style={{ fontFamily: FONT_MONO, fontSize: 9.5, color: '#b1a58c', paddingRight: 4 }}>MIS</span>
+                      )}
                     </div>
                   ))}
+                  {suRoster.length === 0 && (
+                    <p style={{ margin: 0, fontSize: 13, color: '#8a7c63' }}>
+                      No students on {s.suClass || 'this class'} yet — add one above.
+                    </p>
+                  )}
                 </div>
               </div>
 

@@ -40,6 +40,12 @@ export interface PracticeLoopProps {
   backLabel: string
   title?: string
   /**
+   * Who the preview is standing in for, shown in the preview strip. The strip
+   * used to name Aisha unconditionally, which was wrong the moment a teacher
+   * opened it from anyone else's profile.
+   */
+  previewSubject?: string
+  /**
    * When set, every flagged line's re-teach is shown as if this reason had
    * been picked, regardless of what the student actually chooses - used by
    * the silly-mistake retry ("get it wrong again" escalates to the full
@@ -143,6 +149,7 @@ export function PracticeLoop({
   fpLabel = null,
   backLabel,
   title,
+  previewSubject,
   forceReason,
   mcq = false,
   onExit,
@@ -337,7 +344,9 @@ export function PracticeLoop({
       {variant === 'preview' ? (
         <div style={{ width: '100%', background: '#0e2a43', color: '#dbe6ef', padding: '10px 22px', display: 'flex', alignItems: 'center', gap: 12 }}>
           <div onClick={onExit} style={{ fontSize: 12.5, color: '#9fb4c7', cursor: 'pointer' }}>{backLabel}</div>
-          <span style={{ fontSize: 12, color: '#6f8aa2', marginLeft: 'auto', fontFamily: FONT_MONO }}>Student view · {studentFirstName('aisha')} · demo</span>
+          <span style={{ fontSize: 12, color: '#6f8aa2', marginLeft: 'auto', fontFamily: FONT_MONO }}>
+            Student view · {previewSubject ?? studentFirstName('aisha')}{title ? ` · ${title}` : ''}
+          </span>
         </div>
       ) : (
         <div style={{ width: '100%', background: '#0e2a43', color: '#dbe6ef', padding: '11px 22px', display: 'flex', alignItems: 'center', gap: 12 }}>

@@ -816,6 +816,9 @@ export default function StudentApp() {
           seenInTopicLabel: topicLabel(topicId),
           lineText: question?.lines[outcome.lineIndex]?.text ?? '',
           reason: result.reasons[outcome.lineIndex],
+          // The student's own explanation, when they wrote one. PracticeLoop
+          // collected these and nothing ever read them.
+          note: result.notes[outcome.lineIndex],
           at: 'just now',
         })
       }

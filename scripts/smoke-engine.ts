@@ -15,6 +15,7 @@ import { sessionXp, totalXp, needsRelesson, masteryBand } from '../src/data/xp.t
 import { suggestedOrder, orderWarnings, missingPrereqs } from '../src/data/basket.ts'
 import { exportProfile, importProfile, importSummary } from '../src/data/transfer.ts'
 import { gradable, mintQuestions } from '../src/data/teacherProblemSets.ts'
+import { studentIdForName } from '../src/data/profile.ts'
 import { contentMeta, drawBalanced, prereqsOf, questionsForTopic, tiersOfferedForTopic } from '../src/content/index.ts'
 import type { TopicId } from '../src/content/index.ts'
 
@@ -401,6 +402,37 @@ console.log('\nauthoring · a set built in the teacher view can actually be mark
   // What must never happen is it being counted as automatically marked.
   check('a hand-typed question is not treated as markable',
     !gradable({ topic: 'Fractions', q: 'Explain your method.', hint: '' }))
+}
+
+// ---------------------------------------------------------------------------
+console.log('\nroster · a student added on the setup screen is a real student')
+// ---------------------------------------------------------------------------
+{
+  // Adding a student used to append a display name to a local string array that
+  // nothing else read: they never reached the class dashboard, the drill-down,
+  // or the range of any homework. Enrolment now mints a real id for them, and
+  // ids are semantic and permanent everywhere in this codebase - so a new
+  // student joins the same lowercase-first-name scheme as the seeded cohort
+  // rather than getting an opaque counter.
+  const none = () => false
+  check('a new student gets their first name as an id',
+    studentIdForName('Maya Kumar', none) === 'maya', studentIdForName('Maya Kumar', none))
+  check('the id is a legal id even from an awkward name',
+    /^[a-z0-9]+$/.test(studentIdForName("O'Brien-Smith, Áine", none)), studentIdForName("O'Brien-Smith, Áine", none))
+  check('a name with no usable letters still yields an id',
+    studentIdForName('!!!', none) === 'student', studentIdForName('!!!', none))
+
+  // Two students called Maya must not become one student.
+  const taken = new Set(['maya'])
+  const second = studentIdForName('Maya Patel', (id) => taken.has(id))
+  check('a clashing first name is suffixed, never reused', second === 'maya2', second)
+  taken.add(second)
+  check('a third clash keeps counting', studentIdForName('Maya Ellis', (id) => taken.has(id)) === 'maya3')
+
+  // The seeded cohort must keep the ids the content store already uses for
+  // them, or every profile, activity log and node-state overlay stops resolving.
+  check('a seeded student keeps the id content already knows them by',
+    studentIdForName('Aisha Bello', none) === 'aisha')
 }
 
 // ---------------------------------------------------------------------------

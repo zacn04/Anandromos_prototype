@@ -72,6 +72,76 @@ export function setStudentName(studentId: string, name: string): void {
   notify()
 }
 
+// ---------------------------------------------------------------------------
+// enrolment — which class a student belongs to
+// ---------------------------------------------------------------------------
+// The content store answers this for the seeded cohort (`studentProfile(id).classId`),
+// and could not answer it at all for a student added on the setup screen: they
+// went into a local `suRoster` string array and were never seen again - not on
+// the class dashboard, not in the drill-down, not assignable homework. This
+// overlay is what makes an added student a real one.
+
+const ENROLMENT_KEY = 'enrolment'
+
+/** studentId → classId, for students enrolled in this browser rather than seeded from content. */
+let enrolment: Record<string, string> | null = null
+
+function enrolments(): Record<string, string> {
+  if (enrolment === null) {
+    const persisted = load<Record<string, string> | null>(ENROLMENT_KEY, null)
+    enrolment = persisted && typeof persisted === 'object' ? persisted : {}
+  }
+  return enrolment
+}
+
+/**
+ * The class this student was enrolled into here, or null to fall back to
+ * whatever the content store says. Never guesses.
+ */
+export function enrolledClassOf(studentId: string): string | null {
+  return enrolments()[studentId] ?? null
+}
+
+/** Puts a student in a class, and returns the id they were enrolled under. */
+export function enrolStudent(studentId: string, classId: string): void {
+  const current = enrolments()
+  if (current[studentId] === classId) return
+  enrolment = { ...current, [studentId]: classId }
+  save(ENROLMENT_KEY, enrolment)
+  version++
+  notify()
+}
+
+/** Removes a student from every class they were enrolled into here. Content-seeded students are unaffected. */
+export function unenrolStudent(studentId: string): void {
+  const current = enrolments()
+  if (!(studentId in current)) return
+  const next = { ...current }
+  delete next[studentId]
+  enrolment = next
+  save(ENROLMENT_KEY, enrolment)
+  version++
+  notify()
+}
+
+/**
+ * A stable student id for a typed-in name: the lowercased first name, with a
+ * numeric suffix if that id is already taken.
+ *
+ * Ids are semantic and permanent everywhere else in this codebase, and the
+ * seeded cohort already uses lowercase first names ('aisha', 'daniel'), so a
+ * new student joins the same scheme rather than getting a `s1`-style counter.
+ */
+export function studentIdForName(name: string, taken: (id: string) => boolean): string {
+  const base = name.trim().toLowerCase().split(/\s+/)[0].replace(/[^a-z0-9]/g, '') || 'student'
+  if (!taken(base)) return base
+  for (let n = 2; n < 1000; n++) {
+    const candidate = `${base}${n}`
+    if (!taken(candidate)) return candidate
+  }
+  return `${base}${Date.now()}`
+}
+
 /** Registers a change listener. Returns the unsubscribe, as `useSyncExternalStore` requires. */
 export function subscribeToNames(listener: () => void): () => void {
   listeners.add(listener)
