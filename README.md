@@ -29,21 +29,23 @@ npm run dev      # app + local backend on http://localhost:5173
 | `npm run preview` | serve the production build (backend included) |
 | `npm run lint` | oxlint |
 | `npm run validate:content` | structural checks over `content/` (see below) |
-| `npm run smoke:engine` | 54 behavioural checks: scheduler, cross-topic credit, XP, transfer |
-| `npm run smoke:template` | 46 checks incl. 900 draws verified mathematically correct |
+| `npm run smoke:engine` | 92 behavioural checks: scheduler, cross-topic credit, XP, transfer, homework marking, roster |
+| `npm run smoke:template` | 1,009 checks incl. every template instantiated and verified mathematically correct |
 | `npm run server` | run the local backend standalone |
 | `npm run generate:questions` | offline template generation (dry-run unless `--confirm`) |
 
 ## Points of view
 
 The landing page (`/`) links to the POVs, each a self-contained flow over shared sample data
-(Aisha Bello, class 8M2, Year 7–9 maths):
+(class 8M2, Year 7–9 maths). The demo student is seeded as Aisha Bello, but **a student names
+themselves** — the greeting on Home is editable, and the name flows into the teacher's class
+list, the parent's header and the landing page. No copy assumes a gender.
 
 | Route | Audience | What's there |
 | --- | --- | --- |
-| `/teacher` | Ms. Okafor | Class dashboard, **cross-topic gaps** as students hit them, "Address in person" to-do list, student drill-down (pace, difficulty-weighted mastery, both knowledge graphs, frontier, activity log), Oversight queue, class setup with a **suggested teaching order**, transferable-profile export, and a live preview of the student practice view. |
-| `/student` | Aisha | Home driven by the **live due queue**, the pre-lesson brief, the diagnostic practice loop, problem sets, **unlimited** free play, My map, Sessions, and Progress with live mastery and XP. |
-| `/parent` | Aisha's parent | Read-only: where she's growing, where she got stuck **and why — never the mark**, what's coming up, and her map. |
+| `/teacher` | Ms. Okafor | Class dashboard, **cross-topic gaps** as students hit them (including the student's own words), "Address in person" to-do list, student drill-down (pace, difficulty-weighted mastery, both knowledge graphs, frontier, activity log), Oversight queue, class setup that **really enrols students**, a homework builder that draws from the question bank, a **suggested teaching order**, transferable-profile export, and a preview of that student's practice view. |
+| `/student` | the demo student | Home driven by the **live due queue**, the pre-lesson brief, the diagnostic practice loop, homework that is marked on submission, **unlimited** free play, My map, Sessions, and Progress with live mastery and XP. |
+| `/parent` | their parent | Read-only: where they're growing, where they got stuck **and why — never the mark**, what's coming up, and their map. |
 
 The practice loop — the heart of the product — is shared between the student POV and the
 teacher's preview: **solve** (final answer only, notation palette, optional handwriting upload)
@@ -51,7 +53,9 @@ teacher's preview: **solve** (final answer only, notation palette, optional hand
 (one pass per flagged line: slip / silly mistake / too hard / haven't learned it / "Other")
 → **re-teach** (one scoped card per flagged line, from quick reminder to full walk-back).
 
-Every flagged line also feeds the engine: see *Cross-topic credit* below.
+Every flagged line also feeds the engine: see *Cross-topic credit* below. Anything typed under
+"Other" is the only unprompted thing in the whole diagnosis, so it is carried through to the
+teacher verbatim, under *In their words*.
 
 ## Architecture
 
@@ -78,13 +82,37 @@ dashboard.
 ### Question templates
 
 A template stores `{a}x − {b} = {a*x - b}` with constraints instead of the frozen instance
-`3x − 7 = 11`, and instantiates to an ordinary `Question`. Three hand-authored templates yield
-**7,691 distinct questions**, so practice on a templated subtopic never repeats and marginal
-cost per student is genuinely zero.
+`3x − 7 = 11`, and instantiates to an ordinary `Question`. **244 templates** across all four
+strands span a parameter space of **over 1.3 million** draws, so practice on a templated
+subtopic never repeats and marginal cost per student is genuinely zero. Every one of the 39
+topics has questions and a lesson; nothing in the demo dead-ends.
 
 Templates plug into the existing `QuestionBank` interface, so no call site knows they exist.
 Expressions are evaluated by a hand-written parser — never `eval` — because template content is
 generated data, and data must not become executable.
+
+### Everything that collects input writes to the engine
+
+Mastery only means something if every surface that takes a student's answer records it. That is
+one rule with no exceptions, and each of these is a place it was once broken:
+
+- **Homework is marked on submission**, per question, against the bank — which is what lets a
+  finished set unlock the set gated behind it. A set built by a teacher pulls from the bank so it
+  is markable; questions they type by hand have no answer key and are routed to them for marking
+  rather than guessed at (`gradable`).
+- **Draws are balanced across difficulty tiers.** The bank is grouped by tier, so taking a prefix
+  can hand back twelve `core` questions and leave `stretch` at zero — which mastery averages over
+  and can therefore never clear. `drawBalanced` round-robins the tiers a topic offers.
+- **Mastery is judged against the tiers a topic actually offers.** Averaging over all three for a
+  topic whose bank spans one made it unmasterable by construction. Every surface that displays a
+  percentage calls the same `masteryAverage`, so the bar a student reads and the bar the gate uses
+  cannot drift apart.
+- **Every session is logged** — lesson, review, homework and free play alike — to the student's
+  Sessions list, the teacher's activity log and the parent view.
+- **A set is marked once.** Handing it in again never re-banks its evidence.
+
+`scripts/smoke-engine.ts` asserts the whole chain end to end against the real demo student,
+including that a set answered *wrong* unlocks nothing.
 
 ### Local backend
 
@@ -108,8 +136,7 @@ Single-tenant, no auth. Right for a local demo; a real pilot needs per-user sepa
 - **Line-prerequisite ancestry** — every tag must be a genuine ancestor of the question's subtopic
 
 `scripts/validate-fixtures.sh` runs six deliberately-broken fixtures to prove each check can
-actually fail. These run identically on the 78-subtopic seed graph and on a generated 8,000-node
-one.
+actually fail. These run identically on the 241-subtopic graph and on a generated 8,000-node one.
 
 ## Project layout
 
@@ -131,18 +158,25 @@ src/
     store.ts, accessors.ts synchronous read surface
     bank.ts                QuestionBank, incl. template expansion
     template.ts            parameterised questions + expression evaluator
+    answer.ts              the one definition of answer equality
     validate.ts            shared predicates (browser + CLI)
   data/                    logic only — no content
     engine.ts              mastery, spaced repetition, cross-topic credit
     schedule.ts            due queue: priority bands + daily cap
+    students.ts            every student's live engine state, one store
+    profile.ts             what a student is called, and which class they are in
     xp.ts                  XP as effort; re-lesson trigger reads mastery, not XP
     routing.ts             reason-coded routing after a wrong answer
     reteach.ts             re-teach card selection
     basket.ts              topological teaching order + prerequisite warnings
+    teacherProblemSets.ts  authored homework + drawing a markable set from the bank
     transfer.ts            portable student profiles, stamped with graph version
     persist.ts             durable state; server-backed, localStorage fallback
     liveGaps.ts            cross-topic gaps, student POV → teacher POV
-  components/              PracticeLoop, LessonSession, ReviewSession, PreLessonBrief, …
+    liveSessions.ts        finished sessions, student POV → teacher and parent POVs
+    liveOversight.ts       session-detected flags, student POV → teacher POV
+  components/              PracticeLoop, LessonSession, ReviewSession, DiagnosticTest,
+                           PreLessonBrief, TeachingCard, GraphSvg, NodeInfoCard
   teacher/ student/ parent/ admin/   the POVs
 
 server/                    local backend (store / api / standalone runner)
@@ -178,6 +212,11 @@ render, breaches its own constraints, or produces a distractor equal to the corr
 ## Status
 
 See [`docs/build-plan.md`](docs/build-plan.md) for phases, costs and what comes next. In short:
-Phase 0 (content store) and the Number-strand seed graph are done; the engine, templates and
-local backend are built and wired; the full graph and question bank are pending and cost
-roughly $200 and low tens of dollars respectively.
+the content store, the four-strand graph (39 topics, 241 subtopics, 357 prerequisite edges), the
+engine, the templates and the local backend are all built and wired. Every topic has a lesson and
+a question bank, and every surface that takes a student's answer records it, so no path in the
+demo dead-ends in "not built out yet".
+
+The whole thing runs on zero recurring spend: templates are authored once and instantiate for
+free, so the marginal cost of another student, or another year of practice, is nothing.
+Generation is an optional CLI you point at a budget when you want more coverage.
