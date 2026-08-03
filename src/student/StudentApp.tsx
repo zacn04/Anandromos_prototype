@@ -85,7 +85,10 @@ interface StudentState {
    * reachable. `pathPrefixDone()` derives the old-style "N of 6 done"
    * sequential count from this whenever that's what's wanted.
    */
-  pathCompleted: number[]
+  /** Queue-item ids already completed. Was positional indices, which broke
+   * the moment the path became derived: a completed item leaves the queue, the
+   * next one inherits its index, and rendered as 'Done' without being done. */
+  pathCompleted: string[]
   /** "Speed through lessons" toggle (Home, near "Your path") - see isPathItemLocked(). */
   speedMode: boolean
   fpTopic: string | null
@@ -94,7 +97,8 @@ interface StudentState {
   practiceMode: PracticeMode | null
   practiceTopic: string | null
   /** Which path index is in progress, so its completion callback knows what to mark done. */
-  activePathIdx: number | null
+  /** Queue-item id in progress, so its completion callback knows what to mark. */
+  activePathId: string | null
   /** Which problem set (see buildProblemSets - school-set or teacher-authored) is open in `psolve`; null until a card is opened. */
   activePsId: string | null
   psIdx: number
@@ -142,6 +146,8 @@ const logFlag = (f: string): CSSProperties =>
  * the student's path never responded to anything they actually did.
  */
 interface PathItem {
+  /** The queue item's stable id — what completion is recorded against. */
+  id: string
   kind: 'Lesson' | 'Review'
   subtopic: string
   detail: string
@@ -164,6 +170,7 @@ function derivePath(queue: readonly QueueItem[]): PathItem[] {
       const isReview = it.kind === 'review'
       const has = it.topicId ? questionsForTopic(it.topicId).length > 0 : false
       return {
+        id: it.id,
         kind: isReview ? 'Review' : 'Lesson',
         subtopic: it.label,
         detail: isReview
@@ -507,14 +514,14 @@ const INITIAL: StudentState = {
   screen: 'sdiagnostic',
   diagnosticDone: false,
   smapView: 'focused',
-  pathCompleted: [0, 1],
+  pathCompleted: [],
   speedMode: false,
   fpTopic: null,
   fpLabel: null,
   fpProblemIdx: 0,
   practiceMode: null,
   practiceTopic: null,
-  activePathIdx: null,
+  activePathId: null,
   activePsId: null,
   psIdx: 0,
   psAnswers: {},
@@ -795,7 +802,7 @@ export default function StudentApp() {
     const mode: PracticeMode = !topicId ? 'unavailable' : it.kind === 'Review' ? 'review' : 'lesson'
     setState({
       screen: 'practice',
-      activePathIdx: i,
+      activePathId: it.id,
       practiceMode: mode,
       practiceTopic: topicId ?? null,
       fpLabel: null,
@@ -811,7 +818,7 @@ export default function StudentApp() {
     const playable = topic.questions > 0
     setState({
       screen: 'practice',
-      activePathIdx: null,
+      activePathId: null,
       practiceMode: playable ? 'freeplay' : 'unavailable',
       practiceTopic: playable ? topic.id : null,
       fpLabel: topic.name,
@@ -828,18 +835,18 @@ export default function StudentApp() {
   const completePathItem = () =>
     setState((st) => ({
       screen: 'shome',
-      pathCompleted: st.activePathIdx !== null && !st.pathCompleted.includes(st.activePathIdx)
-        ? [...st.pathCompleted, st.activePathIdx]
+      pathCompleted: st.activePathId !== null && !st.pathCompleted.includes(st.activePathId)
+        ? [...st.pathCompleted, st.activePathId]
         : st.pathCompleted,
-      activePathIdx: null,
+      activePathId: null,
       practiceMode: null,
       practiceTopic: null,
     }))
 
   /** The old-style "N of 6 done" sequential count: the length of the unbroken done-prefix from index 0, so speed-running a later item never inflates this past the earliest still-undone one. */
-  const pathPrefixDone = (completed: number[]): number => {
+  const pathPrefixDone = (items: PathItem[], completed: string[]): number => {
     let n = 0
-    while (completed.includes(n)) n++
+    while (n < items.length && completed.includes(items[n].id)) n++
     return n
   }
 
@@ -863,7 +870,7 @@ export default function StudentApp() {
    * reading as full completion once it's lifted.
    */
   const isPathItemLocked = (i: number): boolean =>
-    !s.speedMode && path.some((it, j) => j < i && isGatingReview(it) && !s.pathCompleted.includes(j))
+    !s.speedMode && path.some((it, j) => j < i && isGatingReview(it) && !s.pathCompleted.includes(it.id))
 
   /**
    * Reviews that got jumped over via speed mode: incomplete, but earlier
@@ -875,9 +882,11 @@ export default function StudentApp() {
    * like 'Negatives' can't sit here forever as a pending count that can never
    * be cleared.
    */
-  const highestPathCompletedIdx = s.pathCompleted.length ? Math.max(...s.pathCompleted) : -1
+  // Reviews jumped over via speed mode: still in the queue, still incomplete,
+  // but sitting above something already done.
+  const highestDoneIdx = path.reduce((m, it, i) => (s.pathCompleted.includes(it.id) ? i : m), -1)
   const pendingReviews = path.filter(
-    (it, i) => isGatingReview(it) && i < highestPathCompletedIdx && !s.pathCompleted.includes(i),
+    (it, i) => isGatingReview(it) && i < highestDoneIdx && !s.pathCompleted.includes(it.id),
   )
 
   // One-time diagnostic/placement test, shown in place of Home until it's done - see
@@ -898,7 +907,7 @@ export default function StudentApp() {
       setState({
         screen: s.fpLabel ? 'fptopic' : 'shome',
         fpLabel: null,
-        activePathIdx: null,
+        activePathId: null,
         practiceMode: null,
         practiceTopic: null,
       })
@@ -967,7 +976,7 @@ export default function StudentApp() {
     }
 
     // practiceMode === 'unavailable' - honest placeholder rather than mismatched content
-    const unavailableLabel = s.fpLabel || (s.activePathIdx != null ? path[s.activePathIdx].subtopic : 'this subtopic')
+    const unavailableLabel = s.fpLabel || (s.activePathId != null ? (path.find((it) => it.id === s.activePathId)?.subtopic ?? 'this subtopic') : 'this subtopic')
     return (
       <div style={{ minHeight: '100vh', background: '#f6f1e7', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <div style={{ width: '100%', background: '#0e2a43', color: '#dbe6ef', padding: '11px 22px' }}>
@@ -1119,7 +1128,7 @@ export default function StudentApp() {
             {/* your path: lessons + reviews */}
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 4, flexWrap: 'wrap' }}>
               <h2 style={{ fontFamily: FONT_SERIF, fontSize: 19, fontWeight: 600, margin: 0, color: '#0e2a43' }}>Your path</h2>
-              <span style={{ fontFamily: FONT_MONO, fontSize: 12, color: '#8a7c63' }}>{pathPrefixDone(s.pathCompleted)} of {path.length} done</span>
+              <span style={{ fontFamily: FONT_MONO, fontSize: 12, color: '#8a7c63' }}>{pathPrefixDone(path, s.pathCompleted)} of {path.length} done</span>
               {pendingReviews.length > 0 && (
                 <span style={{ fontFamily: FONT_MONO, fontSize: 12, color: '#b6531f' }}>
                   · {pendingReviews.length} review{pendingReviews.length === 1 ? '' : 's'} pending
@@ -1139,9 +1148,9 @@ export default function StudentApp() {
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
               {path.map((it, i) => {
-                const complete = s.pathCompleted.includes(i)
+                const complete = s.pathCompleted.includes(it.id)
                 const locked = isPathItemLocked(i)
-                const isNext = !complete && i === pathPrefixDone(s.pathCompleted)
+                const isNext = !complete && i === pathPrefixDone(path, s.pathCompleted)
                 const isReview = it.kind === 'Review'
                 return (
                   <div

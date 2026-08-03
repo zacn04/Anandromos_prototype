@@ -97,6 +97,45 @@ console.log('\nschedule · daily cap and problem sets')
 }
 
 // ---------------------------------------------------------------------------
+console.log('\nschedule · finishing something actually changes the queue')
+// ---------------------------------------------------------------------------
+{
+  // Regression: buildQueue used to push a frontier topic as a lesson with no
+  // due-date check. `status` stays 'frontier' until mastery crosses the
+  // promotion threshold, so finishing a lesson put the identical row straight
+  // back at the top of the path — "I finished it and nothing changed".
+  const state: EngineState = {
+    nodes: {
+      'alg.linear': { status: 'frontier', last: '', next: '', reps: 0, dueAt: NOW },
+    },
+    masteryByTopic: { 'alg.linear': { foundations: 0.9, core: 0.9, stretch: 0.9 } },
+  }
+
+  const before = buildQueue(state, { now: NOW })
+  check('an unattempted frontier topic is offered as a lesson',
+    before.items[0]?.kind === 'lesson', before.items[0]?.kind)
+
+  const after = recordAttempt(state, { topicId: 'alg.linear', difficulty: 'core', correct: true }, NOW)
+  const q = buildQueue(after, { now: NOW })
+  check('after attempting it, the lesson is no longer queued',
+    !q.items.some((i) => i.id === 'lesson:alg.linear'),
+    q.items.map((i) => i.id).join(', '))
+  check('and it is not immediately due as a review either',
+    !q.items.some((i) => i.id === 'review:alg.linear'),
+    q.items.map((i) => i.id).join(', '))
+
+  // But a student whose mastery has decayed IS sent back to the lesson
+  // (build-plan §3.3), rather than made to keep failing reviews.
+  const decayed: EngineState = {
+    nodes: { 'alg.linear': { status: 'frontier', last: '', next: '', reps: 9, dueAt: NOW } },
+    masteryByTopic: { 'alg.linear': { foundations: 0.2, core: 0.1, stretch: 0 } },
+  }
+  check('weak mastery re-offers the lesson even with reps banked',
+    buildQueue(decayed, { now: NOW }).items[0]?.kind === 'lesson',
+    buildQueue(decayed, { now: NOW }).items[0]?.kind)
+}
+
+// ---------------------------------------------------------------------------
 console.log('\nengine · cross-topic credit')
 // ---------------------------------------------------------------------------
 {

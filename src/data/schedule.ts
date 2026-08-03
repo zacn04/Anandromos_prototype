@@ -22,6 +22,7 @@
 import type { TopicId } from '../content'
 import { lessonForTopic, topicLabel } from '../content'
 import { dueInDays } from './engine'
+import { needsRelesson } from './xp'
 import type { EngineState } from './engine'
 
 /** How many items a student is shown in one sitting. The rest wait for tomorrow. */
@@ -101,9 +102,24 @@ export function buildQueue(state: EngineState, opts: BuildQueueOptions = {}): Qu
     const node = state.nodes[topicId]
     const due = dueInDays(node, now)
 
-    // Frontier topics are the ready-to-learn edge of the graph: a lesson, not a
-    // review, because there is nothing yet to review.
-    if (node.status === 'frontier') {
+    // A frontier topic is the ready-to-learn edge of the graph — but only
+    // counts as a LESSON until the student has actually attempted it. After
+    // that there is something to review, so it falls through to the review
+    // branch and obeys the spaced-repetition schedule like everything else.
+    //
+    // Without the `reps === 0` guard this branch queued a lesson
+    // unconditionally: `status` stays 'frontier' until mastery crosses the
+    // promotion threshold, and the branch ignored the due date, so finishing a
+    // lesson put the identical row straight back at the top of the student's
+    // path. From the student's side that reads as "I finished it and nothing
+    // changed", which is exactly the demoralising dead end the design brief
+    // says to avoid.
+    // The second half of the rule is build-plan §3.3: a student whose mastery
+    // has decayed past the re-lesson threshold is sent back to the lesson
+    // rather than made to keep failing reviews. `needsRelesson` reads
+    // difficulty-weighted mastery, never XP, for the reason given in xp.ts.
+    const relearn = needsRelesson(state.masteryByTopic[topicId])
+    if (node.status === 'frontier' && (node.reps === 0 || relearn)) {
       // Only queue a lesson we can actually deliver.
       if (!lessonForTopic(topicId)) continue
       items.push({
