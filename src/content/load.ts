@@ -475,8 +475,8 @@ function assertContentBundle(bundle: RawContentBundle): void {
   eachRow('activity-log.json', core.activityLogs, bad, (row, at) => {
     if (!isNonEmptyString(row.studentId)) bad(at, '`studentId` must be a non-empty id')
     eachRow(`${at}.activities`, row.activities, bad, (activity, activityAt) => {
-      if (!oneOf(activity.kind, ['Review', 'Problem set', 'Lesson'] as const)) {
-        bad(activityAt, '`kind` must be one of Review | Problem set | Lesson')
+      if (!oneOf(activity.kind, ['Review', 'Problem set', 'Lesson', 'Free play'] as const)) {
+        bad(activityAt, '`kind` must be one of Review | Problem set | Lesson | Free play')
       }
       if (!isString(activity.date)) bad(activityAt, '`date` must be a string')
       if (!isString(activity.title)) bad(activityAt, '`title` must be a string')

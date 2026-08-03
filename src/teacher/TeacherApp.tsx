@@ -36,7 +36,8 @@ import { engineFor, setEngineFor, useEngineVersion, useKnownStudentIds } from '.
 import type { EngineState } from '../data/students'
 import type { TierMastery } from '../data/engine'
 import { getLiveSessions } from '../data/liveSessions'
-import { addProblemSet, getProblemSets } from '../data/teacherProblemSets'
+import { studentName, useStudentName } from '../data/profile'
+import { addProblemSet, getProblemSets, gradable, mintQuestions } from '../data/teacherProblemSets'
 import type { AuthoredQuestion } from '../data/teacherProblemSets'
 import { FONT_MONO, FONT_SERIF, NODE_STYLE, OVERSIGHT_KIND_META } from '../theme'
 
@@ -294,7 +295,16 @@ const ROSTER_NAMES: Record<string, string> = {
   nina: 'Nina Petrov',
 }
 
-const displayName = (id: string): string => ROSTER_NAMES[id] ?? id.charAt(0).toUpperCase() + id.slice(1)
+/**
+ * A student renaming themselves in their own view (data/profile.ts) wins here:
+ * the teacher's class list should call them what they call themselves. Falls
+ * back to this file's roster surnames, then to the capitalised id.
+ */
+const displayName = (id: string): string => {
+  const chosen = studentName(id)
+  if (chosen !== id) return chosen
+  return ROSTER_NAMES[id] ?? id.charAt(0).toUpperCase() + id.slice(1)
+}
 
 // ---- tuning ---------------------------------------------------------------
 /** Attempts before a tier profile is evidence rather than a topic just opened. */
@@ -847,6 +857,9 @@ export default function TeacherApp() {
   // value — see `data/students.ts`, which documents exactly this pattern for a
   // screen that needs many students rather than one.
   useEngineVersion()
+  // Same idea for names: called for the subscription, so a student renaming
+  // themselves redraws this class list. Any id subscribes to the whole store.
+  useStudentName('aisha')
   const knownIds = useKnownStudentIds()
 
   // Ms. Okafor's classes, from content. Only 8M2 has student state behind it —
@@ -1118,7 +1131,7 @@ export default function TeacherApp() {
 
   // ---- log detail (shared with oversight "Go to the question") ----
   // Live Lesson/Review sessions (data/liveSessions.ts) only ever come from StudentApp, which is
-  // always Aisha - so they're only merged in for her, ahead of her static sample history. Same
+  // always Aisha - so they're only merged in for them, ahead of their static sample history. Same
   // merge-live-in pattern as ovList's getLiveFlags() below.
   const studentLog =
     s.selectedStudentId === 'aisha' ? [...getLiveSessions(), ...activityLogFor('aisha')] : activityLogFor(s.selectedStudentId)
@@ -1172,6 +1185,32 @@ export default function TeacherApp() {
       hwQText: '',
       hwQHint: '',
     }))
+  }
+
+  /**
+   * Fills the set from the question bank, balanced across the topics ticked
+   * above and across each topic's difficulty tiers.
+   *
+   * This is what makes a teacher-built set actually count. A hand-typed
+   * question has no answer key, so StudentApp can't mark it and records nothing
+   * against it - the student finishes the homework and their mastery, their
+   * schedule, and anything gated behind those topics all stay exactly where
+   * they were. Bank questions carry their id and answer, so submitting the set
+   * moves the same mastery a lesson would.
+   *
+   * Duplicates are skipped rather than deduped after the fact: pressing this
+   * twice should top a set up, not silently serve the same question again.
+   */
+  const addHwFromBank = (count: number) => {
+    const topicIds = hwSelectedTopics.map((t) => t.id)
+    if (topicIds.length === 0) return
+    setState((st) => {
+      const already = new Set(st.hwQuestions.map((q) => q.questionId).filter(Boolean))
+      // Over-draw, then keep the first `count` we haven't already got, so a
+      // partially-exhausted topic still contributes what it has left.
+      const fresh = mintQuestions(topicIds, count + already.size).filter((q) => !already.has(q.questionId))
+      return { hwQuestions: [...st.hwQuestions, ...fresh.slice(0, count)] }
+    })
   }
   const removeHwQuestion = (idx: number) => setState((st) => ({ hwQuestions: st.hwQuestions.filter((_, i) => i !== idx) }))
 
@@ -2082,7 +2121,7 @@ export default function TeacherApp() {
                           <div style={{ fontSize: 12.5, color: '#5c6773', marginTop: 4, textWrap: 'pretty' }}>{it.note}</div>
                           {isOpen && (
                             <div style={{ marginTop: 12, background: '#fff', border: '1px solid #e4dccb', borderRadius: 10, padding: '14px 16px' }}>
-                              <div style={monoCap({ fontSize: 10, marginBottom: 8 })}>Her full working — flagged lines highlighted</div>
+                              <div style={monoCap({ fontSize: 10, marginBottom: 8 })}>{selectedRoster.name.split(' ')[0]}'s full working — flagged lines highlighted</div>
                               <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                                 {(it.work || []).map((tex, li) => {
                                   const wrong = (it.wrong || []).includes(li)
@@ -2141,7 +2180,7 @@ export default function TeacherApp() {
                         </div>
                       </div>
                       <p style={{ margin: '10px 0 0', fontSize: 11.5, lineHeight: 1.5, color: '#8a7c63', textWrap: 'pretty' }}>
-                        She uploaded this for reference. It isn't read by the AI or used in the diagnosis - it's here so you can confirm the working was done by hand.
+                        They uploaded this for reference. It isn't read by the AI or used in the diagnosis - it's here so you can confirm the working was done by hand.
                       </p>
                     </>
                   ) : (
@@ -2579,6 +2618,26 @@ export default function TeacherApp() {
                   <p style={{ margin: 0, fontSize: 13, color: '#8a7c63' }}>Pick at least one topic above first.</p>
                 ) : (
                   <>
+                    <div style={{ background: '#eef3f7', border: '1px solid #d3e0ea', borderRadius: 10, padding: '14px 16px', marginBottom: 18 }}>
+                      <div style={{ fontSize: 13.5, fontWeight: 600, color: '#0e2a43', marginBottom: 4 }}>Pull from the question bank</div>
+                      <p style={{ margin: '0 0 11px', fontSize: 12.5, lineHeight: 1.55, color: '#2b4a63', maxWidth: 560, textWrap: 'pretty' }}>
+                        Balanced across the topics you ticked and across each one's difficulty tiers. These are marked
+                        automatically when the student submits, so the set moves their mastery. Questions you type
+                        yourself come back to you for marking instead.
+                      </p>
+                      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                        {[4, 8, 12].map((n) => (
+                          <button
+                            key={n}
+                            onClick={() => addHwFromBank(n)}
+                            style={{ background: '#1f4e75', color: '#fff', border: 'none', borderRadius: 8, padding: '9px 15px', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
+                          >
+                            + Add {n} questions
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div style={{ ...monoCap({ marginBottom: 10 }) }}>Or write your own</div>
                     <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: 10, marginBottom: 10, alignItems: 'start' }}>
                       <div>
                         <label style={{ display: 'block', ...monoCap({ marginBottom: 7 }) }}>Topic</label>
@@ -2631,6 +2690,10 @@ export default function TeacherApp() {
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ fontSize: 13.5, color: '#1a2129', textWrap: 'pretty' }}>{qq.q}</div>
                           {!!qq.hint && <div style={{ fontSize: 12, color: '#8a7c63', marginTop: 2, textWrap: 'pretty' }}>Hint: {qq.hint}</div>}
+                          {/* Says plainly which questions will move mastery on their own and which are coming back to you - the difference decides whether this set counts for anything downstream. */}
+                          <div style={{ fontSize: 11.5, color: gradable(qq) ? '#2f6b46' : '#8a7c63', marginTop: 3 }}>
+                            {gradable(qq) ? '✓ Marked automatically' : 'You mark this one'}
+                          </div>
                         </div>
                         <button
                           onClick={() => removeHwQuestion(i)}
@@ -2662,7 +2725,7 @@ export default function TeacherApp() {
                   <span style={{ fontFamily: FONT_MONO, fontSize: 12, color: '#8a7c63' }}>{createdProblemSets.length}</span>
                 </div>
                 <p style={{ margin: '0 0 14px', fontSize: 13, lineHeight: 1.5, color: '#5c6773', maxWidth: 560, textWrap: 'pretty' }}>
-                  Visible on Aisha's Home screen the next time she opens it - this list doesn't live-sync into an
+                  Visible on {displayName('aisha')}'s Home screen the next time they open it - this list doesn't live-sync into an
                   already-open student view.
                 </p>
                 {createdProblemSets.length === 0 ? (

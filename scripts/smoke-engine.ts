@@ -14,6 +14,7 @@ import { buildQueue, dueLabel, DAILY_ITEM_CAP } from '../src/data/schedule.ts'
 import { sessionXp, totalXp, needsRelesson, masteryBand } from '../src/data/xp.ts'
 import { suggestedOrder, orderWarnings, missingPrereqs } from '../src/data/basket.ts'
 import { exportProfile, importProfile, importSummary } from '../src/data/transfer.ts'
+import { gradable, mintQuestions } from '../src/data/teacherProblemSets.ts'
 import { contentMeta, drawBalanced, prereqsOf, questionsForTopic, tiersOfferedForTopic } from '../src/content/index.ts'
 import type { TopicId } from '../src/content/index.ts'
 
@@ -366,6 +367,40 @@ console.log('\nhomework · a finished set moves mastery and opens what is gated 
   // The gate has to be earned: getting the same set wrong must not open it.
   const wrong = submit(before, false, 8)
   check('a set answered wrong does not unlock anything', unmet(wrong).length > 0)
+}
+
+// ---------------------------------------------------------------------------
+console.log('\nauthoring · a set built in the teacher view can actually be marked')
+// ---------------------------------------------------------------------------
+{
+  // The teacher's builder used to produce only hand-typed {topic, q, hint}
+  // questions, which carry no answer key: the teacher assigned homework, the
+  // student finished it, and `markProblemSet` skipped every question because
+  // none was gradable. Nothing moved. `mintQuestions` is the fix, and it is
+  // shared by both apps so neither can drift back.
+  const TOPICS: readonly TopicId[] = ['num.fractions', 'num.fractions-to-percent']
+
+  const minted = mintQuestions(TOPICS, 8)
+  check('a set pulled from the bank fills to the size asked for', minted.length === 8, `got ${minted.length}`)
+  check('every question pulled from the bank can be marked', minted.every(gradable),
+    `${minted.filter((q) => !gradable(q)).length} ungradable`)
+  check('every minted question carries a non-empty answer',
+    minted.every((q) => gradable(q) && q.answer.trim().length > 0))
+  check('a minted question names a topic it was drawn for',
+    minted.every((q) => gradable(q) && TOPICS.includes(q.topicId)))
+
+  // Pressing "add from the bank" twice should top a set up, not serve the same
+  // question again - the builder filters against what it already holds.
+  const first = mintQuestions(TOPICS, 4)
+  const held = new Set(first.map((q) => q.questionId))
+  const second = mintQuestions(TOPICS, 4 + held.size).filter((q) => !held.has(q.questionId)).slice(0, 4)
+  check('a second draw adds questions the set does not already hold',
+    second.length > 0 && second.every((q) => !held.has(q.questionId)), `${second.length} fresh`)
+
+  // A hand-typed question is still legitimate - it just goes to the teacher.
+  // What must never happen is it being counted as automatically marked.
+  check('a hand-typed question is not treated as markable',
+    !gradable({ topic: 'Fractions', q: 'Explain your method.', hint: '' }))
 }
 
 // ---------------------------------------------------------------------------

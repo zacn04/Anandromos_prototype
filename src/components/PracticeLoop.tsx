@@ -6,6 +6,7 @@ import type { Question } from '../content'
 import { topicLabel } from '../content'
 import { TeachingCard } from './TeachingCard'
 import { normalizeAnswer } from '../content/answer'
+import { studentFirstName } from '../data/profile'
 
 /**
  * The diagnostic practice loop: solve (final answer only) → correct, or
@@ -336,7 +337,7 @@ export function PracticeLoop({
       {variant === 'preview' ? (
         <div style={{ width: '100%', background: '#0e2a43', color: '#dbe6ef', padding: '10px 22px', display: 'flex', alignItems: 'center', gap: 12 }}>
           <div onClick={onExit} style={{ fontSize: 12.5, color: '#9fb4c7', cursor: 'pointer' }}>{backLabel}</div>
-          <span style={{ fontSize: 12, color: '#6f8aa2', marginLeft: 'auto', fontFamily: FONT_MONO }}>Student view · Aisha · demo</span>
+          <span style={{ fontSize: 12, color: '#6f8aa2', marginLeft: 'auto', fontFamily: FONT_MONO }}>Student view · {studentFirstName('aisha')} · demo</span>
         </div>
       ) : (
         <div style={{ width: '100%', background: '#0e2a43', color: '#dbe6ef', padding: '11px 22px', display: 'flex', alignItems: 'center', gap: 12 }}>

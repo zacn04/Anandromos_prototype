@@ -1,8 +1,8 @@
 import type { LogActivity } from '../content'
 
 /**
- * Live Lesson/Review sessions Aisha has actually completed, surfaced
- * alongside the static sample history in both her own Sessions list
+ * Live Lesson/Review sessions the student has actually completed, surfaced
+ * alongside the static sample history in both their own Sessions list
  * (StudentApp.tsx) and the teacher's per-student Activity Log
  * (TeacherApp.tsx) - see components/LessonSession.tsx and
  * ReviewSession.tsx's `onSessionLogged`, fired once a session reaches its

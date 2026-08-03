@@ -368,7 +368,13 @@ export interface LogQuestion {
   why?: readonly string[]
 }
 
-export type LogKind = 'Review' | 'Problem set' | 'Lesson'
+/**
+ * 'Free play' is student-initiated practice outside the scheduled path. No
+ * authored sample uses it - it exists so StudentApp can log a free-play visit,
+ * which otherwise moved mastery while leaving no trace in the Sessions list,
+ * the teacher's activity log, or the parent view.
+ */
+export type LogKind = 'Review' | 'Problem set' | 'Lesson' | 'Free play'
 
 export interface LogActivity {
   kind: LogKind

@@ -28,7 +28,7 @@
           },
           "transferOut": {
             "prompt": "Where else have you seen something moved from one side to keep things level, flipping from adding to subtracting (or back) on the way? It could be about money, time, anything. Describe your own example in a sentence or two.",
-            "placeholder": "e.g. when I pay my brother back £5, it comes off what I owe him and gets added to what I've paid off so far..."
+            "placeholder": "e.g. when I pay a friend back £5, it comes off what I owe them and gets added to what I've paid off so far..."
           }
         },
         {
@@ -422,7 +422,7 @@
           },
           "transferOut": {
             "prompt": "Where does 'more' actually mean a smaller number — debts, temperatures, points deducted? Describe your own example.",
-            "placeholder": "e.g. my brother owes more than me, so his balance is the lower number even though he says the bigger one..."
+            "placeholder": "e.g. a friend owes more than me, so their balance is the lower number even though they say the bigger one..."
           }
         }
       ]

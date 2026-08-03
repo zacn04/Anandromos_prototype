@@ -18,8 +18,8 @@ import { questionAt, topicLabel } from '../content'
  * correct/incorrect verdict. It only ever records whether the final
  * answer was right, wrong, guessed, or left unknown, then moves straight
  * on - by design, so a placement test stays quick and low-stakes rather
- * than turning into six full re-teach cycles before Aisha has even seen
- * her own home screen.
+ * than turning into six full re-teach cycles before the student has even
+ * seen their own home screen.
  */
 
 /** Same small notation-palette pattern as PracticeLoop's solve step, kept local rather than imported since PracticeLoop doesn't export it and this component is deliberately kept separate from that file. */
