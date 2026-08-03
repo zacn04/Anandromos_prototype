@@ -5,9 +5,14 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "npm run validate:content && tsc -b && vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "validate:content": "node --no-warnings=ExperimentalWarning scripts/validate-content.ts",
+    "smoke:engine": "node scripts/run-ts.mjs scripts/smoke-engine.ts",
+    "generate:questions": "node scripts/run-ts.mjs scripts/generate-questions.ts",
+    "smoke:template": "node scripts/run-ts.mjs scripts/smoke-template.ts",
+    "server": "node server/index.mjs"
   },
   "dependencies": {
     "react": "^19.2.7",
@@ -15,6 +20,7 @@
     "react-router-dom": "^7.18.1"
   },
   "devDependencies": {
+    "@anthropic-ai/sdk": "^0.115.0",
     "@types/node": "^24.13.2",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",

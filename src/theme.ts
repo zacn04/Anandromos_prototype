@@ -1,4 +1,5 @@
 import type { CSSProperties } from 'react'
+import type { NodeStatus, NodeStyle, OversightKind, OversightKindStyle } from './content/schema'
 
 /**
  * Anadromos design tokens — nautical palette over driftwood/paper surfaces.
@@ -69,3 +70,30 @@ export const serifHeading = (fontSize: number, extra: CSSProperties = {}): CSSPr
   color: color.navy,
   ...extra,
 })
+
+// ---------------------------------------------------------------------------
+// Palettes keyed by a domain enum. Design tokens, not curriculum content, so
+// they live here rather than in `content/` — see §3.11 of
+// docs/content-schema-spec.md. Values are byte-for-byte the ones they replace.
+// ---------------------------------------------------------------------------
+
+/**
+ * Knowledge-graph node fill/stroke/text per mastery status. Was `ST` in
+ * `data/knowledgeGraph.ts` (renamed: `ST` is unreadable in a token file).
+ * Hex values are kept literal rather than re-pointed at `color.*` so the move
+ * cannot change a single rendered pixel.
+ */
+export const NODE_STYLE: Record<NodeStatus, NodeStyle> = {
+  mastered: { fill: '#1f4e75', stroke: '#1f4e75', text: '#ffffff', sw: 1.5, dash: '' },
+  inprogress: { fill: '#7fb0cd', stroke: '#3f82ab', text: '#0e2a43', sw: 1.5, dash: '' },
+  frontier: { fill: '#fdf0e6', stroke: '#dd6a2f', text: '#b6531f', sw: 2.5, dash: '' },
+  notready: { fill: '#efe7d9', stroke: '#d8cbb2', text: '#8a7c63', sw: 1.5, dash: '' },
+  locked: { fill: '#f2ede2', stroke: '#ddd2bd', text: '#a99e88', sw: 1.5, dash: '4 4' },
+}
+
+/** Badge label and colours per Oversight kind. Moved from `data/oversight.ts`. */
+export const OVERSIGHT_KIND_META: Record<OversightKind, OversightKindStyle> = {
+  uncertain: { label: 'Uncertain diagnosis', color: '#b6531f', bg: '#fbe7d8', bd: '#eecab0' },
+  gaming: { label: 'Possible gaming', color: '#b6531f', bg: '#fbe7d8', bd: '#eecab0' },
+  probe: { label: 'Worth a look', color: '#1f4e75', bg: '#e4edf3', bd: '#cddceb' },
+}

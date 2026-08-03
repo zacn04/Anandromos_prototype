@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "kind": "school-class",
+  "items": [
+    {
+      "id": "8M2",
+      "subject": "Mathematics",
+      "yearBand": "Year 8",
+      "teacherId": "teacher.okafor"
+    }
+  ]
+}

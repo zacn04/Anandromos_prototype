@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "kind": "topic-prereq-edge",
+  "items": [
+    {
+      "from": "alg.basics",
+      "to": "alg.linear",
+      "strength": 1,
+      "source": "teacher",
+      "confidence": 1
+    }
+  ]
+}

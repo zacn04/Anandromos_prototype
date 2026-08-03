@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "kind": "graph-filter",
+  "items": [
+    {
+      "id": "filter.algebra",
+      "label": "Algebra",
+      "topicIds": [
+        "alg.basics",
+        "alg.linear"
+      ]
+    }
+  ]
+}

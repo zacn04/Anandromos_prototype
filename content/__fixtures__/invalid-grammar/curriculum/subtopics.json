@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "kind": "subtopic",
+  "items": [
+    {
+      "id": "alg.basics.collect",
+      "topicId": "alg.basics",
+      "label": "Collecting like terms",
+      "yearBand": "Year 7",
+      "difficultyTier": null,
+      "boardScope": [],
+      "aliases": [],
+      "source": "teacher",
+      "reviewedAt": null,
+      "status": "verified"
+    },
+    {
+      "id": "alg.linear.cross-equals",
+      "topicId": "alg.linear",
+      "label": "Moving a term across the =",
+      "yearBand": "Year 8",
+      "difficultyTier": null,
+      "boardScope": [],
+      "aliases": [],
+      "source": "teacher",
+      "reviewedAt": null,
+      "status": "verified"
+    },
+    {
+      "id": "alg.linear.Divide_Negative",
+      "topicId": "alg.linear",
+      "label": "Dividing by a negative",
+      "yearBand": "Year 8",
+      "difficultyTier": null,
+      "boardScope": [],
+      "aliases": [],
+      "source": "teacher",
+      "reviewedAt": null,
+      "status": "draft"
+    }
+  ]
+}

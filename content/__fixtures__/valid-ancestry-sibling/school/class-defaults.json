@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "kind": "class-defaults",
+  "roster": [
+    "Aisha Bello"
+  ],
+  "basket": [
+    "alg.basics",
+    "alg.linear"
+  ]
+}

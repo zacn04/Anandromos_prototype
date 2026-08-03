@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# generated question staging + batch state
+.generate-state.json
+content/curriculum/question-templates.generated.json
+
+# local backend state
+server/data/

@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "kind": "question-template",
+  "items": [
+    {
+      "id": "alg.linear.cross-equals.t01",
+      "topicId": "alg.linear",
+      "subtopicId": "alg.linear.cross-equals",
+      "familyId": "cross-equals",
+      "difficulty": "foundations",
+      "params": [
+        { "name": "a", "min": 2, "max": 9 },
+        { "name": "b", "min": 2, "max": 20 },
+        { "name": "x", "min": 2, "max": 12 }
+      ],
+      "constraints": ["a * x - b > 0"],
+      "prompt": "Solve for x",
+      "statement": "{a}x − {b} = {a*x - b}",
+      "answerLabel": "x =",
+      "correctAnswer": "{x}",
+      "lines": [
+        { "text": "{a}x − {b} = {a*x - b}", "note": "", "prereqSubtopicIds": [] },
+        { "text": "{a}x = {a*x - b} + {b}", "note": "−{b} crosses the =, so it becomes +{b}", "prereqSubtopicIds": [] },
+        { "text": "{a}x = {a*x}", "note": "", "prereqSubtopicIds": [] },
+        { "text": "x = {x}", "note": "divide both sides by {a}", "prereqSubtopicIds": [] }
+      ],
+      "errorLineIndex": 1,
+      "distractors": [
+        { "text": "{(a*x - 2*b)/a}", "cause": "subtracted {b} again instead of flipping the sign across the =" },
+        { "text": "{a*x}", "cause": "reached {a}x = {a*x} but forgot to divide by {a}" },
+        { "text": "{x + 1}", "cause": "slipped dividing {a*x} by {a}" }
+      ],
+      "boardStyle": null,
+      "source": "ai",
+      "status": "draft"
+    },
+    {
+      "id": "alg.substitution.two-term.t01",
+      "topicId": "alg.substitution",
+      "subtopicId": "alg.substitution.two-term",
+      "familyId": "two-term-substitution",
+      "difficulty": "core",
+      "params": [
+        { "name": "p", "min": 2, "max": 9 },
+        { "name": "q", "min": 2, "max": 9 },
+        { "name": "a", "min": 2, "max": 12 },
+        { "name": "b", "min": 2, "max": 12 }
+      ],
+      "constraints": ["p != q", "a != b"],
+      "prompt": "Work out the value",
+      "statement": "a = {a} and b = {b}.  Work out {p}a + {q}b",
+      "answerLabel": "=",
+      "correctAnswer": "{p*a + q*b}",
+      "lines": [
+        { "text": "{p}a + {q}b", "note": "", "prereqSubtopicIds": [] },
+        { "text": "= {p} × {a} + {q} × {b}", "note": "substitute a = {a} and b = {b}", "prereqSubtopicIds": [] },
+        { "text": "= {p*a} + {q*b}", "note": "", "prereqSubtopicIds": [] },
+        { "text": "= {p*a + q*b}", "note": "", "prereqSubtopicIds": [] }
+      ],
+      "errorLineIndex": 1,
+      "distractors": [
+        { "text": "{p*a*q*b}", "cause": "multiplied the two terms instead of adding them" },
+        { "text": "{(p + a) + (q + b)}", "cause": "added the coefficient to the value instead of multiplying" },
+        { "text": "{p*b + q*a}", "cause": "swapped a and b when substituting" }
+      ],
+      "boardStyle": null,
+      "source": "ai",
+      "status": "draft"
+    },
+    {
+      "id": "num.fractions-to-percent.convert.t01",
+      "topicId": "num.fractions-to-percent",
+      "subtopicId": "num.fractions-to-percent.convert",
+      "familyId": "fraction-to-percent",
+      "difficulty": "core",
+      "params": [
+        { "name": "n", "min": 1, "max": 49 },
+        { "name": "d", "min": 4, "max": 50 }
+      ],
+      "constraints": ["100 % d == 0", "n < d", "gcd(n, d) == 1"],
+      "prompt": "Write as a percentage",
+      "statement": "{n}/{d}",
+      "answerLabel": "=",
+      "correctAnswer": "{n*100/d}%",
+      "lines": [
+        { "text": "{n}/{d}", "note": "", "prereqSubtopicIds": [] },
+        {
+          "text": "= {n} ÷ {d} = {n/d}",
+          "note": "divide the numerator by the denominator",
+          "prereqSubtopicIds": ["num.fractions.to-decimal"]
+        },
+        {
+          "text": "= {n/d} × 100",
+          "note": "multiply by 100 to convert to a percentage",
+          "prereqSubtopicIds": ["num.decimals.to-percent"]
+        },
+        { "text": "= {n*100/d}%", "note": "", "prereqSubtopicIds": [] }
+      ],
+      "errorLineIndex": 2,
+      "distractors": [
+        { "text": "{n/d}%", "cause": "stopped at the decimal and called it a percentage" },
+        { "text": "{d*100/n}%", "cause": "divided the denominator by the numerator" },
+        { "text": "{n*10/d}%", "cause": "multiplied by 10 instead of 100" }
+      ],
+      "boardStyle": null,
+      "source": "ai",
+      "status": "draft"
+    }
+  ]
+}

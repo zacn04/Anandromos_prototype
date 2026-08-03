@@ -3,10 +3,10 @@ import type { CSSProperties } from 'react'
 import { FONT_MONO, FONT_SERIF } from '../theme'
 import { PracticeLoop } from './PracticeLoop'
 import type { AttemptResult } from './PracticeLoop'
-import type { Problem } from '../data/problems'
-import { problemsForTopic, similarProblem } from '../data/problems'
+import type { Question } from '../content'
+import { lineTexts, questionsForTopic, similarQuestion } from '../content'
 import { routeFor } from '../data/routing'
-import type { LogActivity, LogQuestion } from '../data/activityLog'
+import type { LogActivity, LogQuestion } from '../content'
 
 /**
  * Review mechanic: up to 5 questions, first 3 correct auto-passes, 3 wrong
@@ -48,7 +48,7 @@ interface RState {
   redoFlagged: boolean
   outcome: Outcome
   /** Every attempt across the whole review, in order - accumulated purely to build the Sessions/Activity Log entry once the review reaches an outcome, see buildReviewLogEntry below. */
-  attemptLog: { problem: Problem; result: AttemptResult }[]
+  attemptLog: { problem: Question; result: AttemptResult }[]
 }
 
 const INITIAL: RState = {
@@ -65,23 +65,23 @@ const INITIAL: RState = {
 
 /**
  * Turns one finished review's counters + attempt history into a real
- * Sessions/Activity Log entry (data/activityLog.ts's LogActivity). A wrong
- * attempt's `wrong`/`why` point at the problem's own authored
- * errIdx/solNotes (the actual mistake) rather than whatever lines the
- * student self-flagged - same ground-truth-over-self-report convention the
- * rest of this app's diagnosis already follows.
+ * Sessions/Activity Log entry (the content store's LogActivity). A wrong
+ * attempt's `wrong`/`why` point at the question's own authored
+ * errorLineIndex/line notes (the actual mistake) rather than whatever lines
+ * the student self-flagged - same ground-truth-over-self-report convention
+ * the rest of this app's diagnosis already follows.
  */
 function buildReviewLogEntry(subtopicLabel: string, st: RState): LogActivity {
   const passed = st.outcome === 'passed'
   const items: LogQuestion[] = st.attemptLog.map(({ problem, result }, i) => {
-    const explanation = problem.solNotes[problem.errIdx] || 'See the worked steps above.'
+    const explanation = problem.lines[problem.errorLineIndex]?.note || 'See the worked steps above.'
     return {
       label: `Q${i + 1}`,
       q: `${problem.prompt}: ${problem.statement}`,
       hit: !result.correct,
       note: result.correct ? 'Correct.' : explanation,
-      work: result.correct ? undefined : problem.lines,
-      wrong: result.correct ? undefined : [problem.errIdx],
+      work: result.correct ? undefined : lineTexts(problem),
+      wrong: result.correct ? undefined : [problem.errorLineIndex],
       why: result.correct ? undefined : [explanation],
     }
   })
@@ -114,7 +114,7 @@ const monoCap = (extra: CSSProperties = {}): CSSProperties => ({
 
 export function ReviewSession({ topic, subtopicLabel, backLabel, onExit, onComplete, onGoToLesson, onAttempt, onGamingSignal, onSessionLogged }: ReviewSessionProps) {
   const [s, setS] = useState<RState>(INITIAL)
-  const pool = problemsForTopic(topic)
+  const pool = questionsForTopic(topic)
   // Plain mutable counter, not state - see the matching comment in LessonSession.tsx for why
   // this deliberately sits outside setS's updater.
   const allWrongStreak = useRef(0)
@@ -122,8 +122,8 @@ export function ReviewSession({ topic, subtopicLabel, backLabel, onExit, onCompl
   // any re-render that happens to still have a resolved outcome - see the effect below.
   const loggedRef = useRef(false)
 
-  const currentProblem: Problem =
-    (s.retryActive && s.lastProblemId && similarProblem(s.lastProblemId)) || pool[Math.min(s.qIdx, pool.length - 1)]
+  const currentProblem: Question =
+    (s.retryActive && s.lastProblemId && similarQuestion(s.lastProblemId)) || pool[Math.min(s.qIdx, pool.length - 1)]
 
   // Re-runs on every state change, same as any exhaustive-deps effect, but loggedRef (not the
   // dependency array) is what actually prevents a duplicate log entry on a later re-render

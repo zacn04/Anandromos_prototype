@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "kind": "graph-filter",
+  "items": [
+    {
+      "id": "filter.number",
+      "label": "Number",
+      "topicIds": [
+        "num.negatives",
+        "num.fractions",
+        "num.decimals",
+        "num.negatives-arithmetic",
+        "num.fractions-to-percent"
+      ]
+    },
+    {
+      "id": "filter.ratio",
+      "label": "Ratio & proportion",
+      "topicIds": [
+        "num.ratio",
+        "num.proportion",
+        "num.percent-change"
+      ]
+    },
+    {
+      "id": "filter.algebra",
+      "label": "Algebra",
+      "topicIds": [
+        "alg.basics",
+        "alg.substitution",
+        "alg.linear",
+        "alg.expanding",
+        "alg.bracket-equations"
+      ]
+    },
+    {
+      "id": "filter.geometry",
+      "label": "Coordinates & graphs",
+      "topicIds": [
+        "geo.coordinates",
+        "alg.simultaneous"
+      ]
+    }
+  ]
+}

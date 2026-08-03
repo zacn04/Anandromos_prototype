@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { Logo } from '../components/Logo'
@@ -9,18 +9,35 @@ import type { AttemptResult } from '../components/PracticeLoop'
 import { LessonSession } from '../components/LessonSession'
 import { ReviewSession } from '../components/ReviewSession'
 import { DiagnosticTest } from '../components/DiagnosticTest'
-import { BASKETS, EDGES, NODES, ST, edgePath } from '../data/knowledgeGraph'
-import type { EngineNodeState, EngineState, MasteryTier } from '../data/engine'
+import {
+  activityLogFor,
+  edgePairs,
+  edgePath,
+  graphFilters,
+  graphTopics,
+  isGraphTopic,
+  lessonForTopic,
+  questionById,
+  questionsForTopic,
+  questionAt,
+  subtopicById,
+  topicLabel,
+} from '../content'
+import type { MasteryTier, QuestionId, TopicId } from '../content'
+import type { EngineNodeState, EngineState } from '../data/engine'
+import type { LogActivity } from '../content'
 import { initEngineState, recordAttempt } from '../data/engine'
-import { LOG_RAW } from '../data/activityLog'
-import { LESSONS } from '../data/lessons'
-import { problemById, problemsForTopic } from '../data/problems'
-import { topicLabel } from '../data/curriculum'
+import { buildQueue, dueLabel, DAILY_ITEM_CAP } from '../data/schedule'
+import type { QueueItem } from '../data/schedule'
+import { totalXp, masteryBand } from '../data/xp'
+import type { SessionKind } from '../data/xp'
 import { getProblemSets } from '../data/teacherProblemSets'
 import type { AuthoredQuestion } from '../data/teacherProblemSets'
 import { pushLiveFlag } from '../data/liveOversight'
 import { getLiveSessions, pushLiveSession } from '../data/liveSessions'
-import { FONT_MONO, FONT_SERIF } from '../theme'
+import { pushGap } from '../data/liveGaps'
+import { load as loadSaved, save as saveState } from '../data/persist'
+import { FONT_MONO, FONT_SERIF, NODE_STYLE } from '../theme'
 
 /** StudentApp is always Aisha's own app — there's no "pick a student" concept here. */
 const STUDENT_ID = 'aisha'
@@ -58,7 +75,7 @@ interface StudentState {
   diagnosticDone: boolean
   smapView: 'focused' | 'full'
   /**
-   * Indices into PATH_RAW that have actually been completed, in whatever
+   * Indices into the derived path (see derivePath) that have actually been completed, in whatever
    * order they were done - not just a "how far in order" cursor, since
    * "Speed through lessons" (see speedMode) makes out-of-order completion
    * reachable. `pathPrefixDone()` derives the old-style "N of 6 done"
@@ -72,7 +89,7 @@ interface StudentState {
   fpProblemIdx: number
   practiceMode: PracticeMode | null
   practiceTopic: string | null
-  /** Which PATH_RAW index is in progress, so its completion callback knows what to mark done. */
+  /** Which path index is in progress, so its completion callback knows what to mark done. */
   activePathIdx: number | null
   /** Which teacher-authored problem set (data/teacherProblemSets.ts) is open in `psolve`; null means the static PS_SET demo set. */
   activePsId: string | null
@@ -85,46 +102,21 @@ interface StudentState {
   graphFilter: string
 }
 
-/** PATH_RAW / Free-play subtopic label -> problems.ts topic key. Only topics with an authored problem bank are listed; everything else gets an honest "not built out yet" placeholder rather than mismatched content. */
-const PATH_TOPIC_KEY: Record<string, string> = {
-  'Inverse operations': 'linear',
-  'One-step equations': 'linear',
-  'Two-step equations': 'linear',
-  'Equations with brackets': 'linear',
-  'Fractions → %': 'fracpct',
-}
-const FREEPLAY_TOPIC_KEY: Record<string, string> = {
-  Substitution: 'substitution',
-}
-
-/**
- * problems.ts topic key -> knowledgeGraph.ts node id, so recording an
- * attempt knows which map node to update. Cross-checked against NODES'
- * labels: n11 'Linear equations' (linear), n9 'Substitution'
- * (substitution), n6 'Fractions → %' (fracpct) - the only three topics with
- * a real problem bank, matching PATH_TOPIC_KEY/FREEPLAY_TOPIC_KEY above.
- */
-const TOPIC_TO_NODE_ID: Record<string, string> = {
-  linear: 'n11',
-  substitution: 'n9',
-  fracpct: 'n6',
-}
-
-/** Defensive fallback for a node id the live engine hasn't seeded - shouldn't happen, since initEngineState seeds all 15 ids from the same static map this app always showed, but cheaper and more honest than a crash if a new node id is ever added to knowledgeGraph.ts without a matching status entry. */
+/** Defensive fallback for a topic id the live engine hasn't seeded - shouldn't happen, since initEngineState seeds every topic in content/samples/node-states.json, the same static overlay this app always showed, but cheaper and more honest than a crash if a graph topic is ever added without a matching sample status entry. */
 const FALLBACK_NODE_STATE: EngineNodeState = { status: 'notready', last: '—', next: 'when ready', reps: 0 }
 
 /**
- * Free-play subtopic label -> topic key, for the subset of FP_TOPICS whose
+ * Free-play subtopic label -> topic id, for the subset of FP_TOPICS whose
  * `unlocked` flag should read live off the engine instead of the static
- * sample data: Substitution (has a problem bank) and Linear equations
- * (topicLabel('linear') - the only topic with a real Lesson, so the only
+ * sample data: Substitution (has a question bank) and Linear equations
+ * (topicLabel('alg.linear') - the only topic with a real Lesson, so the only
  * other one worth a live "not just notready/locked" unlock signal). Every
- * other Free-play label has no problem bank behind it and is left exactly
- * as the static sample data has it - see FREEPLAY_TOPIC_KEY's comment.
+ * other Free-play label has no question bank behind it and is left exactly
+ * as the static sample data has it - see FREEPLAY_TOPIC_ID's comment.
  */
-const FP_LIVE_UNLOCK_TOPIC_KEY: Record<string, string> = {
-  Substitution: 'substitution',
-  'Linear equations': 'linear',
+const FP_LIVE_UNLOCK_TOPIC_ID: Record<string, TopicId> = {
+  Substitution: 'alg.substitution',
+  'Linear equations': 'alg.linear',
 }
 
 const monoCap = (extra: CSSProperties = {}): CSSProperties => ({
@@ -154,14 +146,46 @@ const logFlag = (f: string): CSSProperties =>
     ? { background: '#fbe7d8', color: '#b6531f', border: '1px solid #eecab0' }
     : { background: '#e4edf3', color: '#1f4e75', border: '1px solid #cddceb' }
 
-const PATH_RAW = [
-  { kind: 'Lesson', subtopic: 'Inverse operations', detail: 'Moving a term across the =' },
-  { kind: 'Lesson', subtopic: 'One-step equations', detail: 'Undoing + and −' },
-  { kind: 'Review', subtopic: 'Negatives', detail: 'Spaced review' },
-  { kind: 'Lesson', subtopic: 'Two-step equations', detail: 'Undo in the right order' },
-  { kind: 'Review', subtopic: 'Fractions → %', detail: 'Spaced review' },
-  { kind: 'Lesson', subtopic: 'Equations with brackets', detail: 'Expand, then solve' },
-]
+/**
+ * One row of "Your path". Derived per render from the live engine by
+ * `derivePath` below — this used to be a hardcoded six-item array, which meant
+ * the student's path never responded to anything they actually did.
+ */
+interface PathItem {
+  kind: 'Lesson' | 'Review'
+  subtopic: string
+  detail: string
+  /** null when nothing is authored for the topic yet. */
+  topicId: TopicId | null
+  dueInDays: number
+}
+
+/**
+ * The student's path, straight from the scheduler (`data/schedule.ts`).
+ *
+ * Overdue reviews first, then reviews due today, then frontier lessons —
+ * priority order, not authored order, and capped at a sitting's worth so a
+ * student returning after a fortnight is never shown a wall of red.
+ */
+function derivePath(queue: readonly QueueItem[]): PathItem[] {
+  return queue
+    .filter((it) => it.kind !== 'problemSet')
+    .map((it) => {
+      const isReview = it.kind === 'review'
+      const has = it.topicId ? questionsForTopic(it.topicId).length > 0 : false
+      return {
+        kind: isReview ? 'Review' : 'Lesson',
+        subtopic: it.label,
+        detail: isReview
+          ? it.dueInDays < 0
+            ? `Review · was due ${dueLabel(it)}`
+            : 'Spaced review · due today'
+          : 'New — ready to learn',
+        topicId: has || (!isReview && it.topicId) ? it.topicId : null,
+        dueInDays: it.dueInDays,
+      } satisfies PathItem
+    })
+}
 
 const PROBLEM_SETS = [
   {
@@ -264,26 +288,16 @@ const FP_TOPICS = [
 ]
 
 /**
- * PROGRESS_TOPICS' name -> problems.ts/curriculum topic key, wired up only
- * because the match to a live masteryByTopic entry is clean and exact here
- * - all four names below match a studentProfiles.ts mastery row verbatim,
- * which is itself how initEngineState seeds masteryByTopic. Not a
- * general-purpose alias table - if PROGRESS_TOPICS ever grows a row without
- * an equally clean match, leave it out rather than guessing.
+ * Free-play subtopic label -> content-store topic id, for the subset of
+ * FP_TOPICS whose `unlocked` flag reads live off the engine rather than the
+ * static sample data.
  */
-const PROGRESS_TOPIC_KEY: Record<string, string> = {
-  Negatives: 'negatives',
-  'Fractions & %': 'fracpct',
-  Substitution: 'substitution',
-  'Linear equations': 'linear',
+const FREEPLAY_TOPIC_ID: Record<string, TopicId> = {
+  Negatives: 'num.negatives',
+  'Fractions & %': 'num.fractions-to-percent',
+  Substitution: 'alg.substitution',
+  'Linear equations': 'alg.linear',
 }
-
-const PROGRESS_TOPICS = [
-  { name: 'Negatives', pct: 96, label: 'Mastered' },
-  { name: 'Fractions & %', pct: 78, label: 'Strong' },
-  { name: 'Substitution', pct: 52, label: 'Building' },
-  { name: 'Linear equations', pct: 34, label: 'Learning now' },
-]
 
 const NAV_ITEMS: Array<[string, Screen]> = [
   ['Home', 'shome'],
@@ -316,7 +330,22 @@ const INITIAL: StudentState = {
 }
 
 export default function StudentApp() {
-  const [s, setS] = useState<StudentState>(INITIAL)
+  const [s, setS] = useState<StudentState>(() => {
+    // Only the durable bits of the screen state are restored: how far through
+    // the path they are, and whether the placement test is done. Transient
+    // navigation (which screen, which practice session) always starts clean, so
+    // a reload never drops you back inside a half-finished question.
+    const saved = loadSaved(`progress.${STUDENT_ID}`, {
+      pathCompleted: INITIAL.pathCompleted,
+      diagnosticDone: INITIAL.diagnosticDone,
+    })
+    return {
+      ...INITIAL,
+      pathCompleted: saved.pathCompleted ?? INITIAL.pathCompleted,
+      diagnosticDone: saved.diagnosticDone ?? INITIAL.diagnosticDone,
+      screen: saved.diagnosticDone ? 'shome' : INITIAL.screen,
+    }
+  })
   const psFileRef = useRef<HTMLInputElement>(null)
   const setState = (patch: Partial<StudentState> | ((st: StudentState) => Partial<StudentState>)) =>
     setS((st) => ({ ...st, ...(typeof patch === 'function' ? patch(st) : patch) }))
@@ -324,51 +353,178 @@ export default function StudentApp() {
   // Live computed mastery (data/engine.ts) - seeded once from exactly the same static
   // overlays every POV already shows for this student, then moved forward only by real
   // recordAttempt calls as Aisha actually practises.
-  const [engine, setEngine] = useState<EngineState>(() => initEngineState(STUDENT_ID))
-  const engineNode = (nodeId: string): EngineNodeState => engine.nodes[nodeId] ?? FALLBACK_NODE_STATE
+  const [engine, setEngine] = useState<EngineState>(() =>
+    // Persisted across reloads (data/persist.ts). Falls back to the sample
+    // overlay the first time, so a fresh browser still opens on a believable
+    // profile rather than an empty one.
+    loadSaved<EngineState>(`engine.${STUDENT_ID}`, initEngineState(STUDENT_ID)),
+  )
+  const engineNode = (topicId: TopicId): EngineNodeState => engine.nodes[topicId] ?? FALLBACK_NODE_STATE
+
+  /**
+   * The live scheduler output. Recomputed whenever the engine moves, so
+   * finishing a review genuinely reorders what comes next instead of ticking
+   * off a fixed list.
+   */
+  // Write-through persistence. Cheap (a few KB of JSON) and it means a refresh
+  // mid-demo no longer throws away everything the student just did.
+  useEffect(() => { saveState(`engine.${STUDENT_ID}`, engine) }, [engine])
+  useEffect(() => {
+    saveState(`progress.${STUDENT_ID}`, { pathCompleted: s.pathCompleted, diagnosticDone: s.diagnosticDone })
+  }, [s.pathCompleted, s.diagnosticDone])
+
+  const queue = useMemo(() => buildQueue(engine, { cap: DAILY_ITEM_CAP }), [engine])
+  const path = useMemo(() => derivePath(queue.items), [queue])
+
+  /**
+   * Every topic the student has actually touched, strongest first, straight
+   * from the engine's difficulty-weighted mastery. Was a hardcoded four-row
+   * array with fixed percentages.
+   */
+  const progressRows = useMemo(() => {
+    const rows = Object.keys(engine.masteryByTopic).map((topicId) => {
+      const tier = engine.masteryByTopic[topicId]
+      const pct = Math.round(((tier.foundations + tier.core + tier.stretch) / 3) * 100)
+      const band = masteryBand(tier)
+      return {
+        topicId,
+        name: topicLabel(topicId),
+        pct,
+        label: band === 'mastered' ? 'Mastered' : band === 'building' ? 'Building' : 'Needs another look',
+        tier,
+      }
+    })
+    return rows.sort((a, b) => b.pct - a.pct)
+  }, [engine])
+
+  /**
+   * XP is effort, never mastery — `data/xp.ts` explains why the two are kept
+   * apart. Accumulated from sessions completed this run.
+   */
+  const [sessionResults, setSessionResults] = useState<{ kind: SessionKind; correct: number; total: number }[]>(
+    () => loadSaved(`xp.${STUDENT_ID}`, [] as { kind: SessionKind; correct: number; total: number }[]),
+  )
+  const xp = useMemo(() => totalXp(sessionResults), [sessionResults])
+  useEffect(() => { saveState(`xp.${STUDENT_ID}`, sessionResults) }, [sessionResults])
+
+  /** What the student is on right now: the first frontier topic in the queue. */
+  const workingOn = useMemo(
+    () => queue.items.find((it) => it.kind === 'lesson') ?? queue.items[0],
+    [queue],
+  )
+
+  /**
+   * Logs a finished session and banks its XP. `LogActivity.items[].hit` is
+   * per-question correctness, so the accuracy scaling in `sessionXp` comes
+   * from the same record the Sessions screen renders — one source, so the two
+   * can never disagree.
+   */
+  const logSession = (entry: LogActivity) => {
+    pushLiveSession(entry)
+    const total = entry.items.length
+    if (total === 0) return
+    const correct = entry.items.filter((q: { hit: boolean }) => q.hit).length
+    const kind: SessionKind =
+      entry.kind === 'Review' ? 'review'
+        : entry.kind === 'Lesson' ? 'lesson'
+        : entry.kind === 'Problem set' ? 'problemSet'
+        : 'freeplay'
+    setSessionResults((prev) => [...prev, { kind, correct, total }])
+  }
 
   /**
    * Records one real attempt on the live engine. Difficulty comes from the
-   * problem bank (falls back to 'core' if a problem id somehow isn't
+   * question bank (falls back to 'core' if a question id somehow isn't
    * found); weak is always false here - this is all confident practice
    * attempts from PracticeLoop/LessonSession/ReviewSession. weak is for
    * the diagnostic test's guesses instead (recordDiagnosticAttempt below).
-   * No-ops for a topic with no knowledge-graph node behind it (nothing
-   * outside TOPIC_TO_NODE_ID's three topics currently reaches this).
+   * No-ops for a topic that is not on the knowledge graph (`isGraphTopic`);
+   * nothing outside the three topics with a question bank currently reaches
+   * this.
    */
-  const recordTopicAttempt = (topic: string, result: AttemptResult) => {
-    const nodeId = TOPIC_TO_NODE_ID[topic]
-    if (!nodeId) return
-    const difficulty: MasteryTier = problemById(result.problemId)?.difficulty ?? 'core'
-    setEngine((prev) => recordAttempt(prev, { nodeId, topic, difficulty, correct: result.correct, weak: false }))
+  /**
+   * Records one attempt, INCLUDING per-line evidence.
+   *
+   * This is the chain the whole product rests on: the student flags a line,
+   * that line carries the prerequisite subtopics it tests, and the engine
+   * credits (or debits) the topic that owns them. A student failing the
+   * fraction-to-decimal line inside a *percentage* question banks a fractions
+   * gap without ever being served a fractions question.
+   */
+  const recordTopicAttempt = (topicId: TopicId, result: AttemptResult) => {
+    if (!isGraphTopic(topicId)) return
+    const question = questionById(result.problemId)
+    const difficulty: MasteryTier = question?.difficulty ?? 'core'
+
+    const flagged = (i: number): boolean =>
+      result.flaggedLines === 'all' ? true : result.flaggedLines.includes(i)
+
+    const lineOutcomes = (question?.lines ?? [])
+      .map((line, i) => ({
+        lineIndex: i,
+        correct: !flagged(i),
+        prereqSubtopicIds: line.prereqSubtopicIds ?? [],
+      }))
+      .filter((l) => l.prereqSubtopicIds.length > 0)
+
+    setEngine((prev) =>
+      recordAttempt(prev, {
+        topicId,
+        difficulty,
+        correct: result.correct,
+        weak: false,
+        subtopicId: question?.subtopicId,
+        lineOutcomes,
+      }),
+    )
+
+    // Surface a wrong, tagged line to the teacher when the prerequisite lives
+    // in a different topic — that difference is the diagnostic insight.
+    for (const outcome of lineOutcomes) {
+      if (outcome.correct) continue
+      for (const subtopicId of outcome.prereqSubtopicIds) {
+        const sub = subtopicById(subtopicId)
+        if (!sub || sub.topicId === topicId) continue
+        pushGap({
+          subtopicId,
+          subtopicLabel: sub.label,
+          prereqTopicId: sub.topicId,
+          prereqTopicLabel: topicLabel(sub.topicId),
+          seenInTopicId: topicId,
+          seenInTopicLabel: topicLabel(topicId),
+          lineText: question?.lines[outcome.lineIndex]?.text ?? '',
+          reason: result.reasons[outcome.lineIndex],
+          at: 'just now',
+        })
+      }
+    }
   }
 
   /**
    * Records one diagnostic-test answer on the live engine - same
-   * TOPIC_TO_NODE_ID mapping, same problemById difficulty lookup, and the
+   * `isGraphTopic` guard, same `questionById` difficulty lookup, and the
    * same setEngine(recordAttempt(...)) call as recordTopicAttempt above,
    * just with `weak` and `correct` passed straight through instead of
    * hardcoded, since DiagnosticTest's onAnswer already computed them (see
    * that component: "I guessed" always passes correct: false, weak: true;
    * "I don't know" never calls onAnswer at all, so never reaches here).
    */
-  const recordDiagnosticAttempt = (topic: string, problemId: string, correct: boolean, weak: boolean) => {
-    const nodeId = TOPIC_TO_NODE_ID[topic]
-    if (!nodeId) return
-    const difficulty: MasteryTier = problemById(problemId)?.difficulty ?? 'core'
-    setEngine((prev) => recordAttempt(prev, { nodeId, topic, difficulty, correct, weak }))
+  const recordDiagnosticAttempt = (topicId: TopicId, questionId: QuestionId, correct: boolean, weak: boolean) => {
+    if (!isGraphTopic(topicId)) return
+    const difficulty: MasteryTier = questionById(questionId)?.difficulty ?? 'core'
+    setEngine((prev) => recordAttempt(prev, { topicId, difficulty, correct, weak }))
   }
 
   /**
    * LessonSession/ReviewSession's onGamingSignal - fires once three
    * consecutive attempts in one session were all marked "I got it all
    * wrong". Builds a live Oversight card (data/liveOversight.ts) styled the
-   * same as the static gaming-pattern sample in data/oversight.ts, honest
-   * about what was actually observed rather than inventing per-line detail
-   * this app doesn't have for a live-detected pattern.
+   * same as the static gaming-pattern sample in content/samples/oversight.json,
+   * honest about what was actually observed rather than inventing per-line
+   * detail this app doesn't have for a live-detected pattern.
    */
-  const reportGamingSignal = (topic: string, sessionKind: 'Lesson' | 'Review') => {
-    const subtopic = topicLabel(topic)
+  const reportGamingSignal = (topicId: TopicId, sessionKind: 'Lesson' | 'Review') => {
+    const subtopic = topicLabel(topicId)
     const kindLower = sessionKind.toLowerCase()
     pushLiveFlag({
       kind: 'gaming',
@@ -404,47 +560,39 @@ export default function StudentApp() {
    * has no tier data yet for this topic, matching LessonSession's own
    * "unavailable -> fully scaffolded" default.
    */
-  const masteryLevelFor = (topic: string): number | undefined => {
-    const tier = engine.masteryByTopic[topic]
+  const masteryLevelFor = (topicId: TopicId): number | undefined => {
+    const tier = engine.masteryByTopic[topicId]
     return tier ? (tier.foundations + tier.core + tier.stretch) / 3 : undefined
   }
 
-  /** Live unlock for the handful of Free-play subtopics with a topic mapping (see FP_LIVE_UNLOCK_TOPIC_KEY); everything else keeps its static sample-data flag untouched. */
+  /** Live unlock for the handful of Free-play subtopics with a topic mapping (see FP_LIVE_UNLOCK_TOPIC_ID); everything else keeps its static sample-data flag untouched. */
   const isSubUnlocked = (su: { name: string; unlocked: boolean }): boolean => {
-    const topicKey = FP_LIVE_UNLOCK_TOPIC_KEY[su.name]
-    const nodeId = topicKey ? TOPIC_TO_NODE_ID[topicKey] : undefined
-    if (!nodeId) return su.unlocked
-    const status = engineNode(nodeId).status
+    const topicId = FP_LIVE_UNLOCK_TOPIC_ID[su.name]
+    if (!topicId || !isGraphTopic(topicId)) return su.unlocked
+    const status = engineNode(topicId).status
     return status !== 'notready' && status !== 'locked'
   }
 
-  /** Live mastery % for the handful of Progress rows with a clean topic mapping (see PROGRESS_TOPIC_KEY); falls back to the static sample pct otherwise. */
-  const progressPct = (t: { name: string; pct: number }): number => {
-    const key = PROGRESS_TOPIC_KEY[t.name]
-    const tier = key ? engine.masteryByTopic[key] : undefined
-    return tier ? Math.round(((tier.foundations + tier.core + tier.stretch) / 3) * 100) : t.pct
-  }
-
   const openPathItem = (i: number) => {
-    const it = PATH_RAW[i]
-    const topicKey = PATH_TOPIC_KEY[it.subtopic]
-    const mode: PracticeMode = !topicKey ? 'unavailable' : it.kind === 'Review' ? 'review' : 'lesson'
+    const it = path[i]
+    const topicId = it.topicId
+    const mode: PracticeMode = !topicId ? 'unavailable' : it.kind === 'Review' ? 'review' : 'lesson'
     setState({
       screen: 'practice',
       activePathIdx: i,
       practiceMode: mode,
-      practiceTopic: topicKey ?? null,
+      practiceTopic: topicId ?? null,
       fpLabel: null,
     })
   }
 
   const openFreePlay = (subtopicName: string) => {
-    const topicKey = FREEPLAY_TOPIC_KEY[subtopicName]
+    const topicId = FREEPLAY_TOPIC_ID[subtopicName]
     setState({
       screen: 'practice',
       activePathIdx: null,
-      practiceMode: topicKey ? 'freeplay' : 'unavailable',
-      practiceTopic: topicKey ?? null,
+      practiceMode: topicId ? 'freeplay' : 'unavailable',
+      practiceTopic: topicId ?? null,
       fpLabel: subtopicName,
       fpProblemIdx: 0,
     })
@@ -475,18 +623,17 @@ export default function StudentApp() {
   }
 
   /**
-   * A PATH_RAW Review counts as a gate only if it actually has content behind
-   * it (see PATH_TOPIC_KEY) - a Review with none (e.g. 'Negatives', which has
-   * no problem bank) can never be completed through openPathItem/completePathItem,
+   * A path Review counts as a gate only if it actually has content behind
+   * it (see PATH_TOPIC_ID) - a Review with none (e.g. 'Negatives', which has
+   * no question bank) can never be completed through openPathItem/completePathItem,
    * so treating it as a gate would permanently lock every item after it with
    * no way out short of Speed mode. Lessons never gate at all, matching
    * isPathItemLocked's original contract.
    */
-  const isGatingReview = (it: { kind: string; subtopic: string }): boolean =>
-    it.kind === 'Review' && !!PATH_TOPIC_KEY[it.subtopic]
+  const isGatingReview = (it: PathItem): boolean => it.kind === 'Review' && !!it.topicId
 
   /**
-   * True when an earlier PATH_RAW item is a (completable) Review that hasn't
+   * True when an earlier path item is a (completable) Review that hasn't
    * been done yet - Reviews are the only gate (Lessons never block each other
    * or get blocked by an earlier Lesson), matching Appendix A: "freedom to
    * speed through lessons" but progress "capped" until reviews are done.
@@ -495,7 +642,7 @@ export default function StudentApp() {
    * reading as full completion once it's lifted.
    */
   const isPathItemLocked = (i: number): boolean =>
-    !s.speedMode && PATH_RAW.some((it, j) => j < i && isGatingReview(it) && !s.pathCompleted.includes(j))
+    !s.speedMode && path.some((it, j) => j < i && isGatingReview(it) && !s.pathCompleted.includes(j))
 
   /**
    * Reviews that got jumped over via speed mode: incomplete, but earlier
@@ -508,7 +655,7 @@ export default function StudentApp() {
    * be cleared.
    */
   const highestPathCompletedIdx = s.pathCompleted.length ? Math.max(...s.pathCompleted) : -1
-  const pendingReviews = PATH_RAW.filter(
+  const pendingReviews = path.filter(
     (it, i) => isGatingReview(it) && i < highestPathCompletedIdx && !s.pathCompleted.includes(i),
   )
 
@@ -535,25 +682,29 @@ export default function StudentApp() {
         practiceTopic: null,
       })
 
-    if (s.practiceMode === 'lesson' && s.practiceTopic && LESSONS[s.practiceTopic]) {
+    const practiceLesson = s.practiceTopic ? lessonForTopic(s.practiceTopic) : undefined
+
+    if (s.practiceMode === 'lesson' && s.practiceTopic && practiceLesson) {
       const topic = s.practiceTopic
       return (
         <LessonSession
-          lesson={LESSONS[topic]}
+          lesson={practiceLesson}
           backLabel="← Home"
           onExit={exitPractice}
           onComplete={completePathItem}
           onAttempt={(result) => recordTopicAttempt(topic, result)}
           onGamingSignal={() => reportGamingSignal(topic, 'Lesson')}
           masteryLevel={masteryLevelFor(topic)}
-          onSessionLogged={pushLiveSession}
+          onSessionLogged={logSession}
+          statusOf={(id) => (engine.nodes[id] ?? FALLBACK_NODE_STATE).status}
+          lastWorked={engine.nodes[topic]?.last}
         />
       )
     }
 
     if (s.practiceMode === 'review' && s.practiceTopic) {
       const topic = s.practiceTopic
-      const lesson = LESSONS[topic]
+      const lesson = practiceLesson
       return (
         <ReviewSession
           topic={topic}
@@ -564,15 +715,19 @@ export default function StudentApp() {
           onGoToLesson={lesson ? () => setState({ practiceMode: 'lesson' }) : undefined}
           onAttempt={(result) => recordTopicAttempt(topic, result)}
           onGamingSignal={() => reportGamingSignal(topic, 'Review')}
-          onSessionLogged={pushLiveSession}
+          onSessionLogged={logSession}
         />
       )
     }
 
     if (s.practiceMode === 'freeplay' && s.practiceTopic) {
       const topic = s.practiceTopic
-      const pool = problemsForTopic(topic)
-      const problem = pool[s.fpProblemIdx % pool.length]
+      // `questionAt` past the end of the authored pool mints a fresh instance
+      // from a template rather than wrapping, so free play genuinely never
+      // repeats on a templated topic. The modulo fallback covers topics that
+      // have questions but no template yet.
+      const pool = questionsForTopic(topic)
+      const problem = questionAt(topic, s.fpProblemIdx) ?? pool[s.fpProblemIdx % pool.length]
       return (
         <PracticeLoop
           key={`${problem.id}-${s.fpProblemIdx}`}
@@ -591,7 +746,7 @@ export default function StudentApp() {
     }
 
     // practiceMode === 'unavailable' - honest placeholder rather than mismatched content
-    const unavailableLabel = s.fpLabel || (s.activePathIdx != null ? PATH_RAW[s.activePathIdx].subtopic : 'this subtopic')
+    const unavailableLabel = s.fpLabel || (s.activePathIdx != null ? path[s.activePathIdx].subtopic : 'this subtopic')
     return (
       <div style={{ minHeight: '100vh', background: '#f6f1e7', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <div style={{ width: '100%', background: '#0e2a43', color: '#dbe6ef', padding: '11px 22px' }}>
@@ -663,8 +818,8 @@ export default function StudentApp() {
   )
 
   // ---- knowledge graph (My map) ----
-  const graphNodes = NODES.map((n) => {
-    const st = ST[engineNode(n.id).status]
+  const graphNodes = graphTopics().map((n) => {
+    const st = NODE_STYLE[engineNode(n.id).status]
     const sel = s.selectedNode === n.id
     return {
       id: n.id,
@@ -681,19 +836,19 @@ export default function StudentApp() {
       onClick: () => setState((prev) => ({ selectedNode: prev.selectedNode === n.id ? null : n.id })),
     }
   })
-  const graphEdges = EDGES.map(([a, b]) => {
+  const graphEdges = edgePairs().map(([a, b]) => {
     const frontier = engineNode(b).status === 'frontier'
     return { d: edgePath(a, b), stroke: frontier ? '#e8a06a' : '#d3c6ab', sw: frontier ? 2 : 1.4 }
   })
   const gf = s.graphFilter
-  const activeBasket = gf === 'all' ? null : BASKETS.find((b) => b.key === gf)
-  const inFocus = (id: string) => !activeBasket || activeBasket.ids.indexOf(id) > -1
+  const activeBasket = gf === 'all' ? null : graphFilters().find((f) => f.id === gf)
+  const inFocus = (id: TopicId) => !activeBasket || activeBasket.topicIds.indexOf(id) > -1
   const focusedNodes = graphNodes.map((n) => ({ ...n, op: inFocus(n.id) ? 1 : 0.14 }))
   const focusedEdges = graphEdges.map((e, idx) => {
-    const [a, b] = EDGES[idx]
+    const [a, b] = edgePairs()[idx]
     return { ...e, op: inFocus(a) && inFocus(b) ? 1 : 0.1 }
   })
-  const selNode = s.selectedNode ? NODES.find((n) => n.id === s.selectedNode) : null
+  const selNode = s.selectedNode ? graphTopics().find((n) => n.id === s.selectedNode) : null
 
   // ---- problem set (homework) ----
   // Teacher-authored sets (data/teacherProblemSets.ts) alongside the static PS_SET/PROBLEM_SETS
@@ -723,8 +878,9 @@ export default function StudentApp() {
 
   // Live Lesson/Review sessions Aisha has actually completed this tab (data/liveSessions.ts),
   // shown ahead of the static sample history - same merge-live-in pattern as authoredSets above
-  // and TeacherApp.tsx's ovList. selectedLog indexes into this combined list, not LOG_RAW alone.
-  const allSessions = [...getLiveSessions(), ...LOG_RAW]
+  // and TeacherApp.tsx's ovList. selectedLog indexes into this combined list, not the sample
+  // activity log alone.
+  const allSessions = [...getLiveSessions(), ...activityLogFor(STUDENT_ID)]
   const selectedLog = s.selectedLog != null ? allSessions[s.selectedLog] : null
 
   return (
@@ -740,7 +896,7 @@ export default function StudentApp() {
             {/* your path: lessons + reviews */}
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 4, flexWrap: 'wrap' }}>
               <h2 style={{ fontFamily: FONT_SERIF, fontSize: 19, fontWeight: 600, margin: 0, color: '#0e2a43' }}>Your path</h2>
-              <span style={{ fontFamily: FONT_MONO, fontSize: 12, color: '#8a7c63' }}>{pathPrefixDone(s.pathCompleted)} of 6 done</span>
+              <span style={{ fontFamily: FONT_MONO, fontSize: 12, color: '#8a7c63' }}>{pathPrefixDone(s.pathCompleted)} of {path.length} done</span>
               {pendingReviews.length > 0 && (
                 <span style={{ fontFamily: FONT_MONO, fontSize: 12, color: '#b6531f' }}>
                   · {pendingReviews.length} review{pendingReviews.length === 1 ? '' : 's'} pending
@@ -759,7 +915,7 @@ export default function StudentApp() {
               lessons anyway and catch up on the review later.
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
-              {PATH_RAW.map((it, i) => {
+              {path.map((it, i) => {
                 const complete = s.pathCompleted.includes(i)
                 const locked = isPathItemLocked(i)
                 const isNext = !complete && i === pathPrefixDone(s.pathCompleted)
@@ -795,7 +951,7 @@ export default function StudentApp() {
                 )
               })}
             </div>
-            {s.pathCompleted.length >= 6 && (
+            {path.length > 0 && s.pathCompleted.length >= path.length && (
               <div style={{ marginTop: 12, background: '#eef3f7', border: '1px solid #d3e0ea', borderRadius: 11, padding: '16px 18px', display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
                 <div style={{ fontSize: 13.5, color: '#2b4a63', textWrap: 'pretty' }}>
                   Nice work — you've cleared this set. A fresh batch of lessons and reviews is ready.
@@ -922,13 +1078,35 @@ export default function StudentApp() {
               This is only ever about you, then and now. It's never a comparison to anyone else in your class.
             </p>
 
+            <div style={{ display: 'flex', gap: 12, marginBottom: 16, flexWrap: 'wrap' }}>
+              <div style={{ flex: '1 1 150px', background: '#fff', border: '1px solid #e4dccb', borderRadius: 12, padding: '16px 18px' }}>
+                <div style={monoCap({ fontSize: 10.5, color: '#8a7c63' })}>Effort this session</div>
+                <div style={{ fontFamily: FONT_SERIF, fontSize: 26, fontWeight: 600, color: '#0e2a43', marginTop: 4 }}>{xp} XP</div>
+                <div style={{ fontSize: 12, color: '#8a7c63', marginTop: 2 }}>
+                  {sessionResults.length} session{sessionResults.length === 1 ? '' : 's'} · effort, not a score
+                </div>
+              </div>
+              <div style={{ flex: '1 1 150px', background: '#fff', border: '1px solid #e4dccb', borderRadius: 12, padding: '16px 18px' }}>
+                <div style={monoCap({ fontSize: 10.5, color: '#8a7c63' })}>Topics touched</div>
+                <div style={{ fontFamily: FONT_SERIF, fontSize: 26, fontWeight: 600, color: '#0e2a43', marginTop: 4 }}>{progressRows.length}</div>
+                <div style={{ fontSize: 12, color: '#8a7c63', marginTop: 2 }}>
+                  {progressRows.filter((r) => r.label === 'Mastered').length} mastered
+                </div>
+              </div>
+            </div>
+
             <div style={{ background: '#fff', border: '1px solid #e4dccb', borderRadius: 12, padding: '22px 24px' }}>
               <h2 style={{ fontFamily: FONT_SERIF, fontSize: 16, fontWeight: 600, margin: '0 0 16px', color: '#0e2a43' }}>What you've built up</h2>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                {PROGRESS_TOPICS.map((t) => {
-                  const pct = progressPct(t)
+                {progressRows.length === 0 && (
+                  <p style={{ margin: 0, fontSize: 13.5, color: '#8a7c63' }}>
+                    Nothing yet — finish a lesson or a review and it will show up here.
+                  </p>
+                )}
+                {progressRows.map((t) => {
+                  const pct = t.pct
                   return (
-                    <div key={t.name}>
+                    <div key={t.topicId}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>
                         <span style={{ fontSize: 14, fontWeight: 500, color: '#1a2129' }}>{t.name}</span>
                         <span style={{ fontFamily: FONT_MONO, fontSize: 11.5, color: '#8a7c63' }}>{t.label}</span>
@@ -944,9 +1122,15 @@ export default function StudentApp() {
 
             <div style={{ marginTop: 16, background: '#fdf0e6', border: '1px solid #f0d3bc', borderRadius: 12, padding: '18px 20px' }}>
               <div style={monoCap({ fontSize: 10.5, letterSpacing: '.6px', color: '#b6531f' })}>Working on now</div>
-              <div style={{ fontFamily: FONT_SERIF, fontSize: 18, fontWeight: 600, color: '#0e2a43', margin: '6px 0 4px' }}>Linear equations</div>
+              <div style={{ fontFamily: FONT_SERIF, fontSize: 18, fontWeight: 600, color: '#0e2a43', margin: '6px 0 4px' }}>
+                {workingOn ? workingOn.label : 'All caught up'}
+              </div>
               <p style={{ margin: 0, fontSize: 13, lineHeight: 1.5, color: '#8a6b4f', textWrap: 'pretty' }}>
-                You're most of the way through the ideas this builds on. Keep going, it gets less hand-held as you get stronger.
+                {workingOn
+                  ? workingOn.kind === 'lesson'
+                    ? "You're most of the way through the ideas this builds on. Keep going — it gets less hand-held as you get stronger."
+                    : `Due ${dueLabel(workingOn)}. Reviews are what make it stick.`
+                  : 'Nothing is due right now. Free play is there whenever you want more practice.'}
               </p>
             </div>
           </div>
@@ -1092,7 +1276,7 @@ export default function StudentApp() {
               <>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center', margin: '10px 0 4px' }}>
                   <span style={monoCap({ fontSize: 10.5, letterSpacing: '.6px', marginRight: 2 })}>Filter</span>
-                  {[{ key: 'all', label: 'All basket topics' }, ...BASKETS.map((b) => ({ key: b.key, label: b.label }))].map((c) => (
+                  {[{ key: 'all', label: 'All basket topics' }, ...graphFilters().map((f) => ({ key: f.id, label: f.label }))].map((c) => (
                     <button
                       key={c.key}
                       onClick={() => setState({ graphFilter: c.key })}
@@ -1122,6 +1306,7 @@ export default function StudentApp() {
 
             {selNode && (
               <NodeInfoCard
+                topicId={selNode.id}
                 heading="Topic"
                 title={selNode.label}
                 fields={[
@@ -1400,7 +1585,20 @@ export default function StudentApp() {
                         <div style={{ minWidth: 0 }}>
                           <div style={{ fontSize: 14.5, fontWeight: 600, color: '#1a2129' }}>{su.name}</div>
                           {unlocked ? (
-                            <div style={{ fontSize: 12, color: '#8a7c63', marginTop: 2 }}>Last studied: {su.last}</div>
+                            <div style={{ fontSize: 12, color: '#8a7c63', marginTop: 2 }}>
+                              Last studied: {su.last}
+                              {(() => {
+                                const tid = FREEPLAY_TOPIC_ID[su.name]
+                                if (!tid) return null
+                                const pool = questionsForTopic(tid)
+                                const templated = pool.some((q) => q.id.includes('#'))
+                                return (
+                                  <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: templated ? '#b6531f' : '#8a7c63', marginLeft: 8 }}>
+                                    · {templated ? 'unlimited questions' : `${pool.length} questions`}
+                                  </span>
+                                )
+                              })()}
+                            </div>
                           ) : (
                             <div style={{ fontSize: 12, color: '#a99e88', marginTop: 2 }}>Lesson not done yet</div>
                           )}

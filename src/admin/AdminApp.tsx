@@ -2,9 +2,8 @@ import { useState } from 'react'
 import type { CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
 import { Logo } from '../components/Logo'
-import { SCHOOL_CLASSES, TEACHERS } from '../data/school'
-import type { SchoolClass, Teacher } from '../data/school'
-import { GRADES } from '../data/curriculum'
+import { schoolClasses, teachers, yearBands } from '../content'
+import type { SchoolClass, Teacher } from '../content'
 import { FONT_MONO, FONT_SERIF } from '../theme'
 
 /**
@@ -102,20 +101,22 @@ const initialsFor = (name: string) =>
     .slice(0, 2)
     .toUpperCase() || '?'
 
-const INITIAL: AdminState = {
-  screen: 'teachers',
-  teachers: [...TEACHERS],
-  classes: [...SCHOOL_CLASSES],
-  teacherSeq: TEACHERS.length + 1,
-  taName: '',
-  taSubject: '',
-  caName: '',
-  caGrade: 'Year 8',
-  caTeacherId: TEACHERS[0]?.id ?? '',
-}
-
 export default function AdminApp() {
-  const [s, setS] = useState<AdminState>(INITIAL)
+  // Lazy initialiser, not a module-scope constant: the store is installed by
+  // main.tsx's `await loadContent()`, which runs AFTER this module is
+  // evaluated. Reading teachers()/schoolClasses() at module scope would throw
+  // before the first render. See content-schema-spec §6.12.
+  const [s, setS] = useState<AdminState>(() => ({
+    screen: 'teachers',
+    teachers: [...teachers()],
+    classes: [...schoolClasses()],
+    teacherSeq: teachers().length + 1,
+    taName: '',
+    taSubject: '',
+    caName: '',
+    caGrade: 'Year 8',
+    caTeacherId: teachers()[0]?.id ?? '',
+  }))
   const setState = (patch: Partial<AdminState> | ((st: AdminState) => Partial<AdminState>)) =>
     setS((st) => ({ ...st, ...(typeof patch === 'function' ? patch(st) : patch) }))
 
@@ -130,7 +131,7 @@ export default function AdminApp() {
     const subject = s.taSubject.trim()
     if (!name || !subject) return
     setState((st) => ({
-      teachers: [...st.teachers, { id: `t${st.teacherSeq}`, name, subject, classKeys: [] }],
+      teachers: [...st.teachers, { id: `teacher.new-${st.teacherSeq}`, name, subject, classIds: [] }],
       teacherSeq: st.teacherSeq + 1,
       taName: '',
       taSubject: '',
@@ -144,15 +145,15 @@ export default function AdminApp() {
   // duplicated in local state, so the two can't drift out of sync.
   const selTeacherForForm = s.teachers.find((t) => t.id === s.caTeacherId) ?? s.teachers[0] ?? null
   const addClass = () => {
-    const key = s.caName.trim()
-    if (!key || !selTeacherForForm) return
-    if (s.classes.some((c) => c.key === key)) return
+    const id = s.caName.trim()
+    if (!id || !selTeacherForForm) return
+    if (s.classes.some((c) => c.id === id)) return
     setState((st) => ({
-      classes: [...st.classes, { key, subject: selTeacherForForm.subject, grade: st.caGrade, teacherId: selTeacherForForm.id }],
+      classes: [...st.classes, { id, subject: selTeacherForForm.subject, yearBand: st.caGrade, teacherId: selTeacherForForm.id }],
       caName: '',
     }))
   }
-  const removeClass = (key: string) => setState((st) => ({ classes: st.classes.filter((c) => c.key !== key) }))
+  const removeClass = (id: string) => setState((st) => ({ classes: st.classes.filter((c) => c.id !== id) }))
 
   const teacherName = (id: string) => s.teachers.find((t) => t.id === id)?.name ?? 'Unassigned'
 
@@ -245,8 +246,8 @@ export default function AdminApp() {
                         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                           {theirClasses.length > 0 ? (
                             theirClasses.map((c) => (
-                              <span key={c.key} style={chipStyle('#e4edf3', '#1f4e75', '#cddceb')}>
-                                {c.key}
+                              <span key={c.id} style={chipStyle('#e4edf3', '#1f4e75', '#cddceb')}>
+                                {c.id}
                               </span>
                             ))
                           ) : (
@@ -296,7 +297,7 @@ export default function AdminApp() {
                       <div>
                         <label style={{ display: 'block', ...monoCap({ marginBottom: 7 }) }}>Grade band</label>
                         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                          {GRADES.map((g) => (
+                          {yearBands().map((g) => (
                             <button key={g} onClick={() => setState({ caGrade: g })} style={pillBtn(s.caGrade === g)}>
                               {g}
                             </button>
@@ -336,12 +337,12 @@ export default function AdminApp() {
                     <div />
                   </div>
                   {s.classes.map((c) => (
-                    <div key={c.key} style={{ display: 'grid', gridTemplateColumns: '0.7fr 1fr 1fr 1.3fr 64px', gap: 12, padding: '12px 18px', borderTop: '1px solid #f0e9dc', alignItems: 'center' }}>
-                      <div style={{ fontWeight: 600, fontSize: 13.5, color: '#1a2129' }}>{c.key}</div>
+                    <div key={c.id} style={{ display: 'grid', gridTemplateColumns: '0.7fr 1fr 1fr 1.3fr 64px', gap: 12, padding: '12px 18px', borderTop: '1px solid #f0e9dc', alignItems: 'center' }}>
+                      <div style={{ fontWeight: 600, fontSize: 13.5, color: '#1a2129' }}>{c.id}</div>
                       <div style={{ fontSize: 13, color: '#5c6773' }}>{c.subject}</div>
-                      <div style={{ fontSize: 13, color: '#5c6773' }}>{c.grade}</div>
+                      <div style={{ fontSize: 13, color: '#5c6773' }}>{c.yearBand}</div>
                       <div style={{ fontSize: 13, color: '#5c6773', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{teacherName(c.teacherId)}</div>
-                      <button onClick={() => removeClass(c.key)} style={removeBtn}>
+                      <button onClick={() => removeClass(c.id)} style={removeBtn}>
                         Remove
                       </button>
                     </div>

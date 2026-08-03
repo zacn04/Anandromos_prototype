@@ -3,6 +3,7 @@ import { Logo } from './components/Logo'
 import TeacherApp from './teacher/TeacherApp'
 import StudentApp from './student/StudentApp'
 import ParentApp from './parent/ParentApp'
+import { resetAll, hasSavedState, isServerBacked } from './data/persist'
 import AdminApp from './admin/AdminApp'
 import { FONT_MONO, FONT_SERIF } from './theme'
 
@@ -64,9 +65,44 @@ function Landing() {
             </Link>
           ))}
         </div>
-        <p style={{ margin: '34px 4px 0', fontSize: 11.5, color: '#a99e88', lineHeight: 1.5 }}>
-          Prototype with sample data (Year 7–8). No streaks, points, or rankings anywhere.
-        </p>
+        <div style={{ margin: '34px 4px 0', display: 'flex', alignItems: 'baseline', gap: 16, flexWrap: 'wrap' }}>
+          <p style={{ margin: 0, fontSize: 11.5, color: '#a99e88', lineHeight: 1.5, maxWidth: 520 }}>
+            Prototype with sample data (Year 7–8). No streaks, points, or rankings anywhere.
+            Progress is saved by the local backend, so a refresh — or a different
+            browser on this machine — keeps what you did.
+          </p>
+          <span
+            title={isServerBacked() ? 'server/ is answering on /api' : 'falling back to this browser\'s storage'}
+            style={{
+              fontFamily: FONT_MONO, fontSize: 10.5, letterSpacing: '.4px',
+              color: isServerBacked() ? '#1f4e75' : '#8a7c63',
+              background: isServerBacked() ? '#e4edf3' : '#f2ece0',
+              border: `1px solid ${isServerBacked() ? '#cddceb' : '#e0d4bd'}`,
+              borderRadius: 20, padding: '4px 10px', whiteSpace: 'nowrap',
+            }}
+          >
+            {isServerBacked() ? '● local backend' : '○ browser storage'}
+          </span>
+          {hasSavedState() && (
+            <button
+              onClick={() => {
+                // Deliberately unguarded by a confirm dialog: this is a demo
+                // control, and a modal mid-pitch is worse than an accidental
+                // reset you can redo in ten seconds. Awaited before the reload,
+                // or the page would re-hydrate the state we just cleared.
+                void resetAll().then(() => window.location.reload())
+              }}
+              style={{
+                marginLeft: 'auto', fontFamily: FONT_MONO, fontSize: 11.5,
+                letterSpacing: '.4px', color: '#5c6773', background: '#f2ece0',
+                border: '1px solid #e0d4bd', borderRadius: 8, padding: '8px 14px',
+                cursor: 'pointer', whiteSpace: 'nowrap',
+              }}
+            >
+              ↺ Reset demo
+            </button>
+          )}
+        </div>
       </div>
     </div>
   )

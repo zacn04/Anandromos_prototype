@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "kind": "question",
+  "items": [
+    {
+      "id": "alg.basics.collect.q01",
+      "topicId": "alg.basics",
+      "subtopicId": "alg.basics.collect",
+      "familyId": "collect",
+      "difficulty": "foundations",
+      "prompt": "Simplify",
+      "statement": "3a + 4a",
+      "answerLabel": "=",
+      "correctAnswer": "7a",
+      "lines": [
+        {
+          "text": "3a + 4a",
+          "note": "",
+          "prereqSubtopicIds": []
+        },
+        {
+          "text": "7a",
+          "note": "add the coefficients",
+          "prereqSubtopicIds": []
+        }
+      ],
+      "errorLineIndex": 1,
+      "boardStyle": null,
+      "aliases": [],
+      "source": "teacher",
+      "reviewedAt": null,
+      "status": "verified"
+    },
+    {
+      "id": "alg.linear.cross-equals.q01",
+      "topicId": "alg.linear",
+      "subtopicId": "alg.linear.cross-equals",
+      "familyId": "cross-equals",
+      "difficulty": "core",
+      "prompt": "Solve for x",
+      "statement": "3x − 7 = 11",
+      "answerLabel": "x =",
+      "correctAnswer": "6",
+      "lines": [
+        {
+          "text": "3x − 7 = 11",
+          "note": "",
+          "prereqSubtopicIds": []
+        },
+        {
+          "text": "3x = 18",
+          "note": "−7 crosses the =",
+          "prereqSubtopicIds": [
+            "alg.basics.collect"
+          ]
+        }
+      ],
+      "errorLineIndex": 1,
+      "boardStyle": null,
+      "aliases": [],
+      "source": "teacher",
+      "reviewedAt": null,
+      "status": "verified"
+    }
+  ]
+}

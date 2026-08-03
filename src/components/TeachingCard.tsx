@@ -1,10 +1,16 @@
 import { FONT_MONO, FONT_SERIF } from '../theme'
 
+/**
+ * `body` / `exampleSteps` are `readonly` so authored content arrays can be
+ * passed straight through from the content store (TeachBlock.body,
+ * TransferIn.body) without copying; a mutable `string[]` - what
+ * reteach.ts's synthesised view model hands over - still satisfies it.
+ */
 export interface TeachingCardProps {
   heading: string
-  body: string[]
+  body: readonly string[]
   exampleTitle?: string
-  exampleSteps?: string[]
+  exampleSteps?: readonly string[]
 }
 
 /**

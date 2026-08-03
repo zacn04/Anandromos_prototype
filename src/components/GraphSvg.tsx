@@ -23,7 +23,7 @@ export interface SvgNode {
   onClick?: () => void
 }
 
-/** Renders a knowledge graph as SVG: prerequisite edges under clickable subtopic nodes. */
+/** Renders a knowledge graph as SVG: prerequisite edges under clickable topic nodes. */
 export function GraphSvg({
   edges,
   nodes,

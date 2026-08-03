@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "kind": "student-node-states",
+  "items": [
+    {
+      "studentId": "aisha",
+      "nodes": {
+        "alg.basics": {
+          "status": "mastered",
+          "last": "today · free play",
+          "next": "in 11 days",
+          "reps": 16
+        },
+        "alg.linear": {
+          "status": "frontier",
+          "last": "—",
+          "next": "when ready",
+          "reps": 0
+        }
+      }
+    }
+  ]
+}

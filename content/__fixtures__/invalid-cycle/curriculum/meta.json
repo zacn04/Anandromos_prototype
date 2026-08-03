@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "kind": "meta",
+  "contentVersion": "fixture.1",
+  "topicGraphVersion": "topic-graph-fixture.1",
+  "subtopicGraphVersion": "subtopic-graph-fixture.1",
+  "graphHashes": {
+    "topic": "b28f257f3373587d3bc9f7df2522e7d8fa9f3ad1cacab88d86545dd435d1d065",
+    "subtopic": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "yearBands": [
+    "Year 7",
+    "Year 8",
+    "Year 9"
+  ]
+}
