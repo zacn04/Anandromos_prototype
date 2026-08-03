@@ -20,7 +20,7 @@
  * are one namespace now, which is what let the fuzzy display-label matcher
  * that used to bridge them be deleted outright.
  */
-import { edgePairs, prereqsOf, sampleNodeStates, studentProfile, subtopicById } from '../content'
+import { edgePairs, prereqsOf, sampleNodeStates, studentProfile, subtopicById, tiersOfferedForTopic } from '../content'
 import type { MasteryTier, NodeStatus, SubtopicId, TopicId } from '../content'
 
 /**
@@ -242,6 +242,26 @@ function intervalLabel(days: number): string {
  * prerequisites, then a frontier re-derivation so any newly-mastered topic
  * can unlock what comes after it.
  */
+/**
+ * Mastery as an average over the tiers the topic actually asks about.
+ *
+ * Averaging over all three unconditionally makes mastery unreachable for the
+ * 20 of 39 topics whose banks don't span every tier — the student answers
+ * everything the topic has, correctly, and the two tiers they were never asked
+ * about hold the average below the bar forever. Anything gated behind such a
+ * topic then never unlocks, which is a bug in the gate, not a high standard.
+ *
+ * Falls back to all three when the topic offers none (an empty bank), so an
+ * unpopulated topic stays hard rather than becoming free.
+ */
+export function masteryAverage(topicId: TopicId, tiers: TierMastery): number {
+  const offered = tiersOfferedForTopic(topicId)
+  const judged = offered.length > 0 ? offered : (['foundations', 'core', 'stretch'] as const)
+  let total = 0
+  for (const tier of judged) total += tiers[tier]
+  return total / judged.length
+}
+
 export function recordAttempt(state: EngineState, event: AttemptEvent, now?: number): EngineState {
   const nowMs = now ?? Date.now()
   const prevNode: EngineNodeState = state.nodes[event.topicId] ?? { status: 'notready', last: '—', next: 'when ready', reps: 0 }
@@ -267,7 +287,7 @@ export function recordAttempt(state: EngineState, event: AttemptEvent, now?: num
   // Promote on a correct answer once the topic is strong on average across all three
   // tiers - never demote on a miss, which would be punitive and out of step with the
   // rest of this app's tone.
-  const tierAverage = (updatedTier.foundations + updatedTier.core + updatedTier.stretch) / 3
+  const tierAverage = masteryAverage(event.topicId, updatedTier)
   const promotes =
     event.correct && (prevNode.status === 'frontier' || prevNode.status === 'inprogress') && tierAverage >= MASTERY_PROMOTE_THRESHOLD
   const status: NodeStatus = promotes ? 'mastered' : prevNode.status

@@ -14,7 +14,8 @@ import { buildQueue, dueLabel, DAILY_ITEM_CAP } from '../src/data/schedule.ts'
 import { sessionXp, totalXp, needsRelesson, masteryBand } from '../src/data/xp.ts'
 import { suggestedOrder, orderWarnings, missingPrereqs } from '../src/data/basket.ts'
 import { exportProfile, importProfile, importSummary } from '../src/data/transfer.ts'
-import { contentMeta } from '../src/content/index.ts'
+import { contentMeta, drawBalanced, prereqsOf, questionsForTopic, tiersOfferedForTopic } from '../src/content/index.ts'
+import type { TopicId } from '../src/content/index.ts'
 
 let failures = 0
 function check(name: string, cond: boolean, detail = '') {
@@ -248,19 +249,123 @@ console.log('\nxp · effort, not mastery')
     { kind: 'freeplay', correct: 10, total: 10 },
   ]) === perfectReview + perfectFree)
 
+  // `alg.linear` has questions at all three tiers, so for it the average is the
+  // plain three-way one these cases are written against.
+  const ALL_TIERS: TopicId = 'alg.linear'
+  check('the chosen topic really does span all three tiers',
+    tiersOfferedForTopic(ALL_TIERS).length === 3, tiersOfferedForTopic(ALL_TIERS).join('+'))
+
   check('re-lesson triggers on weak mastery',
-    needsRelesson({ foundations: 0.2, core: 0.1, stretch: 0.0 }))
+    needsRelesson(ALL_TIERS, { foundations: 0.2, core: 0.1, stretch: 0.0 }))
   check('re-lesson does not trigger on strong mastery',
-    !needsRelesson({ foundations: 0.9, core: 0.8, stretch: 0.7 }))
-  check('unknown mastery does not trigger a re-lesson', !needsRelesson(undefined))
+    !needsRelesson(ALL_TIERS, { foundations: 0.9, core: 0.8, stretch: 0.7 }))
+  check('unknown mastery does not trigger a re-lesson', !needsRelesson(ALL_TIERS, undefined))
   check('bands read relearn / building / mastered',
-    masteryBand({ foundations: 0.1, core: 0.1, stretch: 0.1 }) === 'relearn' &&
-    masteryBand({ foundations: 0.6, core: 0.6, stretch: 0.6 }) === 'building' &&
-    masteryBand({ foundations: 0.9, core: 0.9, stretch: 0.9 }) === 'mastered')
+    masteryBand(ALL_TIERS, { foundations: 0.1, core: 0.1, stretch: 0.1 }) === 'relearn' &&
+    masteryBand(ALL_TIERS, { foundations: 0.6, core: 0.6, stretch: 0.6 }) === 'building' &&
+    masteryBand(ALL_TIERS, { foundations: 0.9, core: 0.9, stretch: 0.9 }) === 'mastered')
 
   // The point of the module: a farmed-easy-items profile must not read as mastered.
   check('high foundations alone does not read as mastered',
-    masteryBand({ foundations: 1, core: 0.2, stretch: 0 }) !== 'mastered')
+    masteryBand(ALL_TIERS, { foundations: 1, core: 0.2, stretch: 0 }) !== 'mastered')
+
+  // A topic whose bank is entirely one tier is judged on that tier. Averaging in
+  // two tiers it never asks about would put mastery permanently out of reach and
+  // silently wedge anything gated behind it.
+  const ONE_TIER: TopicId = 'alg.factorising'
+  check('the chosen topic really is single-tier',
+    tiersOfferedForTopic(ONE_TIER).length === 1, tiersOfferedForTopic(ONE_TIER).join('+'))
+  check('a single-tier topic can reach mastery on the tier it offers',
+    masteryBand(ONE_TIER, { foundations: 0, core: 0.9, stretch: 0 }) === 'mastered')
+  check('a single-tier topic is not mastered by the tiers it never asks',
+    masteryBand(ONE_TIER, { foundations: 1, core: 0.1, stretch: 1 }) === 'relearn')
+  check('an empty-bank topic still needs all three tiers',
+    masteryBand('num.not-a-real-topic' as TopicId, { foundations: 1, core: 1, stretch: 0 }) !== 'mastered')
+}
+
+// ---------------------------------------------------------------------------
+console.log('\nhomework · a finished set moves mastery and opens what is gated behind it')
+// ---------------------------------------------------------------------------
+{
+  // The exact chain the student demo runs on: the "Fractions & percentages" set
+  // is assigned on num.fractions + num.fractions-to-percent, and the
+  // "Percentage change" set is locked behind num.percent-change's prerequisites.
+  // If marking a submitted set doesn't reach the engine, this stays locked
+  // forever however many questions the student gets right.
+  const GATE: TopicId = 'num.percent-change'
+  const ASSIGNED: readonly TopicId[] = ['num.fractions', 'num.fractions-to-percent']
+
+  const unmet = (state: EngineState): readonly TopicId[] =>
+    prereqsOf(GATE).filter((p) => state.nodes[p]?.status !== 'mastered')
+
+  const submit = (state: EngineState, correct: boolean, count: number): EngineState => {
+    let next = state
+    const per = Math.ceil(count / ASSIGNED.length)
+    let taken = 0
+    for (const topicId of ASSIGNED) {
+      for (const q of drawBalanced(topicId, Math.min(per, count - taken))) {
+        taken++
+        next = recordAttempt(next, {
+          topicId, difficulty: q.difficulty, correct, weak: false,
+          subtopicId: q.subtopicId, lineOutcomes: [],
+        })
+      }
+    }
+    check(`the set really has ${count} questions to mark`, taken === count, `got ${taken}`)
+    return next
+  }
+
+  const before = initEngineState('aisha')
+  check('the gated set starts locked', unmet(before).length > 0, unmet(before).join(', '))
+
+  const after = submit(before, true, 8)
+  check('marking the set moves its topics', (after.nodes['num.fractions-to-percent']?.reps ?? 0) > (before.nodes['num.fractions-to-percent']?.reps ?? 0))
+  check('a set finished correctly unlocks the set gated behind it',
+    unmet(after).length === 0, `still unmet: ${unmet(after).join(', ')}`)
+  check('the unlocked topic becomes reachable, not pre-mastered',
+    after.nodes[GATE]?.status === 'frontier', String(after.nodes[GATE]?.status))
+
+  // Every demo set must be able to master its own topic when finished
+  // correctly — otherwise "finish your homework" leads nowhere, which is how a
+  // prefix draw over a tier-grouped bank silently broke the whole loop. Run in
+  // the order a student meets them, on one carried-forward state: the third set
+  // is gated behind the second and starts unreachable by design.
+  {
+    let sim = initEngineState('aisha')
+    for (const [label, topics, n] of [
+      ['linear mixed set', ['alg.linear'], 12],
+      ['fractions & percentages', ['num.fractions', 'num.fractions-to-percent'], 8],
+      ['percentage change', ['num.percent-change'], 8],
+    ] as readonly [string, readonly TopicId[], number][]) {
+      const per = Math.ceil(n / topics.length)
+      let taken = 0
+      for (const topicId of topics) {
+        for (const q of drawBalanced(topicId, Math.min(per, n - taken))) {
+          taken++
+          sim = recordAttempt(sim, { topicId, difficulty: q.difficulty, correct: true, weak: false, subtopicId: q.subtopicId, lineOutcomes: [] })
+        }
+      }
+      const last = topics[topics.length - 1]
+      check(`"${label}" masters its topic when finished correctly`,
+        sim.nodes[last]?.status === 'mastered', `${last} is ${sim.nodes[last]?.status}`)
+    }
+  }
+
+  // A draw that skips a tier the topic offers can never move that tier off
+  // zero, so it can never reach the mastery bar however much work goes in.
+  for (const topicId of ['alg.linear', 'num.percent-change'] as readonly TopicId[]) {
+    const offered = tiersOfferedForTopic(topicId)
+    const drawnTiers = new Set(drawBalanced(topicId, 8).map((q) => q.difficulty))
+    check(`a draw for ${topicId} covers every tier it offers`,
+      offered.every((t) => drawnTiers.has(t)), `offers ${offered.join('+')}, drew ${[...drawnTiers].join('+')}`)
+  }
+
+  check('a draw never returns more than the bank holds',
+    drawBalanced('alg.linear', 100_000).length === questionsForTopic('alg.linear').length)
+
+  // The gate has to be earned: getting the same set wrong must not open it.
+  const wrong = submit(before, false, 8)
+  check('a set answered wrong does not unlock anything', unmet(wrong).length > 0)
 }
 
 // ---------------------------------------------------------------------------

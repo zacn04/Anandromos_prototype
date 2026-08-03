@@ -366,9 +366,12 @@ export function instantiate(template: QuestionTemplate, seed: number): Question 
     subtopicId: template.subtopicId,
     familyId: template.familyId,
     difficulty: template.difficulty,
-    prompt: template.prompt,
+    // Rendered like every other authored string: a template may legitimately
+    // put a parameter in the prompt ("Round {n} to the nearest 10"), and
+    // leaving these two unrendered leaked raw {placeholders} onto the screen.
+    prompt: renderTemplateString(template.prompt, env),
     statement: renderTemplateString(template.statement, env),
-    answerLabel: template.answerLabel,
+    answerLabel: renderTemplateString(template.answerLabel, env),
     correctAnswer,
     lines,
     errorLineIndex: template.errorLineIndex,

@@ -118,7 +118,7 @@ export function buildQueue(state: EngineState, opts: BuildQueueOptions = {}): Qu
     // has decayed past the re-lesson threshold is sent back to the lesson
     // rather than made to keep failing reviews. `needsRelesson` reads
     // difficulty-weighted mastery, never XP, for the reason given in xp.ts.
-    const relearn = needsRelesson(state.masteryByTopic[topicId])
+    const relearn = needsRelesson(topicId, state.masteryByTopic[topicId])
     if (node.status === 'frontier' && (node.reps === 0 || relearn)) {
       // Only queue a lesson we can actually deliver.
       if (!lessonForTopic(topicId)) continue

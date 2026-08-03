@@ -22,8 +22,9 @@
  * competitive framing measurably demoralises exactly the students this product
  * exists to serve.
  */
-import { MASTERY_PROMOTE_THRESHOLD } from './engine'
+import { MASTERY_PROMOTE_THRESHOLD, masteryAverage } from './engine'
 import type { TierMastery } from './engine'
+import type { TopicId } from '../content'
 
 export type SessionKind = 'review' | 'lesson' | 'problemSet' | 'freeplay'
 
@@ -84,19 +85,18 @@ export function totalXp(results: readonly SessionResult[]): number {
  */
 export const RELESSON_THRESHOLD = 0.4
 
-export function needsRelesson(mastery: TierMastery | undefined): boolean {
+export function needsRelesson(topicId: TopicId, mastery: TierMastery | undefined): boolean {
   if (!mastery) return false
-  const average = (mastery.foundations + mastery.core + mastery.stretch) / 3
-  return average < RELESSON_THRESHOLD
+  return masteryAverage(topicId, mastery) < RELESSON_THRESHOLD
 }
 
 /**
  * The gap between the two bars, exposed so a UI can explain itself ("you're
  * close to mastering this") without hardcoding either number.
  */
-export function masteryBand(mastery: TierMastery | undefined): 'relearn' | 'building' | 'mastered' {
+export function masteryBand(topicId: TopicId, mastery: TierMastery | undefined): 'relearn' | 'building' | 'mastered' {
   if (!mastery) return 'relearn'
-  const average = (mastery.foundations + mastery.core + mastery.stretch) / 3
+  const average = masteryAverage(topicId, mastery)
   if (average < RELESSON_THRESHOLD) return 'relearn'
   if (average < MASTERY_PROMOTE_THRESHOLD) return 'building'
   return 'mastered'

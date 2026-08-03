@@ -24,10 +24,30 @@
  * the same homework-solving screen without any translation step.
  */
 
+import type { TopicId } from '../content'
+
 export interface AuthoredQuestion {
   topic: string
   q: string
   hint: string
+  /**
+   * Link back to the question bank, when the question came from it.
+   *
+   * Homework that can't be marked can't move mastery, and a set that can't
+   * move mastery can never unlock the set gated behind it — so a minted
+   * question carries the three things marking needs. Questions a teacher typed
+   * by hand have no answer key and leave these undefined: they still get set,
+   * answered and submitted, they just go to the teacher for marking rather
+   * than being graded here. `gradable` below is that distinction.
+   */
+  questionId?: string
+  topicId?: TopicId
+  answer?: string
+}
+
+/** True when the question carries enough to be marked automatically. */
+export function gradable(q: AuthoredQuestion): q is AuthoredQuestion & { questionId: string; topicId: TopicId; answer: string } {
+  return typeof q.questionId === 'string' && typeof q.topicId === 'string' && typeof q.answer === 'string'
 }
 
 export interface AuthoredProblemSet {

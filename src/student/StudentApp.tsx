@@ -21,6 +21,7 @@ import {
   prereqsOf,
   questionById,
   questionsForTopic,
+  drawBalanced,
   questionAt,
   subtopicById,
   subtopicsForTopic,
@@ -28,6 +29,7 @@ import {
   topicLabel,
 } from '../content'
 import type { MasteryTier, NodeStatus, QuestionId, TopicId } from '../content'
+import { masteryAverage } from '../data/engine'
 import type { EngineNodeState, EngineState } from '../data/engine'
 import type { LogActivity } from '../content'
 import { recordFor, useEngine } from '../data/students'
@@ -36,12 +38,14 @@ import type { QueueItem } from '../data/schedule'
 import { totalXp, masteryBand } from '../data/xp'
 import type { SessionKind } from '../data/xp'
 import { getProblemSets } from '../data/teacherProblemSets'
+import { gradable } from '../data/teacherProblemSets'
 import type { AuthoredProblemSet, AuthoredQuestion } from '../data/teacherProblemSets'
 import { pushLiveFlag } from '../data/liveOversight'
 import { getLiveSessions, pushLiveSession } from '../data/liveSessions'
 import { pushGap } from '../data/liveGaps'
 import { load as loadSaved, save as saveState } from '../data/persist'
 import { FONT_MONO, FONT_SERIF, NODE_STYLE } from '../theme'
+import { isCorrectAnswer } from '../content/answer'
 
 /** StudentApp is always Aisha's own app — there's no "pick a student" concept here. */
 const STUDENT_ID = 'aisha'
@@ -103,6 +107,8 @@ interface StudentState {
   activePsId: string | null
   psIdx: number
   psAnswers: Record<number, string>
+  /** Set once the active set is submitted and marked; null before that. */
+  psResult: MarkedSet | null
   psSubmitted: boolean
   psAttach: string | null
   selectedLog: number | null
@@ -191,6 +197,13 @@ function derivePath(queue: readonly QueueItem[]): PathItem[] {
 type Urgency = 'urgent' | 'soon' | 'later'
 
 /** One homework card, however it got here — school-set sample or teacher-authored. */
+/** Outcome of marking one submitted set. `graded` <= `total`: see `gradable`. */
+interface MarkedSet {
+  correct: number
+  graded: number
+  total: number
+}
+
 interface StudentProblemSet {
   id: string
   title: string
@@ -250,14 +263,7 @@ const SAMPLE_SET_SEEDS: readonly SampleSetSeed[] = [
     title: 'Fractions & percentages',
     topicIds: ['num.fractions', 'num.fractions-to-percent'],
     dueInDays: 5,
-    questions: [
-      { topic: 'Fractions', q: 'Simplify 12⁄18 to its lowest terms.', hint: 'Divide top and bottom by their highest common factor.' },
-      { topic: 'Fractions', q: 'Work out 2⁄3 + 1⁄6.', hint: 'Use a common denominator first.' },
-      { topic: 'Percentages', q: 'Find 15% of 240.', hint: '' },
-      { topic: 'Percentages', q: 'Write 0.45 as a percentage.', hint: '' },
-      { topic: 'Fractions → %', q: 'Write 3⁄8 as a percentage.', hint: 'Divide, then multiply by 100.' },
-      { topic: 'Percentages', q: 'A £60 coat is reduced by 20%. What is the new price?', hint: '' },
-    ],
+    mint: 8,
   },
   {
     id: 'sample.percent-change',
@@ -320,17 +326,29 @@ function unmetPrereqs(topicIds: readonly TopicId[], statusOf: (id: TopicId) => N
  * topics. `questionAt` past the end of a topic's authored pool mints a fresh
  * template instance, so a templated topic can always fill a set.
  */
+/**
+ * Turns a balanced draw from the bank into the shape a problem set renders.
+ *
+ * Each minted question keeps its link back to the bank (`questionId`,
+ * `topicId`, `answer`) so the set can be marked on submission — see `gradable`.
+ * Without that link a student can finish every question and nothing moves.
+ */
 function mintQuestions(topicIds: readonly TopicId[], count: number): AuthoredQuestion[] {
   const drawn: AuthoredQuestion[] = []
   const perTopic = Math.ceil(count / Math.max(1, topicIds.length))
   for (const topicId of topicIds) {
-    for (let i = 0; i < perTopic && drawn.length < count; i++) {
-      const question = questionAt(topicId, i)
-      if (!question) break
+    for (const question of drawBalanced(topicId, Math.min(perTopic, count - drawn.length))) {
       // No hint: the bank's per-line notes are the worked solution, and a
       // homework hint invented here would be exactly the fabricated detail
       // the data can't support.
-      drawn.push({ topic: topicLabel(topicId), q: `${question.prompt}: ${question.statement}`, hint: '' })
+      drawn.push({
+        topic: topicLabel(topicId),
+        q: `${question.prompt}: ${question.statement}`,
+        hint: '',
+        questionId: question.id,
+        topicId,
+        answer: question.correctAnswer,
+      })
     }
   }
   return drawn
@@ -525,6 +543,7 @@ const INITIAL: StudentState = {
   activePsId: null,
   psIdx: 0,
   psAnswers: {},
+  psResult: null,
   psSubmitted: false,
   psAttach: null,
   selectedLog: null,
@@ -617,8 +636,8 @@ export default function StudentApp() {
   const progressRows = useMemo(() => {
     const rows = Object.keys(engine.masteryByTopic).map((topicId) => {
       const tier = engine.masteryByTopic[topicId]
-      const pct = Math.round(((tier.foundations + tier.core + tier.stretch) / 3) * 100)
-      const band = masteryBand(tier)
+      const pct = Math.round(masteryAverage(topicId, tier) * 100)
+      const band = masteryBand(topicId, tier)
       return {
         topicId,
         name: topicLabel(topicId),
@@ -684,6 +703,43 @@ export default function StudentApp() {
    * fraction-to-decimal line inside a *percentage* question banks a fractions
    * gap without ever being served a fractions question.
    */
+  /**
+   * Marks a submitted problem set and pipes the result into the engine.
+   *
+   * This is the join between homework and everything downstream of it: mastery,
+   * the schedule, the teacher's gap list, and the prerequisite locks on other
+   * sets. Without it a student can finish every question and nothing moves —
+   * the set is a form that posts nowhere.
+   *
+   * Questions the teacher typed by hand have no answer key (see `gradable`), so
+   * they are counted as submitted-for-marking and deliberately record nothing:
+   * guessing at correctness would put invented evidence into a diagnostic.
+   */
+  const markProblemSet = (set: StudentProblemSet, answers: Record<number, string>): MarkedSet => {
+    let correct = 0
+    let graded = 0
+    for (let i = 0; i < set.questions.length; i++) {
+      const q = set.questions[i]
+      if (!gradable(q)) continue
+      graded++
+      const wasCorrect = isCorrectAnswer(answers[i] ?? '', q.answer)
+      if (wasCorrect) correct++
+      recordTopicAttempt(q.topicId, {
+        problemId: q.questionId,
+        correct: wasCorrect,
+        // Whole-question marking: homework asks for a final answer, not the
+        // line-by-line self-review the practice loop collects. Flagging every
+        // line on a miss would claim a diagnosis the submission can't support,
+        // so a wrong answer flags none and reports itself as a plain miss.
+        flaggedLines: [],
+        reasons: {},
+        notes: {},
+        attach: null,
+      })
+    }
+    return { correct, graded, total: set.questions.length }
+  }
+
   const recordTopicAttempt = (topicId: TopicId, result: AttemptResult) => {
     if (!isGraphTopic(topicId)) return
     const question = questionById(result.problemId)
@@ -793,7 +849,7 @@ export default function StudentApp() {
    */
   const masteryLevelFor = (topicId: TopicId): number | undefined => {
     const tier = engine.masteryByTopic[topicId]
-    return tier ? (tier.foundations + tier.core + tier.stretch) / 3 : undefined
+    return tier ? masteryAverage(topicId, tier) : undefined
   }
 
   const openPathItem = (i: number) => {
@@ -1255,7 +1311,7 @@ export default function StudentApp() {
                     )}
                     <button
                       onClick={() => {
-                        if (p.openable) setState({ screen: 'psolve', psIdx: 0, psAnswers: {}, psSubmitted: false, activePsId: p.id })
+                        if (p.openable) setState({ screen: 'psolve', psIdx: 0, psAnswers: {}, psSubmitted: false, psResult: null, activePsId: p.id })
                       }}
                       style={{ marginTop: 12, background: p.openable ? '#dd6a2f' : '#f2ece0', color: p.openable ? '#fff' : '#a99e88', border: 'none', borderRadius: 9, padding: '11px 16px', fontSize: 13.5, fontWeight: 600, cursor: p.openable ? 'pointer' : 'not-allowed' }}
                     >
@@ -1532,7 +1588,7 @@ export default function StudentApp() {
         <div style={{ minHeight: '100vh', background: '#f6f1e7' }}>
           <div style={{ background: '#0e2a43', color: '#dbe6ef', padding: '11px 22px' }}>
             <div style={{ maxWidth: 720, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 12 }}>
-              <div onClick={() => setState({ screen: 'shome', psSubmitted: false })} style={{ fontSize: 13, color: '#9fb4c7', cursor: 'pointer' }}>
+              <div onClick={() => setState({ screen: 'shome', psSubmitted: false, psResult: null })} style={{ fontSize: 13, color: '#9fb4c7', cursor: 'pointer' }}>
                 ← Today
               </div>
               <span style={{ marginLeft: 'auto', fontSize: 13, color: '#dbe6ef', fontFamily: FONT_SERIF }}>{curPS.title}</span>
@@ -1547,11 +1603,18 @@ export default function StudentApp() {
                 <p style={{ margin: '0 0 4px', fontSize: 14, color: '#5c6773', textWrap: 'pretty' }}>
                   Sent to Ms. Okafor · {psAnsweredCount} of {curPS.questions.length} answered
                 </p>
+                {s.psResult && s.psResult.graded > 0 && (
+                  <p style={{ margin: '0 0 4px', fontSize: 14.5, color: '#0e2a43', fontWeight: 600 }}>
+                    {s.psResult.correct} of {s.psResult.graded} marked right
+                  </p>
+                )}
                 <p style={{ margin: '0 0 22px', fontSize: 12.5, color: '#8a7c63', textWrap: 'pretty' }}>
-                  You'll see it marked in Sessions once your teacher has reviewed it.
+                  {s.psResult && s.psResult.graded > 0
+                    ? 'This has gone into your mastery for these topics — check Today to see what it moved.'
+                    : "You'll see it marked in Sessions once your teacher has reviewed it."}
                 </p>
                 <button
-                  onClick={() => setState({ screen: 'shome', psSubmitted: false })}
+                  onClick={() => setState({ screen: 'shome', psSubmitted: false, psResult: null })}
                   style={{ background: '#dd6a2f', color: '#fff', border: 'none', borderRadius: 10, padding: '13px 26px', fontSize: 14.5, fontWeight: 600, cursor: 'pointer' }}
                 >
                   Back to Today
@@ -1695,7 +1758,7 @@ export default function StudentApp() {
                   <button
                     onClick={() => {
                       if (psBlocked) return
-                      setState({ psSubmitted: true })
+                      setState({ psSubmitted: true, psResult: markProblemSet(curPS, psAns) })
                     }}
                     disabled={psBlocked}
                     style={{ marginLeft: 'auto', color: '#fff', border: 'none', borderRadius: 10, padding: '13px 28px', fontSize: 14.5, fontWeight: 600, background: psBlocked ? '#e7c3ab' : '#dd6a2f', cursor: psBlocked ? 'not-allowed' : 'pointer' }}

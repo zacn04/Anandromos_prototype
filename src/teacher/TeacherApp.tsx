@@ -494,7 +494,7 @@ function assessStudent(id: string, state: EngineState, ctx: AssessContext): Stud
   let slippedCount = 0
   for (const t of Object.keys(state.masteryByTopic)) {
     const mastery = state.masteryByTopic[t]
-    if (masteryBand(mastery) !== 'relearn') continue
+    if (masteryBand(t, mastery) !== 'relearn') continue
     if ((state.nodes[t]?.reps ?? 0) < MIN_REPS_FOR_EVIDENCE) continue
     slippedCount++
     const w = weightedMastery(mastery)
@@ -623,7 +623,7 @@ function assessStudent(id: string, state: EngineState, ctx: AssessContext): Stud
     // "a review is due on Ratio, last worked today" would be a contradiction.
     const dueNode = oldestDue.topicId ? state.nodes[oldestDue.topicId] : null
     line = `A review is due on ${oldestDue.label} — last worked ${recencyLabel(dueNode ? daysSinceLabel(dueNode.last) : daysSince)}.`
-  } else if (current && masteryBand(current) === 'mastered') {
+  } else if (topicId && current && masteryBand(topicId, current) === 'mastered') {
     line = `${label} is holding across all three difficulty tiers, stretch included at ${pct(current.stretch)}.`
   } else if (node && node.status === 'frontier' && node.reps < MIN_REPS_FOR_EVIDENCE) {
     const prereqs = topicId ? prereqsOf(topicId) : []

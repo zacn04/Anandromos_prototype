@@ -19,6 +19,7 @@ import { getLiveSessions } from '../data/liveSessions'
 import { getProblemSets } from '../data/teacherProblemSets'
 import { refreshFor, useEngine } from '../data/students'
 import type { EngineState } from '../data/students'
+import { masteryAverage } from '../data/engine'
 import { masteryBand } from '../data/xp'
 import { FONT_MONO, FONT_SERIF, NODE_STYLE } from '../theme'
 
@@ -88,13 +89,13 @@ interface ParentMasteryRow {
 }
 
 /**
- * The same difficulty-weighted average `engine.ts` promotes on: foundations,
- * core and stretch given equal weight, so a topic cannot look secure on the
- * strength of its easiest questions alone. Feeds the bar's width, nothing else.
+ * The same average `engine.ts` promotes on — including its restriction to the
+ * tiers the topic actually offers, so the bar a parent reads and the bar the
+ * engine gates on can never drift apart. Feeds the bar's width, nothing else.
  */
-function tierAverage(mastery: EngineState['masteryByTopic'][string] | undefined): number {
+function tierAverage(topicId: TopicId, mastery: EngineState['masteryByTopic'][string] | undefined): number {
   if (!mastery) return 0
-  return (mastery.foundations + mastery.core + mastery.stretch) / 3
+  return masteryAverage(topicId, mastery)
 }
 
 /**
@@ -116,7 +117,7 @@ function tierAverage(mastery: EngineState['masteryByTopic'][string] | undefined)
  * lesson.
  */
 function parentBand(state: EngineState, topicId: TopicId): { label: string; c: string } {
-  const band = masteryBand(state.masteryByTopic[topicId])
+  const band = masteryBand(topicId, state.masteryByTopic[topicId])
   const status = state.nodes[topicId]?.status
   if (status === 'frontier' || band === 'relearn') return { label: 'Learning now', c: '#dd6a2f' }
   if (band === 'mastered') {
@@ -233,7 +234,7 @@ export default function ParentApp() {
       Object.keys(engine.masteryByTopic).map((topicId) => ({
         topicId,
         name: topicLabel(topicId),
-        pct: Math.round(tierAverage(engine.masteryByTopic[topicId]) * 100),
+        pct: Math.round(tierAverage(topicId, engine.masteryByTopic[topicId]) * 100),
         ...parentBand(engine, topicId),
       })),
     [engine],

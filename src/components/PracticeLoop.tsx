@@ -5,6 +5,7 @@ import { buildReteach } from '../data/reteach'
 import type { Question } from '../content'
 import { topicLabel } from '../content'
 import { TeachingCard } from './TeachingCard'
+import { normalizeAnswer } from '../content/answer'
 
 /**
  * The diagnostic practice loop: solve (final answer only) → correct, or
@@ -87,7 +88,7 @@ const monoCap = (extra: CSSProperties = {}): CSSProperties => ({
   ...extra,
 })
 
-const normalize = (s: string): string => s.trim().toLowerCase().replace(/\s+/g, '')
+const normalize = normalizeAnswer
 
 /**
  * Builds the shuffled MCQ option set for the solve step: the correct answer
