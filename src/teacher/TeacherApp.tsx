@@ -1940,9 +1940,13 @@ export default function TeacherApp() {
                   </div>
                 </div>
               ) : (
+                // Reached only by a student enrolled on the setup screen, who has
+                // no authored sample behind them. Every student the content store
+                // knows has a full profile, so this no longer names three of them.
                 <div style={{ marginTop: 22, background: '#fff', border: '1px dashed #d8cfbb', borderRadius: 12, padding: '20px 22px' }}>
                   <p style={{ margin: 0, fontSize: 13, color: '#8a7c63', textWrap: 'pretty' }}>
-                    A fuller profile — pace, difficulty-weighted mastery, and activity log — isn't built out for {selectedRoster.name} in this prototype yet. Aisha Bello, Daniel Kovač and Reuben Clarke have full profiles.
+                    {selectedRoster.name} was added to this class here, so there is no history behind them yet — pace and
+                    difficulty-weighted mastery appear once they have worked through something.
                   </p>
                 </div>
               )}

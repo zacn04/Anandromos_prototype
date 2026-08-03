@@ -110,7 +110,7 @@
         "a != b"
       ],
       "prompt": "Work out the value",
-      "statement": "a = {a} and b = {b}.  Work out {p}a + {q}b",
+      "statement": "{p}a + {q}b, when a = {a} and b = {b}",
       "answerLabel": "=",
       "correctAnswer": "{p*a + q*b}",
       "lines": [
@@ -487,7 +487,7 @@
         "p * a - q * b > 0"
       ],
       "prompt": "Work out the value",
-      "statement": "a = {a} and b = {b}.  Work out {p}a − {q}b",
+      "statement": "{p}a − {q}b, when a = {a} and b = {b}",
       "answerLabel": "=",
       "correctAnswer": "{p*a - q*b}",
       "lines": [
@@ -1714,7 +1714,7 @@
         "x > y"
       ],
       "prompt": "Find x",
-      "statement": "x + y = {x + y}  and  x − y = {x - y}",
+      "statement": "x + y = {x + y} and x − y = {x - y}",
       "answerLabel": "x =",
       "correctAnswer": "{x}",
       "lines": [
@@ -11091,7 +11091,7 @@
       ],
       "constraints": [],
       "prompt": "How many faces?",
-      "statement": "A net folds into a cube with edge {a}cm. How many faces?",
+      "statement": "A net folds into a cube with edge {a}cm",
       "answerLabel": "=",
       "correctAnswer": "6",
       "lines": [

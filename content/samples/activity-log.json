@@ -24,31 +24,66 @@
               "q": "Solve 3x − 7 = 11",
               "hit": true,
               "note": "Wrote 3x = 11 − 7. Sign not flipped when moving −7 across =.",
-              "work": ["3x − 7 = 11", "3x = 11 − 7", "3x = 4", "x = 4⁄3"],
-              "wrong": [1],
+              "work": [
+                "3x − 7 = 11",
+                "3x = 11 − 7",
+                "3x = 4",
+                "x = 4⁄3"
+              ],
+              "wrong": [
+                1
+              ],
               "why": [
                 "Moved −7 across the = but kept it negative. It should flip to +7, giving 3x = 11 + 7 = 18."
               ]
             },
-            { "label": "Q2", "q": "Solve 2x + 5 = 13", "hit": false, "note": "Correct." },
+            {
+              "label": "Q2",
+              "q": "Solve 2x + 5 = 13",
+              "hit": false,
+              "note": "Correct."
+            },
             {
               "label": "Q3",
               "q": "Solve 5x − 4 = 16",
               "hit": true,
               "note": "Wrote 5x = 16 − 4. Same sign error as Q1.",
-              "work": ["5x − 4 = 16", "5x = 16 − 4", "5x = 12", "x = 12⁄5"],
-              "wrong": [1],
-              "why": ["Same sign slip as Q1: −4 crossing the = should become +4, giving 5x = 16 + 4 = 20."]
+              "work": [
+                "5x − 4 = 16",
+                "5x = 16 − 4",
+                "5x = 12",
+                "x = 12⁄5"
+              ],
+              "wrong": [
+                1
+              ],
+              "why": [
+                "Same sign slip as Q1: −4 crossing the = should become +4, giving 5x = 16 + 4 = 20."
+              ]
             },
-            { "label": "Q4", "q": "Solve 4x + 9 = 1", "hit": false, "note": "Correct." },
+            {
+              "label": "Q4",
+              "q": "Solve 4x + 9 = 1",
+              "hit": false,
+              "note": "Correct."
+            },
             {
               "label": "Q5",
               "q": "Solve 7 − 2x = 3",
               "hit": true,
               "note": "Lost the sign on −2x. Flagged as \"silly mistake\".",
-              "work": ["7 − 2x = 3", "−2x = 3 − 7", "−2x = −4", "x = −2"],
-              "wrong": [3],
-              "why": ["Sign lost on the final divide: −4 ÷ −2 = +2, so x = 2, not −2."]
+              "work": [
+                "7 − 2x = 3",
+                "−2x = 3 − 7",
+                "−2x = −4",
+                "x = −2"
+              ],
+              "wrong": [
+                3
+              ],
+              "why": [
+                "Sign lost on the final divide: −4 ÷ −2 = +2, so x = 2, not −2."
+              ]
             }
           ]
         },
@@ -71,8 +106,15 @@
               "q": "Evaluate 3a + 2b when a=4, b=5",
               "hit": true,
               "note": "Computed 3×4 + 2×4. Substituted a into both terms.",
-              "work": ["3a + 2b", "3×4 + 2×4", "12 + 8", "20"],
-              "wrong": [1],
+              "work": [
+                "3a + 2b",
+                "3×4 + 2×4",
+                "12 + 8",
+                "20"
+              ],
+              "wrong": [
+                1
+              ],
               "why": [
                 "Substituted a=4 into both terms. The 2b term takes b=5, so it should be 2×5 = 10, giving 12 + 10 = 22."
               ]
@@ -82,21 +124,48 @@
               "q": "Evaluate 5m − n when m=3, n=8",
               "hit": true,
               "note": "Swapped m and n.",
-              "work": ["5m − n", "5×8 − 3", "40 − 3", "37"],
-              "wrong": [1],
-              "why": ["Swapped the values: m=3 and n=8, so it should read 5×3 − 8 = 7."]
+              "work": [
+                "5m − n",
+                "5×8 − 3",
+                "40 − 3",
+                "37"
+              ],
+              "wrong": [
+                1
+              ],
+              "why": [
+                "Swapped the values: m=3 and n=8, so it should read 5×3 − 8 = 7."
+              ]
             },
-            { "label": "Q8", "q": "Evaluate 2x + 7 when x=6", "hit": false, "note": "Correct (single term)." },
+            {
+              "label": "Q8",
+              "q": "Evaluate 2x + 7 when x=6",
+              "hit": false,
+              "note": "Correct (single term)."
+            },
             {
               "label": "Q9",
               "q": "Evaluate ab + c when a=2, b=3, c=4",
               "hit": true,
               "note": "Left c out of the sum.",
-              "work": ["ab + c", "2×3", "6"],
-              "wrong": [1],
-              "why": ["Stopped after ab = 6 and never added c. Should be 6 + 4 = 10."]
+              "work": [
+                "ab + c",
+                "2×3",
+                "6"
+              ],
+              "wrong": [
+                1
+              ],
+              "why": [
+                "Stopped after ab = 6 and never added c. Should be 6 + 4 = 10."
+              ]
             },
-            { "label": "Q10", "q": "Evaluate 4p when p=9", "hit": false, "note": "Correct (single term)." }
+            {
+              "label": "Q10",
+              "q": "Evaluate 4p when p=9",
+              "hit": false,
+              "note": "Correct (single term)."
+            }
           ]
         },
         {
@@ -113,9 +182,24 @@
           ],
           "upload": false,
           "items": [
-            { "label": "Check 1", "q": "Undo the +3 in x + 3 = 10", "hit": false, "note": "Correct on first attempt." },
-            { "label": "Check 2", "q": "Undo the ×4 in 4x = 20", "hit": false, "note": "Correct on first attempt." },
-            { "label": "Check 3", "q": "Solve 2x + 1 = 9", "hit": false, "note": "Correct; attempted before revealing the step." }
+            {
+              "label": "Check 1",
+              "q": "Undo the +3 in x + 3 = 10",
+              "hit": false,
+              "note": "Correct on first attempt."
+            },
+            {
+              "label": "Check 2",
+              "q": "Undo the ×4 in 4x = 20",
+              "hit": false,
+              "note": "Correct on first attempt."
+            },
+            {
+              "label": "Check 3",
+              "q": "Solve 2x + 1 = 9",
+              "hit": false,
+              "note": "Correct; attempted before revealing the step."
+            }
           ]
         },
         {
@@ -136,11 +220,24 @@
               "q": "Write 3/8 as a percentage",
               "hit": true,
               "note": "Divided 8 by 3 instead of 3 by 8. One-off; corroborated against strong history.",
-              "work": ["3/8 as a %", "8 ÷ 3 = 2.67", "267%"],
-              "wrong": [1],
-              "why": ["Divided 8 by 3 the wrong way round. Should be 3 ÷ 8 = 0.375 = 37.5%."]
+              "work": [
+                "3/8 as a %",
+                "8 ÷ 3 = 2.67",
+                "267%"
+              ],
+              "wrong": [
+                1
+              ],
+              "why": [
+                "Divided 8 by 3 the wrong way round. Should be 3 ÷ 8 = 0.375 = 37.5%."
+              ]
             },
-            { "label": "Q1–3, 5–10", "q": "Remaining conversions", "hit": false, "note": "All correct." }
+            {
+              "label": "Q1–3, 5–10",
+              "q": "Remaining conversions",
+              "hit": false,
+              "note": "All correct."
+            }
           ]
         },
         {
@@ -156,7 +253,12 @@
           ],
           "upload": false,
           "items": [
-            { "label": "Q1–5", "q": "Adding and subtracting negatives", "hit": false, "note": "All correct on delayed retrieval." }
+            {
+              "label": "Q1–5",
+              "q": "Adding and subtracting negatives",
+              "hit": false,
+              "note": "All correct on delayed retrieval."
+            }
           ]
         }
       ]
@@ -178,11 +280,36 @@
           ],
           "upload": false,
           "items": [
-            { "label": "P1", "q": "Convert 1/2 to a percentage", "hit": false, "note": "Correct." },
-            { "label": "P2", "q": "Diagnostic: why is 3/8 not 30%?", "hit": true, "note": "Selected \"I don’t know\" without an attempt." },
-            { "label": "P3", "q": "Diagnostic: convert 1/4 to a percentage", "hit": true, "note": "\"I don’t know\" again - 2nd in a row." },
-            { "label": "P4", "q": "Diagnostic: explain your method", "hit": true, "note": "\"I don’t know\" - 3rd." },
-            { "label": "P5", "q": "Diagnostic: check a worked example", "hit": true, "note": "\"I don’t know\" - 4th. Reads as skipping, not stuck." }
+            {
+              "label": "P1",
+              "q": "Convert 1/2 to a percentage",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "P2",
+              "q": "Diagnostic: why is 3/8 not 30%?",
+              "hit": true,
+              "note": "Selected \"I don’t know\" without an attempt."
+            },
+            {
+              "label": "P3",
+              "q": "Diagnostic: convert 1/4 to a percentage",
+              "hit": true,
+              "note": "\"I don’t know\" again - 2nd in a row."
+            },
+            {
+              "label": "P4",
+              "q": "Diagnostic: explain your method",
+              "hit": true,
+              "note": "\"I don’t know\" - 3rd."
+            },
+            {
+              "label": "P5",
+              "q": "Diagnostic: check a worked example",
+              "hit": true,
+              "note": "\"I don’t know\" - 4th. Reads as skipping, not stuck."
+            }
           ]
         },
         {
@@ -198,7 +325,12 @@
           ],
           "upload": false,
           "items": [
-            { "label": "Q1–5", "q": "Adding and subtracting negatives", "hit": false, "note": "All correct on delayed retrieval." }
+            {
+              "label": "Q1–5",
+              "q": "Adding and subtracting negatives",
+              "hit": false,
+              "note": "All correct on delayed retrieval."
+            }
           ]
         }
       ]
@@ -219,8 +351,18 @@
           ],
           "upload": false,
           "items": [
-            { "label": "Probe", "q": "\"You multiplied first here, didn’t you?\"", "hit": true, "note": "The phrasing itself hints the correct order - the \"yes\" may not reflect real understanding." },
-            { "label": "Check", "q": "Evaluate 2 + 3 × 4", "hit": false, "note": "Correct, but immediately after the cue." }
+            {
+              "label": "Probe",
+              "q": "\"You multiplied first here, didn’t you?\"",
+              "hit": true,
+              "note": "The phrasing itself hints the correct order - the \"yes\" may not reflect real understanding."
+            },
+            {
+              "label": "Check",
+              "q": "Evaluate 2 + 3 × 4",
+              "hit": false,
+              "note": "Correct, but immediately after the cue."
+            }
           ]
         },
         {
@@ -236,8 +378,3438 @@
           ],
           "upload": false,
           "items": [
-            { "label": "Q1–4", "q": "Substituting into one- and two-term expressions", "hit": false, "note": "All correct." },
-            { "label": "Q5", "q": "Substitute into a three-term expression", "hit": true, "note": "One slip on the least-practised item type." }
+            {
+              "label": "Q1–4",
+              "q": "Substituting into one- and two-term expressions",
+              "hit": false,
+              "note": "All correct."
+            },
+            {
+              "label": "Q5",
+              "q": "Substitute into a three-term expression",
+              "hit": true,
+              "note": "One slip on the least-practised item type."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "studentId": "priya",
+      "activities": [
+        {
+          "kind": "Review",
+          "date": "Today",
+          "title": "Substitution · spaced review",
+          "result": "2 of 5 correct",
+          "flag": "attention",
+          "summary": "The interval came round and it had not held. Back to the lesson before the next one.",
+          "detail": [
+            "2 of 5 correct this session.",
+            "The misses are on the easy items - consistent with where this topic already sat.",
+            "Routed back to the lesson before the interval widens again."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Evaluate the expression: 8x + 6, when x = 9",
+              "hit": true,
+              "note": "Came apart at step 2, 8×9 + 6.",
+              "work": [
+                "8x + 6",
+                "8×9 + 6",
+                "72 + 6",
+                "78"
+              ],
+              "wrong": [
+                1
+              ],
+              "why": [
+                "Step 2 is the one that was missed: substitute x = 9. Taken correctly it gives 78."
+              ]
+            },
+            {
+              "label": "Q2",
+              "q": "Work out the value: 4a − 5b, when a = 9 and b = 4",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q3",
+              "q": "Work out the value: 5a − 7b, when a = 11 and b = 3",
+              "hit": true,
+              "note": "Came apart at step 2, = 5 × 11 − 7 × 3.",
+              "work": [
+                "5a − 7b",
+                "= 5 × 11 − 7 × 3",
+                "= 55 − 21",
+                "= 34"
+              ],
+              "wrong": [
+                1
+              ],
+              "why": [
+                "Step 2 is the one that was missed: substitute a = 11 and b = 3. Taken correctly it gives 34."
+              ]
+            },
+            {
+              "label": "Q4",
+              "q": "Work out the value: 9a − 3b, when a = 11 and b = 9",
+              "hit": true,
+              "note": "Came apart at step 2, = 9 × 11 − 3 × 9.",
+              "work": [
+                "9a − 3b",
+                "= 9 × 11 − 3 × 9",
+                "= 99 − 27",
+                "= 72"
+              ],
+              "wrong": [
+                1
+              ],
+              "why": [
+                "Step 2 is the one that was missed: substitute a = 11 and b = 9. Taken correctly it gives 72."
+              ]
+            },
+            {
+              "label": "Q5",
+              "q": "Evaluate the expression: 3a + 2b, when a = 4, b = 5",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        },
+        {
+          "kind": "Lesson",
+          "date": "Yesterday",
+          "title": "% change",
+          "result": "Completed",
+          "flag": "ok",
+          "summary": "Went through without a stumble - ready for the practice that follows it.",
+          "detail": [
+            "First pass at percentage increase and decrease.",
+            "This unlocked because both prerequisites are mastered - it was the graph, not a decision anyone made."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Find the simple interest: 600 invested at 3% for 3 years",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "Find the original price: After a 10% increase the price is 1320. What was it before?",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q3",
+              "q": "Find the original price: After a 70% increase the price is 2890. What was it before?",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        },
+        {
+          "kind": "Problem set",
+          "date": "Last wk",
+          "title": "Negatives",
+          "result": "7 of 8 correct",
+          "flag": "ok",
+          "summary": "No pattern in what was missed - ordinary slips, not a gap.",
+          "detail": [
+            "7 of 8 correct, handed in on time.",
+            "Difficulty-weighted, this reads as 78% on negatives."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Find the new temperature: The temperature is -4°C and rises by 15°C",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "Which is smaller?: -19 or 0",
+              "hit": true,
+              "note": "Came apart at step 2, On a number line, -19 sits further to the left.",
+              "work": [
+                "-19 or 0",
+                "On a number line, -19 sits further to the left",
+                "= -19"
+              ],
+              "wrong": [
+                1
+              ],
+              "why": [
+                "Step 2 is the one that was missed: further left means smaller. Taken correctly it gives -19."
+              ]
+            },
+            {
+              "label": "Q3",
+              "q": "Which is smaller?: -16 or -9",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q4",
+              "q": "Which is smaller?: 17 or 16",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q5",
+              "q": "Which is smaller?: -12 or -6",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "studentId": "tom",
+      "activities": [
+        {
+          "kind": "Review",
+          "date": "Yesterday",
+          "title": "Linear equations · spaced review",
+          "result": "3 of 5 correct",
+          "flag": "attention",
+          "summary": "The interval came round and it had not held. Back to the lesson before the next one.",
+          "detail": [
+            "3 of 5 correct this session.",
+            "The misses are on the ordinary items - consistent with where this topic already sat."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Solve for x: 2x + 19 = 25",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "Solve for x: 7x + 7 = 56",
+              "hit": true,
+              "note": "Came apart at step 2, 7x = 56 − 7.",
+              "work": [
+                "7x + 7 = 56",
+                "7x = 56 − 7",
+                "7x = 49",
+                "x = 7"
+              ],
+              "wrong": [
+                1
+              ],
+              "why": [
+                "Step 2 is the one that was missed: +7 crosses the =, so it becomes −7. Taken correctly it gives 7."
+              ]
+            },
+            {
+              "label": "Q3",
+              "q": "Solve for x: 36 − 4x = 4",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q4",
+              "q": "Solve for x: 20 − 2x = 8",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q5",
+              "q": "Solve for x: 33 − 3x = 12",
+              "hit": true,
+              "note": "Came apart at step 4, x = 7.",
+              "work": [
+                "33 − 3x = 12",
+                "−3x = 12 − 33",
+                "−3x = −21",
+                "x = 7"
+              ],
+              "wrong": [
+                3
+              ],
+              "why": [
+                "Step 4 is the one that was missed: divide both sides by −3 · a negative divided by a negative is positive. Taken correctly it gives 7."
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "Lesson",
+          "date": "Yesterday",
+          "title": "Linear equations",
+          "result": "Completed",
+          "flag": "ok",
+          "summary": "Went through without a stumble - ready for the practice that follows it.",
+          "detail": [
+            "Two-step equations with the unknown on one side.",
+            "Hints are already fading - they are asking for fewer than they were a fortnight ago."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Solve for x: 7 − 2x = 3",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "Solve for x: 6x − 4 = 62",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q3",
+              "q": "Solve for x: 6x − 6 = 66",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        },
+        {
+          "kind": "Problem set",
+          "date": "Last wk",
+          "title": "Substitution",
+          "result": "7 of 8 correct",
+          "flag": "ok",
+          "summary": "Solid across the set, including the last two, which are the hard ones.",
+          "detail": [
+            "7 of 8 correct, handed in on time.",
+            "Difficulty-weighted, this reads as 77% on substitution."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Evaluate the expression: 7x + 15, when x = 10",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "Evaluate the expression: 8x + 13, when x = 4",
+              "hit": true,
+              "note": "Came apart at step 2, 8×4 + 13.",
+              "work": [
+                "8x + 13",
+                "8×4 + 13",
+                "32 + 13",
+                "45"
+              ],
+              "wrong": [
+                1
+              ],
+              "why": [
+                "Step 2 is the one that was missed: substitute x = 4. Taken correctly it gives 45."
+              ]
+            },
+            {
+              "label": "Q3",
+              "q": "Evaluate the expression: 7x + 8, when x = 7",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q4",
+              "q": "Evaluate the expression: 4x + 5, when x = 8",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q5",
+              "q": "Work out the value: 4a − 3b, when a = 7 and b = 5",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "studentId": "grace",
+      "activities": [
+        {
+          "kind": "Review",
+          "date": "Yesterday",
+          "title": "Proportion · spaced review",
+          "result": "4 of 5 correct",
+          "flag": "ok",
+          "summary": "Secure, including the items that usually catch this out.",
+          "detail": [
+            "4 of 5 correct this session.",
+            "Steady across the set, including the harder items."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Work out the cost: 8 pens cost 72p. How much do 12 pens cost?",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "Work out the cost: 9 pens cost 72p. How much do 3 pens cost?",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q3",
+              "q": "Work out the cost: 9 pens cost 36p. How much do 6 pens cost?",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q4",
+              "q": "Scale the recipe: 4 cakes need 8g of flour. How much flour for 20 cakes?",
+              "hit": true,
+              "note": "Came apart at step 2, 20 ÷ 4 = 5, so the recipe is scaled by 5.",
+              "work": [
+                "4 cakes need 8g",
+                "20 ÷ 4 = 5, so the recipe is scaled by 5",
+                "8 × 5",
+                "= 40g"
+              ],
+              "wrong": [
+                1
+              ],
+              "why": [
+                "Step 2 is the one that was missed: find the multiplier first. Taken correctly it gives 40g."
+              ]
+            },
+            {
+              "label": "Q5",
+              "q": "Scale the recipe: 5 cakes need 45g of flour. How much flour for 10 cakes?",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        },
+        {
+          "kind": "Lesson",
+          "date": "Mon",
+          "title": "% change",
+          "result": "Completed",
+          "flag": "ok",
+          "summary": "Went through without a stumble - ready for the practice that follows it.",
+          "detail": [
+            "Percentage increase and decrease, first pass.",
+            "Their long review intervals free up most of their session time for new material rather than revisiting old topics."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Express the change as a percentage: 130 rises to 247",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "Express the change as a percentage: 60 rises to 66",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q3",
+              "q": "Express the change as a percentage: 20 rises to 34",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        },
+        {
+          "kind": "Problem set",
+          "date": "Mon",
+          "title": "Ratio",
+          "result": "7 of 8 correct",
+          "flag": "ok",
+          "summary": "Handed in complete and nearly clean.",
+          "detail": [
+            "7 of 8 correct, handed in on time.",
+            "Difficulty-weighted, this reads as 78% on ratio."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Write the ratio in its simplest form: 21 : 14",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "Write the ratio in its simplest form: 56 : 32",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q3",
+              "q": "Complete the equivalent ratio: 9 : 7 = 18 : ?",
+              "hit": true,
+              "note": "Came apart at step 1, 9 × 2 = 18.",
+              "work": [
+                "9 × 2 = 18",
+                "Do the same to the second: 7 × 2",
+                "= 14"
+              ],
+              "wrong": [
+                0
+              ],
+              "why": [
+                "Step 1 is the one that was missed: see what the first part was multiplied by. Taken correctly it gives 14."
+              ]
+            },
+            {
+              "label": "Q4",
+              "q": "Complete the equivalent ratio: 1 : 3 = 3 : ?",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q5",
+              "q": "Complete the equivalent ratio: 8 : 7 = 40 : ?",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "studentId": "marcus",
+      "activities": [
+        {
+          "kind": "Review",
+          "date": "Mon",
+          "title": "Linear equations · spaced review",
+          "result": "3 of 5 correct",
+          "flag": "attention",
+          "summary": "Not a collapse - the same step, twice, in a topic that was solid a fortnight ago.",
+          "detail": [
+            "3 of 5 correct this session.",
+            "The misses are on the easy items - consistent with where this topic already sat."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Solve for x: 9x + 13 = 49",
+              "hit": true,
+              "note": "Came apart at step 2, 9x = 49 − 13.",
+              "work": [
+                "9x + 13 = 49",
+                "9x = 49 − 13",
+                "9x = 36",
+                "x = 4"
+              ],
+              "wrong": [
+                1
+              ],
+              "why": [
+                "Step 2 is the one that was missed: +13 crosses the =, so it becomes −13. Taken correctly it gives 4."
+              ]
+            },
+            {
+              "label": "Q2",
+              "q": "Solve for x: 4x + 12 = 52",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q3",
+              "q": "Solve for x: 3x + 14 = 50",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q4",
+              "q": "Solve for x: 59 − 9x = 14",
+              "hit": true,
+              "note": "Came apart at step 4, x = 5.",
+              "work": [
+                "59 − 9x = 14",
+                "−9x = 14 − 59",
+                "−9x = −45",
+                "x = 5"
+              ],
+              "wrong": [
+                3
+              ],
+              "why": [
+                "Step 4 is the one that was missed: divide both sides by −9 · a negative divided by a negative is positive. Taken correctly it gives 5."
+              ]
+            },
+            {
+              "label": "Q5",
+              "q": "Solve for x: 44 − 7x = 2",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        },
+        {
+          "kind": "Lesson",
+          "date": "Yesterday",
+          "title": "Expanding ( )",
+          "result": "Completed",
+          "flag": "ok",
+          "summary": "Worked through cleanly; every prerequisite covered.",
+          "detail": [
+            "Single brackets with a negative multiplier - the case they used to slip on.",
+            "Still including the sign cases deliberately rather than moving on, to confirm the fix holds under spacing."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Expand the bracket: 6(6x + 2)",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "Expand the bracket: 8(3x + 10)",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q3",
+              "q": "Expand the bracket: 5(9x + 4)",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        },
+        {
+          "kind": "Problem set",
+          "date": "2 wks",
+          "title": "Substitution",
+          "result": "6 of 8 correct",
+          "flag": "ok",
+          "summary": "No pattern in what was missed - ordinary slips, not a gap.",
+          "detail": [
+            "6 of 8 correct, handed in on time.",
+            "Difficulty-weighted, this reads as 75% on substitution."
+          ],
+          "upload": true,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Work out the value: 5a − 7b, when a = 5 and b = 2",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "Work out the value: 4a − 3b, when a = 10 and b = 9",
+              "hit": true,
+              "note": "Came apart at step 2, = 4 × 10 − 3 × 9.",
+              "work": [
+                "4a − 3b",
+                "= 4 × 10 − 3 × 9",
+                "= 40 − 27",
+                "= 13"
+              ],
+              "wrong": [
+                1
+              ],
+              "why": [
+                "Step 2 is the one that was missed: substitute a = 10 and b = 9. Taken correctly it gives 13."
+              ]
+            },
+            {
+              "label": "Q3",
+              "q": "Work out the value: 7a − 6b, when a = 7 and b = 6",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q4",
+              "q": "Evaluate the expression: 2x + 7, when x = 6",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q5",
+              "q": "Work out the value: 3a + 6b, when a = 7 and b = 6",
+              "hit": true,
+              "note": "Came apart at step 2, = 3 × 7 + 6 × 6.",
+              "work": [
+                "3a + 6b",
+                "= 3 × 7 + 6 × 6",
+                "= 21 + 36",
+                "= 57"
+              ],
+              "wrong": [
+                1
+              ],
+              "why": [
+                "Step 2 is the one that was missed: substitute a = 7 and b = 6. Taken correctly it gives 57."
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "studentId": "sofia",
+      "activities": [
+        {
+          "kind": "Review",
+          "date": "Today",
+          "title": "Fractions & % · spaced review",
+          "result": "3 of 5 correct",
+          "flag": "attention",
+          "summary": "Held on the easy items and came apart on the rest.",
+          "detail": [
+            "3 of 5 correct this session.",
+            "The misses are on the ordinary items - consistent with where this topic already sat."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Write as a percentage: 7/25",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "Write as a percentage: 7/8",
+              "hit": true,
+              "note": "Came apart at step 4, = 87.5%.",
+              "work": [
+                "7/8",
+                "= 7 ÷ 8 × 100",
+                "= 700 ÷ 8",
+                "= 87.5%"
+              ],
+              "wrong": [
+                3
+              ],
+              "why": [
+                "Step 4 is the one that was missed: 700 ÷ 8 = 87.5. Taken correctly it gives 87.5%."
+              ]
+            },
+            {
+              "label": "Q3",
+              "q": "Write as a percentage: 5/8",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q4",
+              "q": "Write as a percentage: 9/40",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q5",
+              "q": "Write as a fraction in its simplest form: 32%",
+              "hit": true,
+              "note": "Came apart at step 2, Divide top and bottom by 4.",
+              "work": [
+                "32% means 32 out of 100",
+                "Divide top and bottom by 4",
+                "= 8/25"
+              ],
+              "wrong": [
+                1
+              ],
+              "why": [
+                "Step 2 is the one that was missed: simplify to lowest terms. Taken correctly it gives 8/25."
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "Lesson",
+          "date": "Yesterday",
+          "title": "Substitution",
+          "result": "Completed",
+          "flag": "ok",
+          "summary": "Worked through cleanly; every prerequisite covered.",
+          "detail": [
+            "Two-variable substitution with negative values.",
+            "Timing their own working is their own habit, not a scaffold that was added - worth not interfering with."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Evaluate the expression: 8x + 13, when x = 4",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "Evaluate the expression: 7x + 8, when x = 7",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q3",
+              "q": "Evaluate the expression: 4x + 5, when x = 8",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        },
+        {
+          "kind": "Problem set",
+          "date": "Last wk",
+          "title": "Algebra basics",
+          "result": "7 of 8 correct",
+          "flag": "ok",
+          "summary": "Solid across the set, including the last two, which are the hard ones.",
+          "detail": [
+            "7 of 8 correct, handed in on time.",
+            "Difficulty-weighted, this reads as 76% on algebra basics."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Solve for x: 6x = 72",
+              "hit": true,
+              "note": "Came apart at step 2, x = 72 ÷ 6.",
+              "work": [
+                "6x = 72",
+                "x = 72 ÷ 6",
+                "x = 12"
+              ],
+              "wrong": [
+                1
+              ],
+              "why": [
+                "Step 2 is the one that was missed: undo the multiplication by dividing. Taken correctly it gives 12."
+              ]
+            },
+            {
+              "label": "Q2",
+              "q": "Solve for x: 2x = 22",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q3",
+              "q": "Solve for x: 12x = 108",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q4",
+              "q": "Work out the value: When x = 3, work out 9x + 5",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q5",
+              "q": "Work out the value: When x = 4, work out 3x + 13",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "studentId": "jack",
+      "activities": [
+        {
+          "kind": "Review",
+          "date": "Today",
+          "title": "Fractions & % · spaced review",
+          "result": "3 of 5 correct",
+          "flag": "attention",
+          "summary": "Held on the easy items and came apart on the rest.",
+          "detail": [
+            "3 of 5 correct this session.",
+            "The misses are on the ordinary items - consistent with where this topic already sat."
+          ],
+          "upload": true,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Which is larger?: 60% or 0.7",
+              "hit": true,
+              "note": "Came apart at step 1, 60% = 0.6 as a decimal.",
+              "work": [
+                "60% = 0.6 as a decimal",
+                "0.7 is larger than 0.6",
+                "= 0.7"
+              ],
+              "wrong": [
+                0
+              ],
+              "why": [
+                "Step 1 is the one that was missed: put both in the same form before comparing. Taken correctly it gives 0.7."
+              ]
+            },
+            {
+              "label": "Q2",
+              "q": "Which is larger?: 77% or 0.87",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q3",
+              "q": "Write as a percentage: 3⁄8 as a %",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q4",
+              "q": "Write as a percentage: 23/25",
+              "hit": true,
+              "note": "Came apart at step 3, = 0.92 × 100.",
+              "work": [
+                "23/25",
+                "= 23 ÷ 25 = 0.92",
+                "= 0.92 × 100",
+                "= 92%"
+              ],
+              "wrong": [
+                2
+              ],
+              "why": [
+                "Step 3 is the one that was missed: multiply by 100 to convert to a percentage. Taken correctly it gives 92%."
+              ]
+            },
+            {
+              "label": "Q5",
+              "q": "Write as a percentage: 3/5",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        },
+        {
+          "kind": "Lesson",
+          "date": "Yesterday",
+          "title": "Linear equations",
+          "result": "Completed",
+          "flag": "ok",
+          "summary": "Worked through cleanly; every prerequisite covered.",
+          "detail": [
+            "One-step equations, rebuilding the run they had going before the gap.",
+            "The reviews that fell due during the fortnight are being released a few a day, not all at once."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Solve for x: 2x + 19 = 23",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "Solve for x: 3x + 12 = 33",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q3",
+              "q": "Solve for x: 38 − 2x = 16",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        },
+        {
+          "kind": "Problem set",
+          "date": "Last wk",
+          "title": "Algebra basics",
+          "result": "7 of 8 correct",
+          "flag": "ok",
+          "summary": "Handed in complete and nearly clean.",
+          "detail": [
+            "7 of 8 correct, handed in on time.",
+            "Difficulty-weighted, this reads as 74% on algebra basics."
+          ],
+          "upload": true,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Solve for x: 6x = 66",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "Solve for x: 4x = 28",
+              "hit": true,
+              "note": "Came apart at step 2, x = 28 ÷ 4.",
+              "work": [
+                "4x = 28",
+                "x = 28 ÷ 4",
+                "x = 7"
+              ],
+              "wrong": [
+                1
+              ],
+              "why": [
+                "Step 2 is the one that was missed: undo the multiplication by dividing. Taken correctly it gives 7."
+              ]
+            },
+            {
+              "label": "Q3",
+              "q": "Work out the value: When x = 5, work out 9x + 12",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q4",
+              "q": "Work out the value: When x = 2, work out 3x + 12",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q5",
+              "q": "Work out the value: When x = 2, work out 2x + 7",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "studentId": "amara",
+      "activities": [
+        {
+          "kind": "Review",
+          "date": "Mon",
+          "title": "Proportion · spaced review",
+          "result": "5 of 5 correct",
+          "flag": "ok",
+          "summary": "Clean. Nothing here needs a re-teach.",
+          "detail": [
+            "5 of 5 correct this session.",
+            "Steady across the set, including the harder items."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Scale the recipe: A recipe for 3 people uses 17g of rice. How much for 15 people?",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "Scale the recipe: A recipe for 8 people uses 20g of rice. How much for 48 people?",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q3",
+              "q": "Find the price per item: 2 items cost 4p",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q4",
+              "q": "Find the price per item: 10 items cost 20p",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q5",
+              "q": "Find the price per item: 5 items cost 30p",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        },
+        {
+          "kind": "Lesson",
+          "date": "Yesterday",
+          "title": "Ratio",
+          "result": "Completed",
+          "flag": "ok",
+          "summary": "Worked through cleanly; every prerequisite covered.",
+          "detail": [
+            "Spaced review - simplifying, and dividing in a given ratio.",
+            "A review, not new teaching. If it goes cleanly the next one is further out again."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Complete the equivalent ratio: 5 : 9 = 30 : ?",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "Complete the equivalent ratio: 1 : 9 = 2 : ?",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q3",
+              "q": "Share in the ratio: Share 20 in the ratio 6 : 4. How much is the first share?",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        },
+        {
+          "kind": "Problem set",
+          "date": "2 wks",
+          "title": "Fractions & %",
+          "result": "8 of 8 correct",
+          "flag": "ok",
+          "summary": "Handed in complete and nearly clean.",
+          "detail": [
+            "8 of 8 correct, handed in on time.",
+            "Difficulty-weighted, this reads as 75% on fractions & %."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Write as a decimal: 97%",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "Write as a decimal: 14%",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q3",
+              "q": "Find the percentage: 25% of 300",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q4",
+              "q": "Find the percentage: 90% of 680",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q5",
+              "q": "Find the percentage: 35% of 100",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "studentId": "leo",
+      "activities": [
+        {
+          "kind": "Review",
+          "date": "Today",
+          "title": "Coordinates · spaced review",
+          "result": "4 of 5 correct",
+          "flag": "ok",
+          "summary": "Secure, including the items that usually catch this out.",
+          "detail": [
+            "4 of 5 correct this session.",
+            "Steady across the set, including the ordinary items."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Find the midpoint: Midpoint of (-3, 5) and (5, 13)",
+              "hit": true,
+              "note": "Came apart at step 2, x: (-3 + 5) ÷ 2 = 1.",
+              "work": [
+                "(-3, 5) and (5, 13)",
+                "x: (-3 + 5) ÷ 2 = 1",
+                "y: (5 + 13) ÷ 2 = 9",
+                "= (1, 9)"
+              ],
+              "wrong": [
+                1
+              ],
+              "why": [
+                "Step 2 is the one that was missed: the midpoint is the mean of each coordinate. Taken correctly it gives (1, 9)."
+              ]
+            },
+            {
+              "label": "Q2",
+              "q": "Find the midpoint: Midpoint of (4, 4) and (18, 6)",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q3",
+              "q": "Find the midpoint: Midpoint of (4, -1) and (6, 5)",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q4",
+              "q": "How far right and up?: Point (17, 20) from the origin",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q5",
+              "q": "How far right and up?: Point (13, 16) from the origin",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        },
+        {
+          "kind": "Lesson",
+          "date": "Yesterday",
+          "title": "Coordinates",
+          "result": "Completed",
+          "flag": "ok",
+          "summary": "Landed first time, with no scaffold needed past the first example.",
+          "detail": [
+            "Plotting and reading points across all four quadrants.",
+            "The negatives work they did earlier in the year is why this is going smoothly - worth telling them that."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Find the midpoint: Midpoint of (-7, -8) and (3, -4)",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "Find the midpoint: Midpoint of (0, 3) and (12, 17)",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q3",
+              "q": "Find the midpoint: Midpoint of (5, 6) and (17, 14)",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        },
+        {
+          "kind": "Problem set",
+          "date": "Last wk",
+          "title": "Negatives",
+          "result": "8 of 8 correct",
+          "flag": "ok",
+          "summary": "No pattern in what was missed - ordinary slips, not a gap.",
+          "detail": [
+            "8 of 8 correct, handed in on time.",
+            "Difficulty-weighted, this reads as 86% on negatives."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Count along the number line: Which number is 7 places to the left of 7?",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "Count along the number line: Which number is 6 places to the left of 5?",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q3",
+              "q": "Which comes first counting up?: -6 and -14",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q4",
+              "q": "Which comes first counting up?: -1 and -4",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q5",
+              "q": "Which comes first counting up?: -6 and -10",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "studentId": "hana",
+      "activities": [
+        {
+          "kind": "Review",
+          "date": "Today",
+          "title": "Decimals · spaced review",
+          "result": "4 of 5 correct",
+          "flag": "ok",
+          "summary": "Straight through - the spacing is doing what it is meant to.",
+          "detail": [
+            "4 of 5 correct this session.",
+            "Steady across the set, including the harder items."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Write as a fraction in its simplest form: 0.88",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "Write as a percentage: 0.44",
+              "hit": true,
+              "note": "Came apart at step 2, = 0.44 × 100.",
+              "work": [
+                "0.44",
+                "= 0.44 × 100",
+                "= 44%"
+              ],
+              "wrong": [
+                1
+              ],
+              "why": [
+                "Step 2 is the one that was missed: multiply by 100 to turn a decimal into a percentage. Taken correctly it gives 44%."
+              ]
+            },
+            {
+              "label": "Q3",
+              "q": "Write as a percentage: 0.85",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q4",
+              "q": "Write as a percentage: 0.38",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q5",
+              "q": "Write as a percentage: 0.92",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        },
+        {
+          "kind": "Lesson",
+          "date": "Yesterday",
+          "title": "Fractions → %",
+          "result": "Completed",
+          "flag": "ok",
+          "summary": "Worked through cleanly; every prerequisite covered.",
+          "detail": [
+            "Non-calculator conversions with awkward denominators.",
+            "They picked these themselves. The scaffolding is already low and can stay there."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Which is larger?: 52% or 0.62",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "Write as a percentage: 9⁄40 as a %",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q3",
+              "q": "Write as a percentage: 31/50",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        },
+        {
+          "kind": "Problem set",
+          "date": "Last wk",
+          "title": "Fractions",
+          "result": "7 of 8 correct",
+          "flag": "ok",
+          "summary": "Solid across the set, including the last two, which are the hard ones.",
+          "detail": [
+            "7 of 8 correct, handed in on time.",
+            "Difficulty-weighted, this reads as 81% on fractions."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Write as an improper fraction: 8 6/10",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "Write as an improper fraction: 6 1/8",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q3",
+              "q": "Write as an improper fraction: 8 1/6",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q4",
+              "q": "Write as an improper fraction: 7 1/10",
+              "hit": true,
+              "note": "Came apart at step 1, 7 whole ones is 7 × 10 = 70 10ths.",
+              "work": [
+                "7 whole ones is 7 × 10 = 70 10ths",
+                "Add the 1 parts already there: 70 + 1",
+                "= 71/10"
+              ],
+              "wrong": [
+                0
+              ],
+              "why": [
+                "Step 1 is the one that was missed: turn the wholes into parts. Taken correctly it gives 71/10."
+              ]
+            },
+            {
+              "label": "Q5",
+              "q": "Write as a mixed number: 52/9",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "studentId": "noah",
+      "activities": [
+        {
+          "kind": "Review",
+          "date": "Today",
+          "title": "Algebra basics · spaced review",
+          "result": "4 of 5 correct",
+          "flag": "ok",
+          "summary": "Came round on schedule and held. The interval widens from here.",
+          "detail": [
+            "4 of 5 correct this session.",
+            "Steady across the set, including the harder items."
+          ],
+          "upload": true,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "What is the coefficient of x?: 38x + 6",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "What is the coefficient of x?: 28x + 33",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q3",
+              "q": "Solve: x + 21 = 60",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q4",
+              "q": "Solve: x + 5 = 34",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q5",
+              "q": "Solve: x + 3 = 32",
+              "hit": true,
+              "note": "Came apart at step 2, Subtract 3 from both sides.",
+              "work": [
+                "x + 3 = 32",
+                "Subtract 3 from both sides",
+                "x = 29"
+              ],
+              "wrong": [
+                1
+              ],
+              "why": [
+                "Step 2 is the one that was missed: subtraction undoes addition. Taken correctly it gives 29."
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "Lesson",
+          "date": "Yesterday",
+          "title": "Substitution",
+          "result": "Completed",
+          "flag": "ok",
+          "summary": "Went through without a stumble - ready for the practice that follows it.",
+          "detail": [
+            "Free-play sets, mostly at foundation and core difficulty.",
+            "Worth nudging the difficulty up rather than the volume. The volume is already there."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Evaluate the expression: 2x + 13, when x = 4",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "Evaluate the expression: 8x + 4, when x = 3",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q3",
+              "q": "Evaluate the expression: 8x + 6, when x = 9",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        },
+        {
+          "kind": "Problem set",
+          "date": "Mon",
+          "title": "Negatives",
+          "result": "8 of 8 correct",
+          "flag": "ok",
+          "summary": "No pattern in what was missed - ordinary slips, not a gap.",
+          "detail": [
+            "8 of 8 correct, handed in on time.",
+            "Difficulty-weighted, this reads as 85% on negatives."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Which comes first counting up?: -17 and -2",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "Which comes first counting up?: -16 and -6",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q3",
+              "q": "Which comes first counting up?: -20 and -3",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q4",
+              "q": "Find the new temperature: The temperature is -6°C and rises by 7°C",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q5",
+              "q": "Find the new temperature: The temperature is -5°C and rises by 14°C",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        },
+        {
+          "kind": "Free play",
+          "date": "2 wks",
+          "title": "Negatives",
+          "result": "3 of 3 right",
+          "flag": "ok",
+          "summary": "Practice they chose themselves, outside the scheduled path.",
+          "detail": [
+            "Not assigned - they went looking for it."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Count along the number line: Which number is 12 places to the left of 8?",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "Count along the number line: Which number is 5 places to the left of -2?",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q3",
+              "q": "Which comes first counting up?: -1 and -6",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "studentId": "ivy",
+      "activities": [
+        {
+          "kind": "Review",
+          "date": "Today",
+          "title": "Fractions & % · spaced review",
+          "result": "5 of 5 correct",
+          "flag": "ok",
+          "summary": "Clean. Nothing here needs a re-teach.",
+          "detail": [
+            "5 of 5 correct this session.",
+            "Steady across the set, including the harder items."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Write as a percentage: 17/40",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "Write as a percentage: 27/32",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q3",
+              "q": "Write as a percentage: 3/8",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q4",
+              "q": "Write as a percentage: 19/40",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q5",
+              "q": "Write as a fraction in its simplest form: 48%",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        },
+        {
+          "kind": "Lesson",
+          "date": "Mon",
+          "title": "Proportion",
+          "result": "Completed",
+          "flag": "ok",
+          "summary": "Went through without a stumble - ready for the practice that follows it.",
+          "detail": [
+            "Direct proportion with a scaling step in the middle.",
+            "Their working is legible enough that the line-level check is doing real diagnostic work on their sessions."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Scale the recipe: A recipe for 5 people uses 27g of rice. How much for 20 people?",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "Scale the recipe: A recipe for 2 people uses 23g of rice. How much for 10 people?",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q3",
+              "q": "Find the price per item: 2 items cost 16p",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        },
+        {
+          "kind": "Problem set",
+          "date": "2 wks",
+          "title": "Ratio",
+          "result": "7 of 8 correct",
+          "flag": "ok",
+          "summary": "Solid across the set, including the last two, which are the hard ones.",
+          "detail": [
+            "7 of 8 correct, handed in on time.",
+            "Difficulty-weighted, this reads as 80% on ratio."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Write in the form 1 : n: 5 : 35",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "Write in the form 1 : n: 5 : 15",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q3",
+              "q": "Write in the form 1 : n: 2 : 14",
+              "hit": true,
+              "note": "Came apart at step 1, Divide both parts by 2.",
+              "work": [
+                "Divide both parts by 2",
+                "2 ÷ 2 = 1 and 14 ÷ 2 = 7",
+                "= 1 : 7"
+              ],
+              "wrong": [
+                0
+              ],
+              "why": [
+                "Step 1 is the one that was missed: scale down until the first part is 1. Taken correctly it gives 1 : 7."
+              ]
+            },
+            {
+              "label": "Q4",
+              "q": "What fraction of the total is the first part?: 9 : 1",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q5",
+              "q": "What fraction of the total is the first part?: 8 : 5",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "studentId": "ben",
+      "activities": [
+        {
+          "kind": "Review",
+          "date": "Yesterday",
+          "title": "Algebra basics · spaced review",
+          "result": "5 of 5 correct",
+          "flag": "ok",
+          "summary": "Secure, including the items that usually catch this out.",
+          "detail": [
+            "5 of 5 correct this session.",
+            "Steady across the set, including the harder items."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Solve: x + 21 = 34",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "Solve: x + 14 = 38",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q3",
+              "q": "Solve: x + 20 = 54",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q4",
+              "q": "Solve for x: 9x = 108",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q5",
+              "q": "Solve for x: 7x = 63",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        },
+        {
+          "kind": "Lesson",
+          "date": "Yesterday",
+          "title": "Linear equations",
+          "result": "Completed",
+          "flag": "ok",
+          "summary": "Worked through cleanly; every prerequisite covered.",
+          "detail": [
+            "Two-step equations with the unknown on one side.",
+            "Equations with brackets is the next node along, and one of its two prerequisites is already mastered."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Solve for x: 5x − 17 = 13",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "Solve for x: 4x − 17 = 7",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q3",
+              "q": "Solve for x: 4x − 8 = 40",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        },
+        {
+          "kind": "Problem set",
+          "date": "2 wks",
+          "title": "Expanding ( )",
+          "result": "7 of 8 correct",
+          "flag": "ok",
+          "summary": "Solid across the set, including the last two, which are the hard ones.",
+          "detail": [
+            "7 of 8 correct, handed in on time.",
+            "Difficulty-weighted, this reads as 77% on expanding ( )."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Expand: −9(2x + 11)",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "Expand and simplify: 5(7x + 9) + 7x",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q3",
+              "q": "Expand and simplify: 4(7x + 9) + 4x",
+              "hit": true,
+              "note": "Came apart at step 2, Collect the x terms: 28x + 4x = 32x.",
+              "work": [
+                "Expand: 28x + 36",
+                "Collect the x terms: 28x + 4x = 32x",
+                "= 32x + 36"
+              ],
+              "wrong": [
+                1
+              ],
+              "why": [
+                "Step 2 is the one that was missed: only after expanding. Taken correctly it gives 32x + 36."
+              ]
+            },
+            {
+              "label": "Q4",
+              "q": "Expand and simplify: 3(5x + 8) + 2x",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q5",
+              "q": "Expand the bracket: 6(6x + 2)",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "studentId": "ruth",
+      "activities": [
+        {
+          "kind": "Review",
+          "date": "Yesterday",
+          "title": "Expanding ( ) · spaced review",
+          "result": "3 of 5 correct",
+          "flag": "attention",
+          "summary": "Slipped on the items that need the method rather than the recall.",
+          "detail": [
+            "3 of 5 correct this session.",
+            "The misses are on the ordinary items - consistent with where this topic already sat."
+          ],
+          "upload": true,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Expand: −10(7x + 2)",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "Expand: −7(10x + 3)",
+              "hit": true,
+              "note": "Came apart at step 2, −7 × 3 = −21.",
+              "work": [
+                "−7 × 10x = −70x",
+                "−7 × 3 = −21",
+                "= −70x − 21"
+              ],
+              "wrong": [
+                1
+              ],
+              "why": [
+                "Step 2 is the one that was missed: the minus applies to BOTH terms. Taken correctly it gives −70x − 21."
+              ]
+            },
+            {
+              "label": "Q3",
+              "q": "Expand and simplify: 5(9x + 9) + 4x",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q4",
+              "q": "Expand and simplify: 7(3x + 8) + 2x",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q5",
+              "q": "Expand and simplify: 8(5x + 4) + 5x",
+              "hit": true,
+              "note": "Came apart at step 2, Collect the x terms: 40x + 5x = 45x.",
+              "work": [
+                "Expand: 40x + 32",
+                "Collect the x terms: 40x + 5x = 45x",
+                "= 45x + 32"
+              ],
+              "wrong": [
+                1
+              ],
+              "why": [
+                "Step 2 is the one that was missed: only after expanding. Taken correctly it gives 45x + 32."
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "Lesson",
+          "date": "Yesterday",
+          "title": "Expanding ( )",
+          "result": "Completed",
+          "flag": "ok",
+          "summary": "Worked through cleanly; every prerequisite covered.",
+          "detail": [
+            "Single brackets, positive and negative multipliers.",
+            "The next review lands in three days. Four reps is a start, not yet retention."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Expand the bracket: 3(6x + 3)",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "Expand the bracket: 7(9x + 1)",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q3",
+              "q": "Expand the bracket: 5(5x + 1)",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        },
+        {
+          "kind": "Problem set",
+          "date": "Mon",
+          "title": "Substitution",
+          "result": "6 of 8 correct",
+          "flag": "ok",
+          "summary": "Handed in complete and nearly clean.",
+          "detail": [
+            "6 of 8 correct, handed in on time.",
+            "Difficulty-weighted, this reads as 44% on substitution."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Evaluate the expression: 9x + 13, when x = 8",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "Evaluate the expression: 7x + 7, when x = 3",
+              "hit": true,
+              "note": "Came apart at step 2, 7×3 + 7.",
+              "work": [
+                "7x + 7",
+                "7×3 + 7",
+                "21 + 7",
+                "28"
+              ],
+              "wrong": [
+                1
+              ],
+              "why": [
+                "Step 2 is the one that was missed: substitute x = 3. Taken correctly it gives 28."
+              ]
+            },
+            {
+              "label": "Q3",
+              "q": "Evaluate the expression: 7x + 15, when x = 8",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q4",
+              "q": "Work out the value: 8a − 7b, when a = 12 and b = 3",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q5",
+              "q": "Work out the value: 5a − 7b, when a = 5 and b = 2",
+              "hit": true,
+              "note": "Came apart at step 2, = 5 × 5 − 7 × 2.",
+              "work": [
+                "5a − 7b",
+                "= 5 × 5 − 7 × 2",
+                "= 25 − 14",
+                "= 11"
+              ],
+              "wrong": [
+                1
+              ],
+              "why": [
+                "Step 2 is the one that was missed: substitute a = 5 and b = 2. Taken correctly it gives 11."
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "studentId": "sam",
+      "activities": [
+        {
+          "kind": "Review",
+          "date": "Today",
+          "title": "Coordinates · spaced review",
+          "result": "4 of 5 correct",
+          "flag": "ok",
+          "summary": "Clean. Nothing here needs a re-teach.",
+          "detail": [
+            "4 of 5 correct this session.",
+            "Steady across the set, including the ordinary items."
+          ],
+          "upload": true,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Find the third coordinate: A point in 3-D is (4, 6, z), 12 units above the base",
+              "hit": true,
+              "note": "Came apart at step 2, The third value is the height.",
+              "work": [
+                "3-D coordinates are written (x, y, z)",
+                "The third value is the height",
+                "= 12"
+              ],
+              "wrong": [
+                1
+              ],
+              "why": [
+                "Step 2 is the one that was missed: z measures up from the base plane. Taken correctly it gives 12."
+              ]
+            },
+            {
+              "label": "Q2",
+              "q": "Find the third coordinate: A point in 3-D is (5, 12, z), 5 units above the base",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q3",
+              "q": "Find the third coordinate: A point in 3-D is (12, 8, z), 26 units above the base",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q4",
+              "q": "Find the midpoint: Midpoint of (7, -1) and (11, 3)",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q5",
+              "q": "Find the midpoint: Midpoint of (7, 5) and (21, 7)",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        },
+        {
+          "kind": "Lesson",
+          "date": "Mon",
+          "title": "Coordinates",
+          "result": "Completed",
+          "flag": "ok",
+          "summary": "Went through without a stumble - ready for the practice that follows it.",
+          "detail": [
+            "Reading and plotting points, moving on towards midpoints.",
+            "Nothing has been flagged on their work for six weeks. The quiet ones are the easiest to lose track of."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "How far right and up?: Point (19, 12) from the origin",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "Reflect in the y-axis: Point (−10, 10) reflected in the y-axis",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q3",
+              "q": "Reflect in the y-axis: Point (−12, 13) reflected in the y-axis",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        },
+        {
+          "kind": "Problem set",
+          "date": "Last wk",
+          "title": "Algebra basics",
+          "result": "7 of 8 correct",
+          "flag": "ok",
+          "summary": "No pattern in what was missed - ordinary slips, not a gap.",
+          "detail": [
+            "7 of 8 correct, handed in on time.",
+            "Difficulty-weighted, this reads as 74% on algebra basics."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Find the value: When n = 38, what is n + 13?",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "Find the value: When n = 15, what is n + 28?",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q3",
+              "q": "Find the value: When n = 39, what is n + 8?",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q4",
+              "q": "What is the coefficient of x?: 3x + 33",
+              "hit": true,
+              "note": "Came apart at step 2, The coefficient is the number multiplying x.",
+              "work": [
+                "3x + 33",
+                "The coefficient is the number multiplying x",
+                "= 3"
+              ],
+              "wrong": [
+                1
+              ],
+              "why": [
+                "Step 2 is the one that was missed: 33 is a constant, not a coefficient. Taken correctly it gives 3."
+              ]
+            },
+            {
+              "label": "Q5",
+              "q": "What is the coefficient of x?: 33x + 19",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "studentId": "elif",
+      "activities": [
+        {
+          "kind": "Review",
+          "date": "Today",
+          "title": "Coordinates · spaced review",
+          "result": "4 of 5 correct",
+          "flag": "ok",
+          "summary": "Secure, including the items that usually catch this out.",
+          "detail": [
+            "4 of 5 correct this session.",
+            "Steady across the set, including the harder items."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Complete the rectangle: Three corners are (5, 7), (7, 7) and (5, 10)",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "Complete the rectangle: Three corners are (9, 5), (20, 5) and (9, 16)",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q3",
+              "q": "Complete the rectangle: Three corners are (3, 10), (5, 10) and (3, 19)",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q4",
+              "q": "Find the third coordinate: A point in 3-D is (8, 4, z), 6 units above the base",
+              "hit": true,
+              "note": "Came apart at step 2, The third value is the height.",
+              "work": [
+                "3-D coordinates are written (x, y, z)",
+                "The third value is the height",
+                "= 6"
+              ],
+              "wrong": [
+                1
+              ],
+              "why": [
+                "Step 2 is the one that was missed: z measures up from the base plane. Taken correctly it gives 6."
+              ]
+            },
+            {
+              "label": "Q5",
+              "q": "Find the third coordinate: A point in 3-D is (12, 2, z), 7 units above the base",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        },
+        {
+          "kind": "Lesson",
+          "date": "Yesterday",
+          "title": "Simultaneous eqns",
+          "result": "Completed",
+          "flag": "ok",
+          "summary": "Landed first time, with no scaffold needed past the first example.",
+          "detail": [
+            "Elimination where one equation has to be scaled first.",
+            "A Year 9 topic reached in a Year 8 class. Every prerequisite underneath it is mastered, so nothing is holding them back."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Find x: y = 9 and 2x + y = 17",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "Find x: y = 9 and 5x + y = 29",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q3",
+              "q": "Find x: y = 5 and 4x + y = 29",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        },
+        {
+          "kind": "Problem set",
+          "date": "Mon",
+          "title": "Linear equations",
+          "result": "7 of 8 correct",
+          "flag": "ok",
+          "summary": "No pattern in what was missed - ordinary slips, not a gap.",
+          "detail": [
+            "7 of 8 correct, handed in on time.",
+            "Difficulty-weighted, this reads as 87% on linear equations."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Solve for x: 4x + 11 = 23",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "Solve for x: 31 − 3x = 10",
+              "hit": true,
+              "note": "Came apart at step 4, x = 7.",
+              "work": [
+                "31 − 3x = 10",
+                "−3x = 10 − 31",
+                "−3x = −21",
+                "x = 7"
+              ],
+              "wrong": [
+                3
+              ],
+              "why": [
+                "Step 4 is the one that was missed: divide both sides by −3 · a negative divided by a negative is positive. Taken correctly it gives 7."
+              ]
+            },
+            {
+              "label": "Q3",
+              "q": "Solve for x: 12 − 2x = 2",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q4",
+              "q": "Solve for x: 80 − 7x = 3",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q5",
+              "q": "Solve for x: 5x − 4 = 16",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        },
+        {
+          "kind": "Free play",
+          "date": "2 wks",
+          "title": "Linear equations",
+          "result": "3 of 3 right",
+          "flag": "ok",
+          "summary": "Practice they chose themselves, outside the scheduled path.",
+          "detail": [
+            "Not assigned - they went looking for it."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Solve for x: 9x + 18 = 108",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "Solve for x: 6x + 16 = 88",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q3",
+              "q": "Solve for x: 31 − 3x = 1",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "studentId": "oscar",
+      "activities": [
+        {
+          "kind": "Review",
+          "date": "Mon",
+          "title": "Bracket eqns · spaced review",
+          "result": "3 of 5 correct",
+          "flag": "attention",
+          "summary": "Held on the easy items and came apart on the rest.",
+          "detail": [
+            "3 of 5 correct this session.",
+            "The misses are on the ordinary items - consistent with where this topic already sat."
+          ],
+          "upload": true,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Solve for x: 2(x + 9) = 24",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "Solve: 9x = 3x + 18",
+              "hit": true,
+              "note": "Came apart at step 1, 9x − 3x = 18.",
+              "work": [
+                "9x − 3x = 18",
+                "6x = 18",
+                "x = 3"
+              ],
+              "wrong": [
+                0
+              ],
+              "why": [
+                "Step 1 is the one that was missed: gather the x terms on one side. Taken correctly it gives 3."
+              ]
+            },
+            {
+              "label": "Q3",
+              "q": "Solve: 5x = 2x + 18",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q4",
+              "q": "Solve: 3x = 2x + 2",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q5",
+              "q": "Solve: x/4 = 2.75",
+              "hit": true,
+              "note": "Came apart at step 2, Multiply both sides by 4.",
+              "work": [
+                "x/4 = 2.75",
+                "Multiply both sides by 4",
+                "x = 11"
+              ],
+              "wrong": [
+                1
+              ],
+              "why": [
+                "Step 2 is the one that was missed: multiplication undoes division. Taken correctly it gives 11."
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "Lesson",
+          "date": "Yesterday",
+          "title": "Bracket eqns",
+          "result": "Completed",
+          "flag": "ok",
+          "summary": "Went through without a stumble - ready for the practice that follows it.",
+          "detail": [
+            "Equations with a bracket on one side, expanding before solving.",
+            "Proportion is the one topic they are behind on. Worth not letting the algebra hide it."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Solve: x/7 = 1.429",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "Solve: x/7 = 0.714",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q3",
+              "q": "Solve: x/6 = 0.833",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        },
+        {
+          "kind": "Problem set",
+          "date": "Last wk",
+          "title": "Expanding ( )",
+          "result": "7 of 8 correct",
+          "flag": "ok",
+          "summary": "No pattern in what was missed - ordinary slips, not a gap.",
+          "detail": [
+            "7 of 8 correct, handed in on time.",
+            "Difficulty-weighted, this reads as 82% on expanding ( )."
+          ],
+          "upload": true,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Expand and simplify: 4(4x + 2) + 3x",
+              "hit": true,
+              "note": "Came apart at step 2, Collect the x terms: 16x + 3x = 19x.",
+              "work": [
+                "Expand: 16x + 8",
+                "Collect the x terms: 16x + 3x = 19x",
+                "= 19x + 8"
+              ],
+              "wrong": [
+                1
+              ],
+              "why": [
+                "Step 2 is the one that was missed: only after expanding. Taken correctly it gives 19x + 8."
+              ]
+            },
+            {
+              "label": "Q2",
+              "q": "Expand and simplify: 9(3x + 3) + 2x",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q3",
+              "q": "Expand the bracket: 4(2x + 1)",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q4",
+              "q": "Expand the bracket: 5(7x + 11)",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q5",
+              "q": "Expand the bracket: 3(2x + 11)",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "studentId": "maya",
+      "activities": [
+        {
+          "kind": "Review",
+          "date": "Mon",
+          "title": "Simultaneous eqns · spaced review",
+          "result": "3 of 5 correct",
+          "flag": "attention",
+          "summary": "Not a collapse - the same step, twice, in a topic that was solid a fortnight ago.",
+          "detail": [
+            "3 of 5 correct this session.",
+            "The misses are on the easy items - consistent with where this topic already sat."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Find x: y = 6 and 4x + y = 42",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "Find y: 6x + y = 51 and 6x − y = 45",
+              "hit": true,
+              "note": "Came apart at step 1, Subtracting removes the 6x terms.",
+              "work": [
+                "Subtracting removes the 6x terms",
+                "2y = 6",
+                "y = 3"
+              ],
+              "wrong": [
+                0
+              ],
+              "why": [
+                "Step 1 is the one that was missed: the matching terms cancel. Taken correctly it gives 3."
+              ]
+            },
+            {
+              "label": "Q3",
+              "q": "Find y: 6x + y = 47 and 6x − y = 37",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q4",
+              "q": "Find y: 4x + y = 36 and 4x − y = 28",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q5",
+              "q": "Find y: 2x + y = 23 and 2x − y = 5",
+              "hit": true,
+              "note": "Came apart at step 1, Subtracting removes the 2x terms.",
+              "work": [
+                "Subtracting removes the 2x terms",
+                "2y = 18",
+                "y = 9"
+              ],
+              "wrong": [
+                0
+              ],
+              "why": [
+                "Step 1 is the one that was missed: the matching terms cancel. Taken correctly it gives 9."
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "Lesson",
+          "date": "Yesterday",
+          "title": "Coordinates",
+          "result": "Completed",
+          "flag": "ok",
+          "summary": "Landed first time, with no scaffold needed past the first example.",
+          "detail": [
+            "Stretch items - gradient between two points, and midpoints.",
+            "They are working past this topic rather than through it. Expanding brackets is the one place they are not ahead."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Reflect in the y-axis: Point (−13, 2) reflected in the y-axis",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "Read the scaled axis: Each square is 5 units. What value is 12 squares along?",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q3",
+              "q": "Read the scaled axis: Each square is 10 units. What value is 5 squares along?",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        },
+        {
+          "kind": "Problem set",
+          "date": "Last wk",
+          "title": "Linear equations",
+          "result": "7 of 8 correct",
+          "flag": "ok",
+          "summary": "No pattern in what was missed - ordinary slips, not a gap.",
+          "detail": [
+            "7 of 8 correct, handed in on time.",
+            "Difficulty-weighted, this reads as 82% on linear equations."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Solve for x: 4x + 14 = 38",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "Solve for x: 4x + 11 = 23",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q3",
+              "q": "Solve for x: 31 − 3x = 10",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q4",
+              "q": "Solve for x: 12 − 2x = 2",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q5",
+              "q": "Solve for x: 80 − 7x = 3",
+              "hit": true,
+              "note": "Came apart at step 4, x = 11.",
+              "work": [
+                "80 − 7x = 3",
+                "−7x = 3 − 80",
+                "−7x = −77",
+                "x = 11"
+              ],
+              "wrong": [
+                3
+              ],
+              "why": [
+                "Step 4 is the one that was missed: divide both sides by −7 · a negative divided by a negative is positive. Taken correctly it gives 11."
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "Free play",
+          "date": "2 wks",
+          "title": "Coordinates",
+          "result": "3 of 3 right",
+          "flag": "ok",
+          "summary": "Practice they chose themselves, outside the scheduled path.",
+          "detail": [
+            "Not assigned - they went looking for it."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Find the midpoint: Midpoint of (5, 6) and (17, 14)",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "How far right and up?: Point (14, 19) from the origin",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q3",
+              "q": "How far right and up?: Point (17, 18) from the origin",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "studentId": "finn",
+      "activities": [
+        {
+          "kind": "Review",
+          "date": "Today",
+          "title": "Algebra basics · spaced review",
+          "result": "4 of 5 correct",
+          "flag": "ok",
+          "summary": "Came round on schedule and held. The interval widens from here.",
+          "detail": [
+            "4 of 5 correct this session.",
+            "Steady across the set, including the harder items."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "What is the coefficient of x?: 21x + 22",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "What is the coefficient of x?: 18x + 22",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q3",
+              "q": "Solve: x + 21 = 46",
+              "hit": true,
+              "note": "Came apart at step 2, Subtract 21 from both sides.",
+              "work": [
+                "x + 21 = 46",
+                "Subtract 21 from both sides",
+                "x = 25"
+              ],
+              "wrong": [
+                1
+              ],
+              "why": [
+                "Step 2 is the one that was missed: subtraction undoes addition. Taken correctly it gives 25."
+              ]
+            },
+            {
+              "label": "Q4",
+              "q": "Solve: x + 16 = 31",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q5",
+              "q": "Solve: x + 29 = 49",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        },
+        {
+          "kind": "Lesson",
+          "date": "Yesterday",
+          "title": "Simultaneous eqns",
+          "result": "Completed",
+          "flag": "ok",
+          "summary": "Landed first time, with no scaffold needed past the first example.",
+          "detail": [
+            "Elimination and substitution methods, at the hardest tier available.",
+            "They rarely take a hint. Worth checking there is enough stretch material ahead of them rather than assuming there is."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Find y after scaling: x + y = 6 and 4x + y = 21",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "Find y after scaling: x + y = 5 and 4x + y = 14",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q3",
+              "q": "Find y after scaling: x + y = 9 and 2x + y = 13",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        },
+        {
+          "kind": "Problem set",
+          "date": "Mon",
+          "title": "Linear equations",
+          "result": "7 of 8 correct",
+          "flag": "ok",
+          "summary": "Solid across the set, including the last two, which are the hard ones.",
+          "detail": [
+            "7 of 8 correct, handed in on time.",
+            "Difficulty-weighted, this reads as 91% on linear equations."
+          ],
+          "upload": true,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Solve for x: 31 − 3x = 10",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "Solve for x: 12 − 2x = 2",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q3",
+              "q": "Solve for x: 80 − 7x = 3",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q4",
+              "q": "Solve for x: 5x − 4 = 16",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q5",
+              "q": "Solve for x: 9x − 6 = 30",
+              "hit": true,
+              "note": "Came apart at step 2, 9x = 30 + 6.",
+              "work": [
+                "9x − 6 = 30",
+                "9x = 30 + 6",
+                "9x = 36",
+                "x = 4"
+              ],
+              "wrong": [
+                1
+              ],
+              "why": [
+                "Step 2 is the one that was missed: −6 crosses the =, so it becomes +6. Taken correctly it gives 4."
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "Free play",
+          "date": "2 wks",
+          "title": "Algebra basics",
+          "result": "3 of 3 right",
+          "flag": "ok",
+          "summary": "Practice they chose themselves, outside the scheduled path.",
+          "detail": [
+            "Not assigned - they went looking for it."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Work out the value: When x = 4, work out 3x + 13",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "Work out the value: When x = 5, work out 4x + 2",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q3",
+              "q": "Find the value: When n = 24, what is n + 3?",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "studentId": "zara",
+      "activities": [
+        {
+          "kind": "Review",
+          "date": "Mon",
+          "title": "Fractions & % · spaced review",
+          "result": "4 of 5 correct",
+          "flag": "ok",
+          "summary": "Clean. Nothing here needs a re-teach.",
+          "detail": [
+            "4 of 5 correct this session.",
+            "Steady across the set, including the harder items."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Write as a percentage: 15/16",
+              "hit": true,
+              "note": "Came apart at step 4, = 93.75%.",
+              "work": [
+                "15/16",
+                "= 15 ÷ 16 × 100",
+                "= 1500 ÷ 16",
+                "= 93.75%"
+              ],
+              "wrong": [
+                3
+              ],
+              "why": [
+                "Step 4 is the one that was missed: 1500 ÷ 16 = 93.75. Taken correctly it gives 93.75%."
+              ]
+            },
+            {
+              "label": "Q2",
+              "q": "Write as a fraction in its simplest form: 41%",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q3",
+              "q": "Write as a fraction in its simplest form: 10%",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q4",
+              "q": "Write as a fraction in its simplest form: 33%",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q5",
+              "q": "Write as a decimal: 8%",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        },
+        {
+          "kind": "Lesson",
+          "date": "Yesterday",
+          "title": "Bracket eqns",
+          "result": "Completed",
+          "flag": "ok",
+          "summary": "Landed first time, with no scaffold needed past the first example.",
+          "detail": [
+            "Expanding then solving, at core difficulty.",
+            "The flat stretch tier runs across all four of their topics, so it is a pattern in what they have been given, not something about brackets."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Solve: 6x = 2x + 28",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "Solve: 7x = 6x + 8",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q3",
+              "q": "Solve: x/7 = 1.429",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        },
+        {
+          "kind": "Problem set",
+          "date": "Mon",
+          "title": "Expanding ( )",
+          "result": "6 of 8 correct",
+          "flag": "ok",
+          "summary": "Handed in complete and nearly clean.",
+          "detail": [
+            "6 of 8 correct, handed in on time.",
+            "Difficulty-weighted, this reads as 75% on expanding ( )."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Expand the bracket: 6(6x + 2)",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "Expand the bracket: 8(3x + 10)",
+              "hit": true,
+              "note": "Came apart at step 3, 8 × 10 = 80.",
+              "work": [
+                "8(3x + 10)",
+                "8 × 3x = 24x",
+                "8 × 10 = 80",
+                "= 24x + 80"
+              ],
+              "wrong": [
+                2
+              ],
+              "why": [
+                "Step 3 is the one that was missed: including the number on its own. Taken correctly it gives 24x + 80."
+              ]
+            },
+            {
+              "label": "Q3",
+              "q": "Expand the bracket: 5(9x + 4)",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q4",
+              "q": "Expand the bracket: 3(5x + 4)",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q5",
+              "q": "Expand: −6(11x + 9)",
+              "hit": true,
+              "note": "Came apart at step 2, −6 × 9 = −54.",
+              "work": [
+                "−6 × 11x = −66x",
+                "−6 × 9 = −54",
+                "= −66x − 54"
+              ],
+              "wrong": [
+                1
+              ],
+              "why": [
+                "Step 2 is the one that was missed: the minus applies to BOTH terms. Taken correctly it gives −66x − 54."
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "Free play",
+          "date": "2 wks",
+          "title": "Linear equations",
+          "result": "3 of 3 right",
+          "flag": "ok",
+          "summary": "Practice they chose themselves, outside the scheduled path.",
+          "detail": [
+            "Not assigned - they went looking for it."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Solve for x: 20 − 4x = 12",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "Solve for x: 76 − 9x = 4",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q3",
+              "q": "Solve for x: 7 − 2x = 3",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "studentId": "louis",
+      "activities": [
+        {
+          "kind": "Review",
+          "date": "Yesterday",
+          "title": "Linear equations · spaced review",
+          "result": "5 of 5 correct",
+          "flag": "ok",
+          "summary": "Came round on schedule and held. The interval widens from here.",
+          "detail": [
+            "5 of 5 correct this session.",
+            "Steady across the set, including the harder items."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Solve for x: 2x + 19 = 23",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "Solve for x: 3x + 12 = 33",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q3",
+              "q": "Solve for x: 38 − 2x = 16",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q4",
+              "q": "Solve for x: 97 − 7x = 20",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q5",
+              "q": "Solve for x: 42 − 5x = 17",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        },
+        {
+          "kind": "Lesson",
+          "date": "Yesterday",
+          "title": "Simultaneous eqns",
+          "result": "Completed",
+          "flag": "ok",
+          "summary": "Worked through cleanly; every prerequisite covered.",
+          "detail": [
+            "First pass at elimination.",
+            "This opened because coordinates and linear equations are both mastered - the graph unlocked it, nobody decided it."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Find y: 5x + y = 23 and 5x − y = 7",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "Find y: 3x + y = 33 and 3x − y = 21",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q3",
+              "q": "Find y after scaling: x + y = 6 and 2x + y = 11",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        },
+        {
+          "kind": "Problem set",
+          "date": "Mon",
+          "title": "Coordinates",
+          "result": "7 of 8 correct",
+          "flag": "ok",
+          "summary": "Handed in complete and nearly clean.",
+          "detail": [
+            "7 of 8 correct, handed in on time.",
+            "Difficulty-weighted, this reads as 87% on coordinates."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "How far right and up?: Point (12, 5) from the origin",
+              "hit": true,
+              "note": "Came apart at step 2, y tells you how far up: 5.",
+              "work": [
+                "x tells you how far right: 12",
+                "y tells you how far up: 5",
+                "Total steps = 12 + 5 = 17"
+              ],
+              "wrong": [
+                1
+              ],
+              "why": [
+                "Step 2 is the one that was missed: x comes before y, always. Taken correctly it gives 17."
+              ]
+            },
+            {
+              "label": "Q2",
+              "q": "How far right and up?: Point (10, 6) from the origin",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q3",
+              "q": "How far right and up?: Point (13, 6) from the origin",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q4",
+              "q": "How far right and up?: Point (11, 18) from the origin",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q5",
+              "q": "Reflect in the y-axis: Point (−13, 4) reflected in the y-axis",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "studentId": "nina",
+      "activities": [
+        {
+          "kind": "Review",
+          "date": "Today",
+          "title": "Linear equations · spaced review",
+          "result": "4 of 5 correct",
+          "flag": "ok",
+          "summary": "Clean. Nothing here needs a re-teach.",
+          "detail": [
+            "4 of 5 correct this session.",
+            "Steady across the set, including the harder items."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Solve for x: 17 − 5x = 2",
+              "hit": true,
+              "note": "Came apart at step 4, x = 3.",
+              "work": [
+                "17 − 5x = 2",
+                "−5x = 2 − 17",
+                "−5x = −15",
+                "x = 3"
+              ],
+              "wrong": [
+                3
+              ],
+              "why": [
+                "Step 4 is the one that was missed: divide both sides by −5 · a negative divided by a negative is positive. Taken correctly it gives 3."
+              ]
+            },
+            {
+              "label": "Q2",
+              "q": "Solve for x: 67 − 7x = 18",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q3",
+              "q": "Solve for x: 4x − 9 = 15",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q4",
+              "q": "Solve for x: 9x − 13 = 50",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q5",
+              "q": "Solve for x: 6x − 14 = 10",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        },
+        {
+          "kind": "Lesson",
+          "date": "Yesterday",
+          "title": "Simultaneous eqns",
+          "result": "Completed",
+          "flag": "ok",
+          "summary": "Worked through cleanly; every prerequisite covered.",
+          "detail": [
+            "Elimination where both equations need scaling.",
+            "Two reviews are due today. Those matter more this week than progress on the new topic does."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Find y after scaling: x + y = 8 and 2x + y = 12",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "Find y after scaling: x + y = 9 and 2x + y = 17",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q3",
+              "q": "Find x: x + y = 11 and x − y = 7",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        },
+        {
+          "kind": "Problem set",
+          "date": "Mon",
+          "title": "Negatives",
+          "result": "7 of 8 correct",
+          "flag": "ok",
+          "summary": "Handed in complete and nearly clean.",
+          "detail": [
+            "7 of 8 correct, handed in on time.",
+            "Difficulty-weighted, this reads as 78% on negatives."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Find the new temperature: The temperature is -8°C and rises by 17°C",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "Find the new temperature: The temperature is -10°C and rises by 8°C",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q3",
+              "q": "Which is smaller?: 17 or -20",
+              "hit": true,
+              "note": "Came apart at step 2, On a number line, -20 sits further to the left.",
+              "work": [
+                "17 or -20",
+                "On a number line, -20 sits further to the left",
+                "= -20"
+              ],
+              "wrong": [
+                1
+              ],
+              "why": [
+                "Step 2 is the one that was missed: further left means smaller. Taken correctly it gives -20."
+              ]
+            },
+            {
+              "label": "Q4",
+              "q": "Which is smaller?: -14 or 9",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q5",
+              "q": "Which is smaller?: 13 or -18",
+              "hit": false,
+              "note": "Correct."
+            }
+          ]
+        },
+        {
+          "kind": "Free play",
+          "date": "2 wks",
+          "title": "Linear equations",
+          "result": "3 of 3 right",
+          "flag": "ok",
+          "summary": "Practice they chose themselves, outside the scheduled path.",
+          "detail": [
+            "Not assigned - they went looking for it."
+          ],
+          "upload": false,
+          "items": [
+            {
+              "label": "Q1",
+              "q": "Solve for x: 17 − 5x = 2",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q2",
+              "q": "Solve for x: 67 − 7x = 18",
+              "hit": false,
+              "note": "Correct."
+            },
+            {
+              "label": "Q3",
+              "q": "Solve for x: 4x − 9 = 15",
+              "hit": false,
+              "note": "Correct."
+            }
           ]
         }
       ]
