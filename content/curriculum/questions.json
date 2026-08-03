@@ -9,19 +9,21 @@
       "familyId": "cross-equals",
       "difficulty": "foundations",
       "prompt": "Solve for x",
-      "statement": "3x − 7 = 11",
+      "statement": "3x \u2212 7 = 11",
       "answerLabel": "x =",
       "correctAnswer": "6",
       "lines": [
         {
-          "text": "3x − 7 = 11",
+          "text": "3x \u2212 7 = 11",
           "note": "",
           "prereqSubtopicIds": []
         },
         {
           "text": "3x = 11 + 7",
-          "note": "−7 crosses the =, so it becomes +7",
-          "prereqSubtopicIds": []
+          "note": "\u22127 crosses the =, so it becomes +7",
+          "prereqSubtopicIds": [
+            "alg.basics.inverse-operations"
+          ]
         },
         {
           "text": "3x = 18",
@@ -31,14 +33,16 @@
         {
           "text": "x = 6",
           "note": "divide both sides by 3",
-          "prereqSubtopicIds": []
+          "prereqSubtopicIds": [
+            "alg.basics.solve-one-step"
+          ]
         }
       ],
       "errorLineIndex": 1,
       "distractors": [
         {
           "text": "4",
-          "cause": "didn't flip the sign crossing the = (3x = 11 − 7) and forgot the final ÷3"
+          "cause": "didn't flip the sign crossing the = (3x = 11 \u2212 7) and forgot the final \u00f73"
         },
         {
           "text": "18",
@@ -46,7 +50,7 @@
         },
         {
           "text": "9",
-          "cause": "divided 18 ÷ 3 wrong"
+          "cause": "divided 18 \u00f7 3 wrong"
         }
       ],
       "boardStyle": null,
@@ -62,19 +66,21 @@
       "familyId": "cross-equals",
       "difficulty": "core",
       "prompt": "Solve for x",
-      "statement": "5x − 4 = 16",
+      "statement": "5x \u2212 4 = 16",
       "answerLabel": "x =",
       "correctAnswer": "4",
       "lines": [
         {
-          "text": "5x − 4 = 16",
+          "text": "5x \u2212 4 = 16",
           "note": "",
           "prereqSubtopicIds": []
         },
         {
           "text": "5x = 16 + 4",
-          "note": "−4 crosses the =, so it becomes +4",
-          "prereqSubtopicIds": []
+          "note": "\u22124 crosses the =, so it becomes +4",
+          "prereqSubtopicIds": [
+            "alg.basics.inverse-operations"
+          ]
         },
         {
           "text": "5x = 20",
@@ -84,14 +90,16 @@
         {
           "text": "x = 4",
           "note": "divide both sides by 5",
-          "prereqSubtopicIds": []
+          "prereqSubtopicIds": [
+            "alg.basics.solve-one-step"
+          ]
         }
       ],
       "errorLineIndex": 1,
       "distractors": [
         {
           "text": "12",
-          "cause": "didn't flip the sign crossing the = (5x = 16 − 4) and forgot the final ÷5"
+          "cause": "didn't flip the sign crossing the = (5x = 16 \u2212 4) and forgot the final \u00f75"
         },
         {
           "text": "20",
@@ -99,7 +107,7 @@
         },
         {
           "text": "5",
-          "cause": "divided 20 ÷ 5 wrong"
+          "cause": "divided 20 \u00f7 5 wrong"
         }
       ],
       "boardStyle": null,
@@ -115,19 +123,21 @@
       "familyId": "cross-equals",
       "difficulty": "core",
       "prompt": "Solve for x",
-      "statement": "4x − 9 = 15",
+      "statement": "4x \u2212 9 = 15",
       "answerLabel": "x =",
       "correctAnswer": "6",
       "lines": [
         {
-          "text": "4x − 9 = 15",
+          "text": "4x \u2212 9 = 15",
           "note": "",
           "prereqSubtopicIds": []
         },
         {
           "text": "4x = 15 + 9",
-          "note": "−9 crosses the =, so it becomes +9",
-          "prereqSubtopicIds": []
+          "note": "\u22129 crosses the =, so it becomes +9",
+          "prereqSubtopicIds": [
+            "alg.basics.inverse-operations"
+          ]
         },
         {
           "text": "4x = 24",
@@ -137,14 +147,16 @@
         {
           "text": "x = 6",
           "note": "divide both sides by 4",
-          "prereqSubtopicIds": []
+          "prereqSubtopicIds": [
+            "alg.basics.solve-one-step"
+          ]
         }
       ],
       "errorLineIndex": 1,
       "distractors": [
         {
-          "text": "3⁄2",
-          "cause": "didn't flip the sign crossing the = (4x = 15 − 9 = 6) but still divided by 4"
+          "text": "3\u20442",
+          "cause": "didn't flip the sign crossing the = (4x = 15 \u2212 9 = 6) but still divided by 4"
         },
         {
           "text": "24",
@@ -152,7 +164,7 @@
         },
         {
           "text": "8",
-          "cause": "divided 24 ÷ 4 wrong"
+          "cause": "divided 24 \u00f7 4 wrong"
         }
       ],
       "boardStyle": null,
@@ -168,19 +180,21 @@
       "familyId": "cross-equals",
       "difficulty": "stretch",
       "prompt": "Solve for x",
-      "statement": "2x − 5 = 13",
+      "statement": "2x \u2212 5 = 13",
       "answerLabel": "x =",
       "correctAnswer": "9",
       "lines": [
         {
-          "text": "2x − 5 = 13",
+          "text": "2x \u2212 5 = 13",
           "note": "",
           "prereqSubtopicIds": []
         },
         {
           "text": "2x = 13 + 5",
-          "note": "−5 crosses the =, so it becomes +5",
-          "prereqSubtopicIds": []
+          "note": "\u22125 crosses the =, so it becomes +5",
+          "prereqSubtopicIds": [
+            "alg.basics.inverse-operations"
+          ]
         },
         {
           "text": "2x = 18",
@@ -190,14 +204,16 @@
         {
           "text": "x = 9",
           "note": "divide both sides by 2",
-          "prereqSubtopicIds": []
+          "prereqSubtopicIds": [
+            "alg.basics.solve-one-step"
+          ]
         }
       ],
       "errorLineIndex": 1,
       "distractors": [
         {
           "text": "8",
-          "cause": "didn't flip the sign crossing the = (2x = 13 − 5) and forgot the final ÷2"
+          "cause": "didn't flip the sign crossing the = (2x = 13 \u2212 5) and forgot the final \u00f72"
         },
         {
           "text": "18",
@@ -221,44 +237,51 @@
       "familyId": "divide-negative",
       "difficulty": "foundations",
       "prompt": "Solve for x",
-      "statement": "7 − 2x = 3",
+      "statement": "7 \u2212 2x = 3",
       "answerLabel": "x =",
       "correctAnswer": "2",
       "lines": [
         {
-          "text": "7 − 2x = 3",
+          "text": "7 \u2212 2x = 3",
           "note": "",
           "prereqSubtopicIds": []
         },
         {
-          "text": "−2x = 3 − 7",
-          "note": "move 7 across: it becomes −7 on the right",
-          "prereqSubtopicIds": []
+          "text": "\u22122x = 3 \u2212 7",
+          "note": "move 7 across: it becomes \u22127 on the right",
+          "prereqSubtopicIds": [
+            "alg.basics.inverse-operations"
+          ]
         },
         {
-          "text": "−2x = −4",
+          "text": "\u22122x = \u22124",
           "note": "",
-          "prereqSubtopicIds": []
+          "prereqSubtopicIds": [
+            "num.negatives-arithmetic.subtract"
+          ]
         },
         {
           "text": "x = 2",
-          "note": "divide both sides by −2 · a negative divided by a negative is positive",
-          "prereqSubtopicIds": []
+          "note": "divide both sides by \u22122 \u00b7 a negative divided by a negative is positive",
+          "prereqSubtopicIds": [
+            "num.negatives-arithmetic.divide",
+            "alg.basics.solve-one-step"
+          ]
         }
       ],
       "errorLineIndex": 3,
       "distractors": [
         {
-          "text": "−2",
-          "cause": "forgot a negative divided by a negative is positive (−4 ÷ −2 read as −2)"
+          "text": "\u22122",
+          "cause": "forgot a negative divided by a negative is positive (\u22124 \u00f7 \u22122 read as \u22122)"
         },
         {
-          "text": "−4",
-          "cause": "correctly reached −2x = −4 but forgot to divide by −2 at all"
+          "text": "\u22124",
+          "cause": "correctly reached \u22122x = \u22124 but forgot to divide by \u22122 at all"
         },
         {
           "text": "3",
-          "cause": "divided −4 ÷ −2 wrong"
+          "cause": "divided \u22124 \u00f7 \u22122 wrong"
         }
       ],
       "boardStyle": null,
@@ -274,44 +297,51 @@
       "familyId": "divide-negative",
       "difficulty": "stretch",
       "prompt": "Solve for x",
-      "statement": "10 − 3x = 1",
+      "statement": "10 \u2212 3x = 1",
       "answerLabel": "x =",
       "correctAnswer": "3",
       "lines": [
         {
-          "text": "10 − 3x = 1",
+          "text": "10 \u2212 3x = 1",
           "note": "",
           "prereqSubtopicIds": []
         },
         {
-          "text": "−3x = 1 − 10",
-          "note": "move 10 across: it becomes −10 on the right",
-          "prereqSubtopicIds": []
+          "text": "\u22123x = 1 \u2212 10",
+          "note": "move 10 across: it becomes \u221210 on the right",
+          "prereqSubtopicIds": [
+            "alg.basics.inverse-operations"
+          ]
         },
         {
-          "text": "−3x = −9",
+          "text": "\u22123x = \u22129",
           "note": "",
-          "prereqSubtopicIds": []
+          "prereqSubtopicIds": [
+            "num.negatives-arithmetic.subtract"
+          ]
         },
         {
           "text": "x = 3",
-          "note": "divide both sides by −3 · a negative divided by a negative is positive",
-          "prereqSubtopicIds": []
+          "note": "divide both sides by \u22123 \u00b7 a negative divided by a negative is positive",
+          "prereqSubtopicIds": [
+            "num.negatives-arithmetic.divide",
+            "alg.basics.solve-one-step"
+          ]
         }
       ],
       "errorLineIndex": 3,
       "distractors": [
         {
-          "text": "−3",
-          "cause": "forgot a negative divided by a negative is positive (−9 ÷ −3 read as −3)"
+          "text": "\u22123",
+          "cause": "forgot a negative divided by a negative is positive (\u22129 \u00f7 \u22123 read as \u22123)"
         },
         {
-          "text": "−9",
-          "cause": "correctly reached −3x = −9 but forgot to divide by −3 at all"
+          "text": "\u22129",
+          "cause": "correctly reached \u22123x = \u22129 but forgot to divide by \u22123 at all"
         },
         {
           "text": "4",
-          "cause": "divided −9 ÷ −3 wrong"
+          "cause": "divided \u22129 \u00f7 \u22123 wrong"
         }
       ],
       "boardStyle": null,
@@ -337,9 +367,12 @@
           "prereqSubtopicIds": []
         },
         {
-          "text": "3×4 + 2×5",
+          "text": "3\u00d74 + 2\u00d75",
           "note": "substitute a = 4 and b = 5 - each letter takes its own value",
-          "prereqSubtopicIds": []
+          "prereqSubtopicIds": [
+            "alg.basics.substitute-value",
+            "alg.notation.implicit-multiply"
+          ]
         },
         {
           "text": "12 + 10",
@@ -366,24 +399,29 @@
       "familyId": "two-term",
       "difficulty": "core",
       "prompt": "Evaluate the expression",
-      "statement": "5m − n, when m = 3, n = 8",
+      "statement": "5m \u2212 n, when m = 3, n = 8",
       "answerLabel": "=",
       "correctAnswer": "7",
       "lines": [
         {
-          "text": "5m − n",
+          "text": "5m \u2212 n",
           "note": "",
           "prereqSubtopicIds": []
         },
         {
-          "text": "5×3 − 8",
+          "text": "5\u00d73 \u2212 8",
           "note": "substitute m = 3 and n = 8",
-          "prereqSubtopicIds": []
+          "prereqSubtopicIds": [
+            "alg.basics.substitute-value",
+            "alg.notation.implicit-multiply"
+          ]
         },
         {
-          "text": "15 − 8",
+          "text": "15 \u2212 8",
           "note": "",
-          "prereqSubtopicIds": []
+          "prereqSubtopicIds": [
+            "num.negatives-arithmetic.subtract"
+          ]
         },
         {
           "text": "7",
@@ -415,9 +453,12 @@
           "prereqSubtopicIds": []
         },
         {
-          "text": "2×3 + 4",
+          "text": "2\u00d73 + 4",
           "note": "substitute a = 2, b = 3, c = 4",
-          "prereqSubtopicIds": []
+          "prereqSubtopicIds": [
+            "alg.basics.substitute-value",
+            "alg.notation.implicit-multiply"
+          ]
         },
         {
           "text": "6 + 4",
@@ -444,24 +485,29 @@
       "familyId": "two-term",
       "difficulty": "core",
       "prompt": "Evaluate the expression",
-      "statement": "4x − 2y, when x = 5, y = 3",
+      "statement": "4x \u2212 2y, when x = 5, y = 3",
       "answerLabel": "=",
       "correctAnswer": "14",
       "lines": [
         {
-          "text": "4x − 2y",
+          "text": "4x \u2212 2y",
           "note": "",
           "prereqSubtopicIds": []
         },
         {
-          "text": "4×5 − 2×3",
+          "text": "4\u00d75 \u2212 2\u00d73",
           "note": "substitute x = 5 and y = 3",
-          "prereqSubtopicIds": []
+          "prereqSubtopicIds": [
+            "alg.basics.substitute-value",
+            "alg.notation.implicit-multiply"
+          ]
         },
         {
-          "text": "20 − 6",
+          "text": "20 \u2212 6",
           "note": "",
-          "prereqSubtopicIds": []
+          "prereqSubtopicIds": [
+            "num.negatives-arithmetic.subtract"
+          ]
         },
         {
           "text": "14",
@@ -493,9 +539,12 @@
           "prereqSubtopicIds": []
         },
         {
-          "text": "2×6 + 7",
+          "text": "2\u00d76 + 7",
           "note": "substitute x = 6",
-          "prereqSubtopicIds": []
+          "prereqSubtopicIds": [
+            "alg.basics.substitute-value",
+            "alg.notation.implicit-multiply"
+          ]
         },
         {
           "text": "12 + 7",
@@ -532,9 +581,12 @@
           "prereqSubtopicIds": []
         },
         {
-          "text": "4×9",
+          "text": "4\u00d79",
           "note": "substitute p = 9",
-          "prereqSubtopicIds": []
+          "prereqSubtopicIds": [
+            "alg.basics.substitute-value",
+            "alg.notation.implicit-multiply"
+          ]
         },
         {
           "text": "36",
@@ -556,24 +608,24 @@
       "familyId": "convert",
       "difficulty": "stretch",
       "prompt": "Write as a percentage",
-      "statement": "3⁄8 as a %",
+      "statement": "3\u20448 as a %",
       "answerLabel": "",
       "correctAnswer": "37.5%",
       "lines": [
         {
-          "text": "3⁄8 as a %",
+          "text": "3\u20448 as a %",
           "note": "",
           "prereqSubtopicIds": []
         },
         {
-          "text": "3 ÷ 8 = 0.375",
+          "text": "3 \u00f7 8 = 0.375",
           "note": "divide the numerator by the denominator",
           "prereqSubtopicIds": [
             "num.fractions.to-decimal"
           ]
         },
         {
-          "text": "0.375 × 100",
+          "text": "0.375 \u00d7 100",
           "note": "multiply by 100 to convert to a percentage",
           "prereqSubtopicIds": [
             "num.decimals.to-percent"
@@ -582,14 +634,16 @@
         {
           "text": "37.5%",
           "note": "",
-          "prereqSubtopicIds": []
+          "prereqSubtopicIds": [
+            "num.decimals.multiply-powers-ten"
+          ]
         }
       ],
       "errorLineIndex": 1,
       "distractors": [
         {
           "text": "0.375%",
-          "cause": "forgot the final ×100 step"
+          "cause": "forgot the final \u00d7100 step"
         },
         {
           "text": "3.75%",
@@ -597,7 +651,7 @@
         },
         {
           "text": "266.7%",
-          "cause": "divided the wrong way round (8 ÷ 3 instead of 3 ÷ 8)"
+          "cause": "divided the wrong way round (8 \u00f7 3 instead of 3 \u00f7 8)"
         }
       ],
       "boardStyle": null,
@@ -613,24 +667,24 @@
       "familyId": "convert",
       "difficulty": "foundations",
       "prompt": "Write as a percentage",
-      "statement": "1⁄4 as a %",
+      "statement": "1\u20444 as a %",
       "answerLabel": "",
       "correctAnswer": "25%",
       "lines": [
         {
-          "text": "1⁄4 as a %",
+          "text": "1\u20444 as a %",
           "note": "",
           "prereqSubtopicIds": []
         },
         {
-          "text": "1 ÷ 4 = 0.25",
+          "text": "1 \u00f7 4 = 0.25",
           "note": "divide the numerator by the denominator",
           "prereqSubtopicIds": [
             "num.fractions.to-decimal"
           ]
         },
         {
-          "text": "0.25 × 100",
+          "text": "0.25 \u00d7 100",
           "note": "multiply by 100 to convert to a percentage",
           "prereqSubtopicIds": [
             "num.decimals.to-percent"
@@ -639,14 +693,16 @@
         {
           "text": "25%",
           "note": "",
-          "prereqSubtopicIds": []
+          "prereqSubtopicIds": [
+            "num.decimals.multiply-powers-ten"
+          ]
         }
       ],
       "errorLineIndex": 1,
       "distractors": [
         {
           "text": "0.25%",
-          "cause": "forgot the final ×100 step"
+          "cause": "forgot the final \u00d7100 step"
         },
         {
           "text": "2.5%",
@@ -654,7 +710,7 @@
         },
         {
           "text": "400%",
-          "cause": "divided the wrong way round (4 ÷ 1 instead of 1 ÷ 4)"
+          "cause": "divided the wrong way round (4 \u00f7 1 instead of 1 \u00f7 4)"
         }
       ],
       "boardStyle": null,
@@ -670,24 +726,24 @@
       "familyId": "convert",
       "difficulty": "core",
       "prompt": "Write as a percentage",
-      "statement": "7⁄20 as a %",
+      "statement": "7\u204420 as a %",
       "answerLabel": "",
       "correctAnswer": "35%",
       "lines": [
         {
-          "text": "7⁄20 as a %",
+          "text": "7\u204420 as a %",
           "note": "",
           "prereqSubtopicIds": []
         },
         {
-          "text": "7 ÷ 20 = 0.35",
+          "text": "7 \u00f7 20 = 0.35",
           "note": "divide the numerator by the denominator",
           "prereqSubtopicIds": [
             "num.fractions.to-decimal"
           ]
         },
         {
-          "text": "0.35 × 100",
+          "text": "0.35 \u00d7 100",
           "note": "multiply by 100 to convert to a percentage",
           "prereqSubtopicIds": [
             "num.decimals.to-percent"
@@ -696,14 +752,16 @@
         {
           "text": "35%",
           "note": "",
-          "prereqSubtopicIds": []
+          "prereqSubtopicIds": [
+            "num.decimals.multiply-powers-ten"
+          ]
         }
       ],
       "errorLineIndex": 1,
       "distractors": [
         {
           "text": "0.35%",
-          "cause": "forgot the final ×100 step"
+          "cause": "forgot the final \u00d7100 step"
         },
         {
           "text": "3.5%",
@@ -711,7 +769,7 @@
         },
         {
           "text": "285.7%",
-          "cause": "divided the wrong way round (20 ÷ 7 instead of 7 ÷ 20)"
+          "cause": "divided the wrong way round (20 \u00f7 7 instead of 7 \u00f7 20)"
         }
       ],
       "boardStyle": null,
@@ -727,24 +785,24 @@
       "familyId": "convert",
       "difficulty": "stretch",
       "prompt": "Write as a percentage",
-      "statement": "9⁄40 as a %",
+      "statement": "9\u204440 as a %",
       "answerLabel": "",
       "correctAnswer": "22.5%",
       "lines": [
         {
-          "text": "9⁄40 as a %",
+          "text": "9\u204440 as a %",
           "note": "",
           "prereqSubtopicIds": []
         },
         {
-          "text": "9 ÷ 40 = 0.225",
+          "text": "9 \u00f7 40 = 0.225",
           "note": "divide the numerator by the denominator",
           "prereqSubtopicIds": [
             "num.fractions.to-decimal"
           ]
         },
         {
-          "text": "0.225 × 100",
+          "text": "0.225 \u00d7 100",
           "note": "multiply by 100 to convert to a percentage",
           "prereqSubtopicIds": [
             "num.decimals.to-percent"
@@ -753,14 +811,16 @@
         {
           "text": "22.5%",
           "note": "",
-          "prereqSubtopicIds": []
+          "prereqSubtopicIds": [
+            "num.decimals.multiply-powers-ten"
+          ]
         }
       ],
       "errorLineIndex": 1,
       "distractors": [
         {
           "text": "0.225%",
-          "cause": "forgot the final ×100 step"
+          "cause": "forgot the final \u00d7100 step"
         },
         {
           "text": "2.25%",
@@ -768,7 +828,7 @@
         },
         {
           "text": "444.4%",
-          "cause": "divided the wrong way round (40 ÷ 9 instead of 9 ÷ 40)"
+          "cause": "divided the wrong way round (40 \u00f7 9 instead of 9 \u00f7 40)"
         }
       ],
       "boardStyle": null,
@@ -784,24 +844,24 @@
       "familyId": "convert",
       "difficulty": "core",
       "prompt": "Write as a percentage",
-      "statement": "11⁄25 as a %",
+      "statement": "11\u204425 as a %",
       "answerLabel": "",
       "correctAnswer": "44%",
       "lines": [
         {
-          "text": "11⁄25 as a %",
+          "text": "11\u204425 as a %",
           "note": "",
           "prereqSubtopicIds": []
         },
         {
-          "text": "11 ÷ 25 = 0.44",
+          "text": "11 \u00f7 25 = 0.44",
           "note": "divide the numerator by the denominator",
           "prereqSubtopicIds": [
             "num.fractions.to-decimal"
           ]
         },
         {
-          "text": "0.44 × 100",
+          "text": "0.44 \u00d7 100",
           "note": "multiply by 100 to convert to a percentage",
           "prereqSubtopicIds": [
             "num.decimals.to-percent"
@@ -810,14 +870,16 @@
         {
           "text": "44%",
           "note": "",
-          "prereqSubtopicIds": []
+          "prereqSubtopicIds": [
+            "num.decimals.multiply-powers-ten"
+          ]
         }
       ],
       "errorLineIndex": 1,
       "distractors": [
         {
           "text": "0.44%",
-          "cause": "forgot the final ×100 step"
+          "cause": "forgot the final \u00d7100 step"
         },
         {
           "text": "4.4%",
@@ -825,7 +887,7 @@
         },
         {
           "text": "227.3%",
-          "cause": "divided the wrong way round (25 ÷ 11 instead of 11 ÷ 25)"
+          "cause": "divided the wrong way round (25 \u00f7 11 instead of 11 \u00f7 25)"
         }
       ],
       "boardStyle": null,

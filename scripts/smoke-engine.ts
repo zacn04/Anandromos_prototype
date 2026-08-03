@@ -68,8 +68,11 @@ console.log('\nschedule · daily cap and problem sets')
 // ---------------------------------------------------------------------------
 {
   const nodes: EngineState['nodes'] = {}
-  for (const t of ['num.fractions', 'num.decimals', 'num.ratio', 'num.proportion',
-                   'num.negatives', 'num.primes', 'num.rounding', 'alg.substitution']) {
+  // Every topic here must have a question bank: buildQueue deliberately skips
+  // a review it cannot serve, so topics without one would be filtered out and
+  // this would be testing the filter rather than the cap.
+  for (const t of ['num.fractions', 'num.decimals', 'num.fractions-to-percent', 'num.ratio',
+                   'num.percent-change', 'num.negatives-arithmetic', 'alg.substitution', 'alg.linear']) {
     nodes[t] = { status: 'mastered', last: '', next: '', reps: 5, dueAt: NOW - DAY }
   }
   const state: EngineState = { nodes, masteryByTopic: {} }
@@ -94,6 +97,61 @@ console.log('\nschedule · daily cap and problem sets')
   check('overdue review still outranks urgent homework',
     uids.indexOf('review:num.decimals') < uids.indexOf('problemSet:ps1'),
     `order: ${uids.join(', ')}`)
+}
+
+// ---------------------------------------------------------------------------
+console.log('\nschedule · finishing something actually changes the queue')
+// ---------------------------------------------------------------------------
+{
+  // Regression: buildQueue used to push a frontier topic as a lesson with no
+  // due-date check. `status` stays 'frontier' until mastery crosses the
+  // promotion threshold, so finishing a lesson put the identical row straight
+  // back at the top of the path — "I finished it and nothing changed".
+  const state: EngineState = {
+    nodes: {
+      'alg.linear': { status: 'frontier', last: '', next: '', reps: 0, dueAt: NOW },
+    },
+    masteryByTopic: { 'alg.linear': { foundations: 0.9, core: 0.9, stretch: 0.9 } },
+  }
+
+  const before = buildQueue(state, { now: NOW })
+  check('an unattempted frontier topic is offered as a lesson',
+    before.items[0]?.kind === 'lesson', before.items[0]?.kind)
+
+  const after = recordAttempt(state, { topicId: 'alg.linear', difficulty: 'core', correct: true }, NOW)
+  const q = buildQueue(after, { now: NOW })
+  check('after attempting it, the lesson is no longer queued',
+    !q.items.some((i) => i.id === 'lesson:alg.linear'),
+    q.items.map((i) => i.id).join(', '))
+  check('and it is not immediately due as a review either',
+    !q.items.some((i) => i.id === 'review:alg.linear'),
+    q.items.map((i) => i.id).join(', '))
+
+  // But a student whose mastery has decayed IS sent back to the lesson
+  // (build-plan §3.3), rather than made to keep failing reviews.
+  const decayed: EngineState = {
+    nodes: { 'alg.linear': { status: 'frontier', last: '', next: '', reps: 9, dueAt: NOW } },
+    masteryByTopic: { 'alg.linear': { foundations: 0.2, core: 0.1, stretch: 0 } },
+  }
+  // Regression: the queue used to offer reviews for topics with no question
+  // bank, so the row dead-ended in "not built out yet" when clicked.
+  // Deliberately a topic id the content store does not know, rather than a real
+  // one that happens to lack questions today: this asserts the RULE, and stays
+  // true when the question bank grows. It previously used num.surds, which
+  // later gained a template and silently turned this check into a no-op.
+  const undeliverable: EngineState = {
+    nodes: { 'num.not-a-real-topic': { status: 'mastered', last: '', next: '', reps: 4, dueAt: NOW - DAY } },
+    masteryByTopic: {},
+  }
+  check('a review with no question bank behind it is never queued',
+    buildQueue(undeliverable, { now: NOW }).items.length === 0,
+    buildQueue(undeliverable, { now: NOW }).items.map((i) => i.id).join(', '))
+  check('and that reads as caught-up, not as an error',
+    buildQueue(undeliverable, { now: NOW }).clear)
+
+  check('weak mastery re-offers the lesson even with reps banked',
+    buildQueue(decayed, { now: NOW }).items[0]?.kind === 'lesson',
+    buildQueue(decayed, { now: NOW }).items[0]?.kind)
 }
 
 // ---------------------------------------------------------------------------

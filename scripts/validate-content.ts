@@ -224,6 +224,7 @@ const FILTERS_PATH = 'curriculum/graph-filters.json'
 const LESSONS_PATH = 'curriculum/lessons.json'
 const QUESTIONS_PATH = 'curriculum/questions.json'
 const RETEACH_PATH = 'curriculum/reteach-cards.json'
+const TEMPLATES_PATH = 'curriculum/question-templates.json'
 const TEACHERS_PATH = 'school/teachers.json'
 const CLASSES_PATH = 'school/classes.json'
 const CLASS_DEFAULTS_PATH = 'school/class-defaults.json'
@@ -244,6 +245,7 @@ const graphFilters = itemsOf(FILTERS_PATH)
 const lessons = itemsOf(LESSONS_PATH)
 const questions = itemsOf(QUESTIONS_PATH)
 const reteachCards = itemsOf(RETEACH_PATH)
+const questionTemplates = itemsOf(TEMPLATES_PATH)
 const teachers = itemsOf(TEACHERS_PATH)
 const classes = itemsOf(CLASSES_PATH)
 const nodeStates = itemsOf(NODE_STATES_PATH)
@@ -750,7 +752,11 @@ function checkReferentialIntegrity(): number {
     })
   }
 
-  questions.forEach((q, qi) => {
+  // Templates are checked alongside authored questions: they are the bulk of
+  // what a student is served, and an out-of-ancestry tag on a template is a
+  // wrong diagnosis repeated across every instance it generates.
+  const taggedSources: Row[] = [...rowsOf(questions), ...rowsOf(questionTemplates)]
+  taggedSources.forEach((q, qi) => {
     const lines: Row[] = rowsOf(q.lines)
     lines.forEach((line, li) => {
       const tags: unknown[] = isArray(line.prereqSubtopicIds) ? line.prereqSubtopicIds : []
@@ -791,6 +797,14 @@ function checkReferentialIntegrity(): number {
     }
   })
 
+  const subtopicsWithQuestions = new Set<string>()
+  for (const q of rowsOf(questions)) {
+    if (isString(q.subtopicId)) subtopicsWithQuestions.add(q.subtopicId)
+  }
+  for (const t of rowsOf(questionTemplates)) {
+    if (isString(t.subtopicId)) subtopicsWithQuestions.add(t.subtopicId)
+  }
+
   lessons.forEach((l, i) => {
     subjects++
     if (!isString(l.topicId) || !topicById.has(l.topicId)) {
@@ -810,9 +824,35 @@ function checkReferentialIntegrity(): number {
           null,
           `prerequisite "${sid}" belongs to "${subtopicById.get(sid)!.topicId}", not the lesson's "${l.topicId}"`,
         )
+      } else if (!subtopicsWithQuestions.has(sid)) {
+        // Not a content gap — a crash. LessonSession draws its check questions
+        // with questionsForSubtopic, so a prerequisite with an empty bank puts
+        // the student into a lesson that dies partway through.
+        err(
+          'E_LESSON_PREREQ_NO_QUESTIONS',
+          fileLabel(LESSONS_PATH),
+          i,
+          null,
+          `prerequisite "${sid}" has no questions, so this lesson cannot be delivered`,
+        )
       }
     }
+    if (prereqs.length === 0) {
+      err('E_LESSON_EMPTY', fileLabel(LESSONS_PATH), i, null,
+        `lesson for "${l.topicId}" has no prerequisites to teach`)
+    }
   })
+
+  // Every topic should be teachable. A warning rather than an error: adding a
+  // topic before writing its lesson is a legitimate intermediate state, but it
+  // should never pass unnoticed.
+  const topicsWithLesson = new Set(lessons.map((l) => l.topicId))
+  for (const [tid] of topicById) {
+    if (!topicsWithLesson.has(tid)) {
+      warn('W_TOPIC_NO_LESSON', fileLabel(LESSONS_PATH), null, tid,
+        `topic "${tid}" has no lesson, so it can never be offered as one`)
+    }
+  }
 
   reteachCards.forEach((c, i) => {
     subjects++
@@ -860,6 +900,23 @@ function checkReferentialIntegrity(): number {
     }
   })
 
+
+  // Every student profile must name a class that exists. A dangling classId
+  // does not throw — it silently yields an empty roster, which is exactly the
+  // failure this check exists to make loud.
+  const classIdSet = new Set(rowsOf(classes).map((c) => c.id))
+  rowsOf(profiles).forEach((pr, i) => {
+    const cid = pr.classId
+    if (!isString(cid)) {
+      err('E_PROFILE_CLASS_MISSING', fileLabel(PROFILES_PATH), i, pr.studentId ?? null,
+        'profile has no classId, so it appears on no class roster')
+      return
+    }
+    if (!classIdSet.has(cid)) {
+      err('E_REF_PROFILE_CLASS', fileLabel(PROFILES_PATH), i, pr.studentId ?? null,
+        `classId "${cid}" names no class in ${CLASSES_PATH}`)
+    }
+  })
   nodeStates.forEach((ns, i) => {
     const nodes = isPlainObject(ns.nodes) ? ns.nodes : {}
     for (const key of Object.keys(nodes)) {
@@ -1198,7 +1255,11 @@ function checkLinePrereqAncestry(): number {
   const tierA = subtopicEdges.length > 0
   let subjects = 0
 
-  questions.forEach((q, qi) => {
+  // Templates are checked alongside authored questions: they are the bulk of
+  // what a student is served, and an out-of-ancestry tag on a template is a
+  // wrong diagnosis repeated across every instance it generates.
+  const taggedSources: Row[] = [...rowsOf(questions), ...rowsOf(questionTemplates)]
+  taggedSources.forEach((q, qi) => {
     const lines: Row[] = rowsOf(q.lines)
     lines.forEach((line, li) => {
       const tags: unknown[] = isArray(line.prereqSubtopicIds) ? line.prereqSubtopicIds : []

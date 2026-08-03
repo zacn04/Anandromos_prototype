@@ -11,28 +11,32 @@ import { ReviewSession } from '../components/ReviewSession'
 import { DiagnosticTest } from '../components/DiagnosticTest'
 import {
   activityLogFor,
+  catalogueGroups,
   edgePairs,
   edgePath,
   graphFilters,
   graphTopics,
   isGraphTopic,
   lessonForTopic,
+  prereqsOf,
   questionById,
   questionsForTopic,
   questionAt,
   subtopicById,
+  subtopicsForTopic,
+  topicById,
   topicLabel,
 } from '../content'
-import type { MasteryTier, QuestionId, TopicId } from '../content'
+import type { MasteryTier, NodeStatus, QuestionId, TopicId } from '../content'
 import type { EngineNodeState, EngineState } from '../data/engine'
 import type { LogActivity } from '../content'
-import { initEngineState, recordAttempt } from '../data/engine'
-import { buildQueue, dueLabel, DAILY_ITEM_CAP } from '../data/schedule'
+import { recordFor, useEngine } from '../data/students'
+import { buildQueue, dueLabel, DAILY_ITEM_CAP, PROBLEM_SET_URGENT_DAYS } from '../data/schedule'
 import type { QueueItem } from '../data/schedule'
 import { totalXp, masteryBand } from '../data/xp'
 import type { SessionKind } from '../data/xp'
 import { getProblemSets } from '../data/teacherProblemSets'
-import type { AuthoredQuestion } from '../data/teacherProblemSets'
+import type { AuthoredProblemSet, AuthoredQuestion } from '../data/teacherProblemSets'
 import { pushLiveFlag } from '../data/liveOversight'
 import { getLiveSessions, pushLiveSession } from '../data/liveSessions'
 import { pushGap } from '../data/liveGaps'
@@ -81,7 +85,10 @@ interface StudentState {
    * reachable. `pathPrefixDone()` derives the old-style "N of 6 done"
    * sequential count from this whenever that's what's wanted.
    */
-  pathCompleted: number[]
+  /** Queue-item ids already completed. Was positional indices, which broke
+   * the moment the path became derived: a completed item leaves the queue, the
+   * next one inherits its index, and rendered as 'Done' without being done. */
+  pathCompleted: string[]
   /** "Speed through lessons" toggle (Home, near "Your path") - see isPathItemLocked(). */
   speedMode: boolean
   fpTopic: string | null
@@ -90,8 +97,9 @@ interface StudentState {
   practiceMode: PracticeMode | null
   practiceTopic: string | null
   /** Which path index is in progress, so its completion callback knows what to mark done. */
-  activePathIdx: number | null
-  /** Which teacher-authored problem set (data/teacherProblemSets.ts) is open in `psolve`; null means the static PS_SET demo set. */
+  /** Queue-item id in progress, so its completion callback knows what to mark. */
+  activePathId: string | null
+  /** Which problem set (see buildProblemSets - school-set or teacher-authored) is open in `psolve`; null until a card is opened. */
   activePsId: string | null
   psIdx: number
   psAnswers: Record<number, string>
@@ -102,22 +110,8 @@ interface StudentState {
   graphFilter: string
 }
 
-/** Defensive fallback for a topic id the live engine hasn't seeded - shouldn't happen, since initEngineState seeds every topic in content/samples/node-states.json, the same static overlay this app always showed, but cheaper and more honest than a crash if a graph topic is ever added without a matching sample status entry. */
+/** Fallback for a topic the live engine has no entry for. Routine now that Free play covers the whole curriculum: the store seeds from content/samples/node-states.json, which carries the 15 graph topics, so every catalogue topic beyond them legitimately lands here and reads as 'not reached yet' rather than crashing. */
 const FALLBACK_NODE_STATE: EngineNodeState = { status: 'notready', last: '—', next: 'when ready', reps: 0 }
-
-/**
- * Free-play subtopic label -> topic id, for the subset of FP_TOPICS whose
- * `unlocked` flag should read live off the engine instead of the static
- * sample data: Substitution (has a question bank) and Linear equations
- * (topicLabel('alg.linear') - the only topic with a real Lesson, so the only
- * other one worth a live "not just notready/locked" unlock signal). Every
- * other Free-play label has no question bank behind it and is left exactly
- * as the static sample data has it - see FREEPLAY_TOPIC_ID's comment.
- */
-const FP_LIVE_UNLOCK_TOPIC_ID: Record<string, TopicId> = {
-  Substitution: 'alg.substitution',
-  'Linear equations': 'alg.linear',
-}
 
 const monoCap = (extra: CSSProperties = {}): CSSProperties => ({
   fontFamily: FONT_MONO,
@@ -152,6 +146,8 @@ const logFlag = (f: string): CSSProperties =>
  * the student's path never responded to anything they actually did.
  */
 interface PathItem {
+  /** The queue item's stable id — what completion is recorded against. */
+  id: string
   kind: 'Lesson' | 'Review'
   subtopic: string
   detail: string
@@ -174,6 +170,7 @@ function derivePath(queue: readonly QueueItem[]): PathItem[] {
       const isReview = it.kind === 'review'
       const has = it.topicId ? questionsForTopic(it.topicId).length > 0 : false
       return {
+        id: it.id,
         kind: isReview ? 'Review' : 'Lesson',
         subtopic: it.label,
         detail: isReview
@@ -187,116 +184,322 @@ function derivePath(queue: readonly QueueItem[]): PathItem[] {
     })
 }
 
-const PROBLEM_SETS = [
-  {
-    title: 'Linear equations mixed set',
-    topics: 'Linear equations · Substitution',
-    qs: '12 questions',
-    due: 'Due Mon 21 Jul',
-    urgency: 'soon',
-    locked: true,
-    lockNote: 'Unlocks when you finish “Inverse operations” and “Two-step equations”.',
-  },
-  {
-    title: 'Fractions & percentages',
-    topics: 'Fractions · Percentages',
-    qs: '10 questions',
-    due: 'Due Fri 25 Jul',
-    urgency: 'later',
-    locked: false,
-    lockNote: '',
-  },
-  {
-    title: 'Ratio recap',
-    topics: 'Ratio & proportion',
-    qs: '8 questions',
-    due: 'Due today',
-    urgency: 'urgent',
-    locked: true,
-    lockNote: 'Unlocks when you finish “Ratio basics”.',
-  },
-]
+// ---------------------------------------------------------------------------
+// Problem sets (homework)
+// ---------------------------------------------------------------------------
 
-const PS_SET = {
-  title: 'Fractions & percentages',
-  topics: 'Fractions · Percentages',
-  due: 'Due Fri 25 Jul',
-  questions: [
-    { topic: 'Fractions', q: 'Simplify 12⁄18 to its lowest terms.', hint: 'Divide top and bottom by their highest common factor.' },
-    { topic: 'Fractions', q: 'Work out 2⁄3 + 1⁄6.', hint: 'Use a common denominator first.' },
-    { topic: 'Percentages', q: 'Find 15% of 240.', hint: '' },
-    { topic: 'Percentages', q: 'Write 0.45 as a percentage.', hint: '' },
-    { topic: 'Fractions → %', q: 'Write 3⁄8 as a percentage.', hint: 'Divide, then multiply by 100.' },
-    { topic: 'Percentages', q: 'A £60 coat is reduced by 20%. What is the new price?', hint: '' },
-  ],
+type Urgency = 'urgent' | 'soon' | 'later'
+
+/** One homework card, however it got here — school-set sample or teacher-authored. */
+interface StudentProblemSet {
+  id: string
+  title: string
+  /** Topic labels, ' · ' joined. Derived from the set's topics; verbatim from the teacher for authored ones. */
+  topics: string
+  due: string
+  urgency: Urgency
+  /** Live, from the knowledge graph — never a hardcoded flag. See `unmetPrereqs`. */
+  locked: boolean
+  lockNote: string
+  questions: readonly AuthoredQuestion[]
+  /**
+   * Open and with questions behind it. A set can be unlocked and still have
+   * nothing in it (a teacher-authored set whose questions were never added),
+   * and a button into an empty set is worse than saying so.
+   */
+  openable: boolean
+  requireHandwriting?: boolean
 }
 
-const FP_TOPICS = [
+/**
+ * The school's own problem sets — the ones that exist before any teacher has
+ * authored anything in this session, so the Home screen is never an empty shelf.
+ *
+ * Only the title and the topic ids are authored, and the topic ids are real
+ * ones from `content/curriculum/topics.json`. Everything a card actually shows
+ * — the topic line, the question count, the due date, whether it is locked and
+ * why — is derived in `buildProblemSets` from the curriculum graph and the
+ * student's live engine state.
+ *
+ * `questions` is authored only where real authored homework text exists (the
+ * fractions/percentages set, which is the one this prototype has always
+ * shipped). Where it is absent, `mint` draws that many real questions out of
+ * the question bank for the set's topics instead of inventing any.
+ */
+interface SampleSetSeed {
+  id: string
+  title: string
+  topicIds: readonly TopicId[]
+  /** Days from today. Rendered as a real date, and what the urgency styling reads. */
+  dueInDays: number
+  questions?: readonly AuthoredQuestion[]
+  /** How many questions to draw from the bank when `questions` is absent. */
+  mint?: number
+}
+
+const SAMPLE_SET_SEEDS: readonly SampleSetSeed[] = [
   {
-    key: 'number',
-    label: 'Number',
-    subs: [
-      { name: 'Negatives', unlocked: true, last: 'today · free play' },
-      { name: 'Fractions', unlocked: true, last: '12 days ago' },
-      { name: 'Decimals', unlocked: true, last: '15 days ago' },
-      { name: 'Percentages', unlocked: false, last: '' },
+    id: 'sample.linear-mixed',
+    title: 'Linear equations mixed set',
+    topicIds: ['alg.linear'],
+    dueInDays: 2,
+    mint: 12,
+  },
+  {
+    id: 'sample.fractions-percentages',
+    title: 'Fractions & percentages',
+    topicIds: ['num.fractions', 'num.fractions-to-percent'],
+    dueInDays: 5,
+    questions: [
+      { topic: 'Fractions', q: 'Simplify 12⁄18 to its lowest terms.', hint: 'Divide top and bottom by their highest common factor.' },
+      { topic: 'Fractions', q: 'Work out 2⁄3 + 1⁄6.', hint: 'Use a common denominator first.' },
+      { topic: 'Percentages', q: 'Find 15% of 240.', hint: '' },
+      { topic: 'Percentages', q: 'Write 0.45 as a percentage.', hint: '' },
+      { topic: 'Fractions → %', q: 'Write 3⁄8 as a percentage.', hint: 'Divide, then multiply by 100.' },
+      { topic: 'Percentages', q: 'A £60 coat is reduced by 20%. What is the new price?', hint: '' },
     ],
   },
   {
-    key: 'algebra',
-    label: 'Algebra',
-    subs: [
-      { name: 'Algebra basics', unlocked: true, last: '8 days ago' },
-      { name: 'Inverse operations', unlocked: true, last: 'today' },
-      { name: 'One-step equations', unlocked: true, last: 'today' },
-      { name: 'Substitution', unlocked: true, last: '2 days ago · free play' },
-      { name: 'Linear equations', unlocked: false, last: '' },
-      { name: 'Expanding brackets', unlocked: false, last: '' },
-    ],
-  },
-  {
-    key: 'ratio',
-    label: 'Ratio & proportion',
-    subs: [
-      { name: 'Ratio', unlocked: true, last: '7 days ago' },
-      { name: 'Proportion', unlocked: true, last: '10 days ago' },
-      { name: 'Percentage change', unlocked: false, last: '' },
-    ],
-  },
-  {
-    key: 'geometry',
-    label: 'Geometry & measures',
-    subs: [
-      { name: 'Area & perimeter', unlocked: true, last: '20 days ago' },
-      { name: 'Angles', unlocked: false, last: '' },
-      { name: 'Coordinates', unlocked: false, last: '' },
-    ],
-  },
-  {
-    key: 'stats',
-    label: 'Statistics',
-    subs: [
-      { name: 'Averages', unlocked: true, last: '18 days ago' },
-      { name: 'Charts & tables', unlocked: false, last: '' },
-    ],
-  },
-  {
-    key: 'probability',
-    label: 'Probability',
-    subs: [{ name: 'Basic probability', unlocked: false, last: '' }],
+    id: 'sample.percent-change',
+    title: 'Percentage change',
+    topicIds: ['num.percent-change'],
+    dueInDays: 0,
+    mint: 8,
   },
 ]
 
+const MS_PER_DAY = 24 * 60 * 60 * 1000
+
+/** 'Due today' / 'Due tomorrow' / 'Due Fri 25 Jul' — a real date off the clock, not a frozen string. */
+function dueDateLabel(dueInDays: number, now: number): string {
+  if (dueInDays <= 0) return 'Due today'
+  if (dueInDays === 1) return 'Due tomorrow'
+  const on = new Date(now + dueInDays * MS_PER_DAY)
+  return `Due ${on.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })}`
+}
+
+/** Same threshold the scheduler promotes homework on (data/schedule.ts), so the badge and the queue can't disagree. */
+const urgencyOf = (dueInDays: number): Urgency =>
+  dueInDays <= 0 ? 'urgent' : dueInDays <= PROBLEM_SET_URGENT_DAYS ? 'soon' : 'later'
+
+/** 'A', 'A and B', 'A, B and C' — the shape the authored lock notes were written in. */
+function joinLabels(labels: readonly string[]): string {
+  if (labels.length < 2) return labels[0] ?? ''
+  return `${labels.slice(0, -1).join(', ')} and ${labels[labels.length - 1]}`
+}
+
 /**
- * Free-play subtopic label -> content-store topic id, for the subset of
- * FP_TOPICS whose `unlocked` flag reads live off the engine rather than the
- * static sample data.
+ * The prerequisite topics behind this set that the student has not mastered —
+ * real edges from the knowledge graph (`prereqsOf`), deduped, in edge order.
+ * Empty means the set is open.
+ *
+ * This replaces a hardcoded `locked` flag with a lock that can actually come
+ * off: the same "every prerequisite mastered" rule `deriveFrontier` promotes
+ * topics on, so finishing the prerequisite unlocks the homework in front of the
+ * student rather than at the next content release. A topic the student has
+ * already started or mastered is skipped — its prerequisites are moot, and a
+ * set on work they are visibly doing must never read as locked. A topic with no
+ * prerequisites on the graph can never lock: a missing gate is better than an
+ * invented one.
  */
-const FREEPLAY_TOPIC_ID: Record<string, TopicId> = {
-  Negatives: 'num.negatives',
-  'Fractions & %': 'num.fractions-to-percent',
-  Substitution: 'alg.substitution',
-  'Linear equations': 'alg.linear',
+function unmetPrereqs(topicIds: readonly TopicId[], statusOf: (id: TopicId) => NodeStatus): TopicId[] {
+  const unmet: TopicId[] = []
+  for (const topicId of topicIds) {
+    const own = statusOf(topicId)
+    if (own === 'mastered' || own === 'inprogress') continue
+    for (const prereq of prereqsOf(topicId)) {
+      if (statusOf(prereq) === 'mastered') continue
+      if (unmet.indexOf(prereq) < 0) unmet.push(prereq)
+    }
+  }
+  return unmet
+}
+
+/**
+ * Real questions for a sample set, drawn out of the question bank for its
+ * topics. `questionAt` past the end of a topic's authored pool mints a fresh
+ * template instance, so a templated topic can always fill a set.
+ */
+function mintQuestions(topicIds: readonly TopicId[], count: number): AuthoredQuestion[] {
+  const drawn: AuthoredQuestion[] = []
+  const perTopic = Math.ceil(count / Math.max(1, topicIds.length))
+  for (const topicId of topicIds) {
+    for (let i = 0; i < perTopic && drawn.length < count; i++) {
+      const question = questionAt(topicId, i)
+      if (!question) break
+      // No hint: the bank's per-line notes are the worked solution, and a
+      // homework hint invented here would be exactly the fabricated detail
+      // the data can't support.
+      drawn.push({ topic: topicLabel(topicId), q: `${question.prompt}: ${question.statement}`, hint: '' })
+    }
+  }
+  return drawn
+}
+
+/**
+ * Topic ids behind a teacher-authored set. `AuthoredProblemSet.topics` is the
+ * labels of the catalogue topics the teacher ticked, ' · ' joined (see
+ * TeacherApp's createHwSet), so this reads them straight back rather than
+ * guessing at them. A label naming no topic is dropped — a set with one
+ * resolvable topic still gates on that topic, and a wrong prerequisite would be
+ * worse than a missing one.
+ */
+function topicIdsFromLabels(topics: string): TopicId[] {
+  const byLabel = new Map<string, TopicId>()
+  for (const group of catalogueGroups()) for (const topic of group.topics) byLabel.set(topic.label, topic.id)
+  const ids: TopicId[] = []
+  for (const label of topics.split('·')) {
+    const id = byLabel.get(label.trim())
+    if (id && ids.indexOf(id) < 0) ids.push(id)
+  }
+  return ids
+}
+
+/**
+ * Every problem set the student can see, school-set ones first then whatever
+ * the teacher has authored this session (data/teacherProblemSets.ts) — one
+ * list, one shape, one set of rules, so an authored set gets the same real
+ * prerequisite gating a sample one does instead of being unconditionally open.
+ *
+ * Authored due dates stay exactly as the teacher typed them (free text, never
+ * parsed) and carry the neutral 'later' styling, which is how they have always
+ * rendered; only the sample sets have a machine-readable deadline to colour.
+ */
+function buildProblemSets(
+  authored: readonly AuthoredProblemSet[],
+  engine: EngineState,
+  now: number,
+): StudentProblemSet[] {
+  const statusOf = (id: TopicId): NodeStatus => engine.nodes[id]?.status ?? FALLBACK_NODE_STATE.status
+  const gate = (topicIds: readonly TopicId[]) => {
+    const unmet = unmetPrereqs(topicIds, statusOf)
+    return {
+      locked: unmet.length > 0,
+      lockNote: unmet.length > 0 ? `Unlocks when you finish ${joinLabels(unmet.map((id) => `“${topicLabel(id)}”`))}.` : '',
+    }
+  }
+
+  const sets: StudentProblemSet[] = []
+
+  for (const seed of SAMPLE_SET_SEEDS) {
+    const questions = seed.questions ?? mintQuestions(seed.topicIds, seed.mint ?? 0)
+    const gated = gate(seed.topicIds)
+    sets.push({
+      id: seed.id,
+      title: seed.title,
+      topics: seed.topicIds.map(topicLabel).join(' · '),
+      due: dueDateLabel(seed.dueInDays, now),
+      urgency: urgencyOf(seed.dueInDays),
+      questions,
+      openable: !gated.locked && questions.length > 0,
+      ...gated,
+    })
+  }
+
+  for (const set of authored) {
+    const gated = gate(topicIdsFromLabels(set.topics))
+    sets.push({
+      id: set.id,
+      title: set.title,
+      topics: set.topics,
+      due: set.due,
+      urgency: 'later',
+      questions: set.questions,
+      openable: !gated.locked && set.questions.length > 0,
+      requireHandwriting: set.requireHandwriting,
+      ...gated,
+    })
+  }
+
+  return sets
+}
+
+// ---------------------------------------------------------------------------
+// Free play
+// ---------------------------------------------------------------------------
+
+/**
+ * One free-play row: a curriculum topic, with everything about it read live.
+ * Was a hand-listed `{ name, unlocked, last }` object whose recency was a stale
+ * copy of the sample node states and whose unlock flag was frozen.
+ */
+interface FpTopic {
+  id: TopicId
+  name: string
+  /** The lesson-gate: free play is not a way round the taught path. */
+  unlocked: boolean
+  /** Recency straight off the engine — free play moves this, as the copy promises. */
+  last: string
+  /** Size of the free-play pool. 0 means no questions are authored for this topic yet. */
+  questions: number
+  /** A template backs the pool, so it never runs out — what the "unlimited questions" badge reads. */
+  templated: boolean
+  /** How many subtopics the curriculum lists here. Honest content signal for a topic with no questions yet. */
+  subtopics: number
+}
+
+/** One free-play card: a curriculum strand and the topics under it. */
+interface FpGroup {
+  key: string
+  label: string
+  subs: readonly FpTopic[]
+}
+
+/**
+ * The free-play map, derived from the curriculum rather than hand-listed.
+ *
+ * Strands (`catalogueGroups`) are the cards; the catalogue topics in each are
+ * the rows, with any graph topic that is not in the teacher-facing catalogue
+ * (`alg.basics`, `num.negatives-arithmetic`) appended to its strand so the map
+ * still covers the whole graph. That is the whole curriculum — every topic
+ * another agent adds shows up here the moment it lands in content, including
+ * the geometry and statistics topics the hand-listed version never mentioned.
+ *
+ * Rows are topics, not subtopics, for two reasons that are not stylistic: the
+ * engine records recency per topic, so a subtopic row could only ever repeat
+ * its parent's "last studied"; and the free-play draw is `questionAt(topicId,
+ * n)`, so a subtopic row would hand the student a question from a sibling
+ * subtopic. The subtopic count is surfaced on the row instead.
+ */
+function buildFreePlay(engine: EngineState): FpGroup[] {
+  const statusOf = (id: TopicId): NodeStatus => engine.nodes[id]?.status ?? FALLBACK_NODE_STATE.status
+
+  const groups = catalogueGroups().map((group) => ({
+    key: group.strandId as string,
+    label: group.label,
+    topicIds: group.topics.map((topic) => topic.id),
+  }))
+  const byStrand = new Map(groups.map((group) => [group.key, group]))
+  const listed = new Set<TopicId>(groups.flatMap((group) => group.topicIds))
+  for (const node of graphTopics()) {
+    if (listed.has(node.id)) continue
+    const strandId = topicById(node.id)?.strandId
+    const group = strandId ? byStrand.get(strandId) : undefined
+    if (!group) continue
+    group.topicIds.push(node.id)
+    listed.add(node.id)
+  }
+
+  return groups.map((group) => ({
+    key: group.key,
+    label: group.label,
+    subs: group.topicIds.map((topicId) => {
+      const pool = questionsForTopic(topicId)
+      const status = statusOf(topicId)
+      return {
+        id: topicId,
+        name: topicLabel(topicId),
+        // Same rule the live unlock always used: anything the student has
+        // actually reached on the graph. 'notready' and 'locked' are the two
+        // statuses that mean the taught path hasn't got here yet.
+        unlocked: status !== 'notready' && status !== 'locked',
+        last: engine.nodes[topicId]?.last ?? FALLBACK_NODE_STATE.last,
+        questions: pool.length,
+        templated: pool.some((q) => q.id.includes('#')),
+        subtopics: subtopicsForTopic(topicId).length,
+      } satisfies FpTopic
+    }),
+  }))
 }
 
 const NAV_ITEMS: Array<[string, Screen]> = [
@@ -311,14 +514,14 @@ const INITIAL: StudentState = {
   screen: 'sdiagnostic',
   diagnosticDone: false,
   smapView: 'focused',
-  pathCompleted: [0, 1],
+  pathCompleted: [],
   speedMode: false,
   fpTopic: null,
   fpLabel: null,
   fpProblemIdx: 0,
   practiceMode: null,
   practiceTopic: null,
-  activePathIdx: null,
+  activePathId: null,
   activePsId: null,
   psIdx: 0,
   psAnswers: {},
@@ -350,15 +553,19 @@ export default function StudentApp() {
   const setState = (patch: Partial<StudentState> | ((st: StudentState) => Partial<StudentState>)) =>
     setS((st) => ({ ...st, ...(typeof patch === 'function' ? patch(st) : patch) }))
 
-  // Live computed mastery (data/engine.ts) - seeded once from exactly the same static
-  // overlays every POV already shows for this student, then moved forward only by real
-  // recordAttempt calls as Aisha actually practises.
-  const [engine, setEngine] = useState<EngineState>(() =>
-    // Persisted across reloads (data/persist.ts). Falls back to the sample
-    // overlay the first time, so a fresh browser still opens on a believable
-    // profile rather than an empty one.
-    loadSaved<EngineState>(`engine.${STUDENT_ID}`, initEngineState(STUDENT_ID)),
-  )
+  /**
+   * Live computed mastery, from the shared multi-student store
+   * (data/students.ts) rather than a `useState` private to this component.
+   *
+   * That store is the single owner of every student's `EngineState`: it seeds
+   * from the same sample overlays this file used to seed from, write-throughs
+   * to the same `engine.aisha` key this file used to persist to, and notifies
+   * every subscriber on a write. `useEngine` subscribes, so this component
+   * re-renders when a different POV moves Aisha's state — and, the direction
+   * that matters for the demo, the teacher's dashboard sees a gap the moment
+   * the student flags the line that produced it.
+   */
+  const engine = useEngine(STUDENT_ID)
   const engineNode = (topicId: TopicId): EngineNodeState => engine.nodes[topicId] ?? FALLBACK_NODE_STATE
 
   /**
@@ -366,15 +573,41 @@ export default function StudentApp() {
    * finishing a review genuinely reorders what comes next instead of ticking
    * off a fixed list.
    */
-  // Write-through persistence. Cheap (a few KB of JSON) and it means a refresh
-  // mid-demo no longer throws away everything the student just did.
-  useEffect(() => { saveState(`engine.${STUDENT_ID}`, engine) }, [engine])
+  // Write-through persistence for the screen state this component still owns.
+  // The engine persists itself inside the shared store.
   useEffect(() => {
     saveState(`progress.${STUDENT_ID}`, { pathCompleted: s.pathCompleted, diagnosticDone: s.diagnosticDone })
   }, [s.pathCompleted, s.diagnosticDone])
 
   const queue = useMemo(() => buildQueue(engine, { cap: DAILY_ITEM_CAP }), [engine])
   const path = useMemo(() => derivePath(queue.items), [queue])
+
+  /**
+   * The whole curriculum, free-play-shaped. Recomputed when the engine moves so
+   * mastering a topic genuinely opens its free play, and so a topic added to
+   * `content/curriculum/` shows up without touching this file.
+   */
+  const fpGroups = useMemo(() => buildFreePlay(engine), [engine])
+
+  /**
+   * School-set problem sets and teacher-authored ones (data/teacherProblemSets.ts)
+   * as one derived list. Memoised because a locked sample set still mints its
+   * questions out of the bank, and re-instantiating those on every keystroke in
+   * the homework screen would be wasteful.
+   *
+   * Up here with the other hooks, not down beside the homework screen it feeds:
+   * the practice and diagnostic screens return early, so a hook below them would
+   * be called conditionally.
+   *
+   * See data/teacherProblemSets.ts for the cross-route caveat, which is why the
+   * dependency list watches the array's length as well as its identity: it is
+   * mutated in place, so adding a set never changes the reference.
+   */
+  const authoredSets = getProblemSets()
+  const problemSets = useMemo(
+    () => buildProblemSets(authoredSets, engine, Date.now()),
+    [authoredSets, engine],
+  )
 
   /**
    * Every topic the student has actually touched, strongest first, straight
@@ -467,16 +700,14 @@ export default function StudentApp() {
       }))
       .filter((l) => l.prereqSubtopicIds.length > 0)
 
-    setEngine((prev) =>
-      recordAttempt(prev, {
-        topicId,
-        difficulty,
-        correct: result.correct,
-        weak: false,
-        subtopicId: question?.subtopicId,
-        lineOutcomes,
-      }),
-    )
+    recordFor(STUDENT_ID, {
+      topicId,
+      difficulty,
+      correct: result.correct,
+      weak: false,
+      subtopicId: question?.subtopicId,
+      lineOutcomes,
+    })
 
     // Surface a wrong, tagged line to the teacher when the prerequisite lives
     // in a different topic — that difference is the diagnostic insight.
@@ -503,16 +734,16 @@ export default function StudentApp() {
   /**
    * Records one diagnostic-test answer on the live engine - same
    * `isGraphTopic` guard, same `questionById` difficulty lookup, and the
-   * same setEngine(recordAttempt(...)) call as recordTopicAttempt above,
-   * just with `weak` and `correct` passed straight through instead of
-   * hardcoded, since DiagnosticTest's onAnswer already computed them (see
-   * that component: "I guessed" always passes correct: false, weak: true;
-   * "I don't know" never calls onAnswer at all, so never reaches here).
+   * same `recordFor` call as recordTopicAttempt above, just with `weak` and
+   * `correct` passed straight through instead of hardcoded, since
+   * DiagnosticTest's onAnswer already computed them (see that component: "I
+   * guessed" always passes correct: false, weak: true; "I don't know" never
+   * calls onAnswer at all, so never reaches here).
    */
   const recordDiagnosticAttempt = (topicId: TopicId, questionId: QuestionId, correct: boolean, weak: boolean) => {
     if (!isGraphTopic(topicId)) return
     const difficulty: MasteryTier = questionById(questionId)?.difficulty ?? 'core'
-    setEngine((prev) => recordAttempt(prev, { topicId, difficulty, correct, weak }))
+    recordFor(STUDENT_ID, { topicId, difficulty, correct, weak })
   }
 
   /**
@@ -565,35 +796,32 @@ export default function StudentApp() {
     return tier ? (tier.foundations + tier.core + tier.stretch) / 3 : undefined
   }
 
-  /** Live unlock for the handful of Free-play subtopics with a topic mapping (see FP_LIVE_UNLOCK_TOPIC_ID); everything else keeps its static sample-data flag untouched. */
-  const isSubUnlocked = (su: { name: string; unlocked: boolean }): boolean => {
-    const topicId = FP_LIVE_UNLOCK_TOPIC_ID[su.name]
-    if (!topicId || !isGraphTopic(topicId)) return su.unlocked
-    const status = engineNode(topicId).status
-    return status !== 'notready' && status !== 'locked'
-  }
-
   const openPathItem = (i: number) => {
     const it = path[i]
     const topicId = it.topicId
     const mode: PracticeMode = !topicId ? 'unavailable' : it.kind === 'Review' ? 'review' : 'lesson'
     setState({
       screen: 'practice',
-      activePathIdx: i,
+      activePathId: it.id,
       practiceMode: mode,
       practiceTopic: topicId ?? null,
       fpLabel: null,
     })
   }
 
-  const openFreePlay = (subtopicName: string) => {
-    const topicId = FREEPLAY_TOPIC_ID[subtopicName]
+  /**
+   * Topics carry their own ids now, so there is nothing to look a name up in.
+   * A topic with an empty pool still routes to the honest "not built out yet"
+   * placeholder rather than into a draw with nothing to draw from.
+   */
+  const openFreePlay = (topic: FpTopic) => {
+    const playable = topic.questions > 0
     setState({
       screen: 'practice',
-      activePathIdx: null,
-      practiceMode: topicId ? 'freeplay' : 'unavailable',
-      practiceTopic: topicId ?? null,
-      fpLabel: subtopicName,
+      activePathId: null,
+      practiceMode: playable ? 'freeplay' : 'unavailable',
+      practiceTopic: playable ? topic.id : null,
+      fpLabel: topic.name,
       fpProblemIdx: 0,
     })
   }
@@ -607,18 +835,18 @@ export default function StudentApp() {
   const completePathItem = () =>
     setState((st) => ({
       screen: 'shome',
-      pathCompleted: st.activePathIdx !== null && !st.pathCompleted.includes(st.activePathIdx)
-        ? [...st.pathCompleted, st.activePathIdx]
+      pathCompleted: st.activePathId !== null && !st.pathCompleted.includes(st.activePathId)
+        ? [...st.pathCompleted, st.activePathId]
         : st.pathCompleted,
-      activePathIdx: null,
+      activePathId: null,
       practiceMode: null,
       practiceTopic: null,
     }))
 
   /** The old-style "N of 6 done" sequential count: the length of the unbroken done-prefix from index 0, so speed-running a later item never inflates this past the earliest still-undone one. */
-  const pathPrefixDone = (completed: number[]): number => {
+  const pathPrefixDone = (items: PathItem[], completed: string[]): number => {
     let n = 0
-    while (completed.includes(n)) n++
+    while (n < items.length && completed.includes(items[n].id)) n++
     return n
   }
 
@@ -642,7 +870,7 @@ export default function StudentApp() {
    * reading as full completion once it's lifted.
    */
   const isPathItemLocked = (i: number): boolean =>
-    !s.speedMode && path.some((it, j) => j < i && isGatingReview(it) && !s.pathCompleted.includes(j))
+    !s.speedMode && path.some((it, j) => j < i && isGatingReview(it) && !s.pathCompleted.includes(it.id))
 
   /**
    * Reviews that got jumped over via speed mode: incomplete, but earlier
@@ -654,9 +882,11 @@ export default function StudentApp() {
    * like 'Negatives' can't sit here forever as a pending count that can never
    * be cleared.
    */
-  const highestPathCompletedIdx = s.pathCompleted.length ? Math.max(...s.pathCompleted) : -1
+  // Reviews jumped over via speed mode: still in the queue, still incomplete,
+  // but sitting above something already done.
+  const highestDoneIdx = path.reduce((m, it, i) => (s.pathCompleted.includes(it.id) ? i : m), -1)
   const pendingReviews = path.filter(
-    (it, i) => isGatingReview(it) && i < highestPathCompletedIdx && !s.pathCompleted.includes(i),
+    (it, i) => isGatingReview(it) && i < highestDoneIdx && !s.pathCompleted.includes(it.id),
   )
 
   // One-time diagnostic/placement test, shown in place of Home until it's done - see
@@ -677,10 +907,40 @@ export default function StudentApp() {
       setState({
         screen: s.fpLabel ? 'fptopic' : 'shome',
         fpLabel: null,
-        activePathIdx: null,
+        activePathId: null,
         practiceMode: null,
         practiceTopic: null,
       })
+
+    /**
+     * The honest "not built out yet" placeholder, shown instead of mismatched
+     * content. Extracted so the free-play branch can fall back to it too.
+     */
+    const renderUnavailable = () => {
+          const unavailableLabel = s.fpLabel || (s.activePathId != null ? (path.find((it) => it.id === s.activePathId)?.subtopic ?? 'this subtopic') : 'this subtopic')
+        return (
+          <div style={{ minHeight: '100vh', background: '#f6f1e7', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <div style={{ width: '100%', background: '#0e2a43', color: '#dbe6ef', padding: '11px 22px' }}>
+              <div style={{ maxWidth: 680, margin: '0 auto' }}>
+                <div onClick={exitPractice} style={{ fontSize: 13, color: '#9fb4c7', cursor: 'pointer' }}>
+                  {s.fpLabel ? '← Free play' : '← Home'}
+                </div>
+              </div>
+            </div>
+            <div style={{ width: '100%', maxWidth: 560, padding: '70px 24px', textAlign: 'center' }}>
+              <p style={{ fontSize: 14, color: '#8a7c63', lineHeight: 1.6, textWrap: 'pretty' }}>
+                Practice content for {unavailableLabel} isn't built out in this prototype yet.
+              </p>
+              <button
+                onClick={exitPractice}
+                style={{ marginTop: 14, background: '#dd6a2f', color: '#fff', border: 'none', borderRadius: 10, padding: '12px 22px', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}
+              >
+                {s.fpLabel ? '← Back to Free play' : '← Back to Home'}
+              </button>
+            </div>
+          </div>
+        )
+    }
 
     const practiceLesson = s.practiceTopic ? lessonForTopic(s.practiceTopic) : undefined
 
@@ -728,6 +988,11 @@ export default function StudentApp() {
       // have questions but no template yet.
       const pool = questionsForTopic(topic)
       const problem = questionAt(topic, s.fpProblemIdx) ?? pool[s.fpProblemIdx % pool.length]
+      // `openFreePlay` already refuses to enter a topic with no questions, so
+      // this should be unreachable. Guarded anyway because PracticeLoop takes a
+      // non-optional problem: an undefined here would be a blank crash rather
+      // than the honest placeholder two branches below.
+      if (!problem) return renderUnavailable()
       return (
         <PracticeLoop
           key={`${problem.id}-${s.fpProblemIdx}`}
@@ -745,30 +1010,7 @@ export default function StudentApp() {
       )
     }
 
-    // practiceMode === 'unavailable' - honest placeholder rather than mismatched content
-    const unavailableLabel = s.fpLabel || (s.activePathIdx != null ? path[s.activePathIdx].subtopic : 'this subtopic')
-    return (
-      <div style={{ minHeight: '100vh', background: '#f6f1e7', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <div style={{ width: '100%', background: '#0e2a43', color: '#dbe6ef', padding: '11px 22px' }}>
-          <div style={{ maxWidth: 680, margin: '0 auto' }}>
-            <div onClick={exitPractice} style={{ fontSize: 13, color: '#9fb4c7', cursor: 'pointer' }}>
-              {s.fpLabel ? '← Free play' : '← Home'}
-            </div>
-          </div>
-        </div>
-        <div style={{ width: '100%', maxWidth: 560, padding: '70px 24px', textAlign: 'center' }}>
-          <p style={{ fontSize: 14, color: '#8a7c63', lineHeight: 1.6, textWrap: 'pretty' }}>
-            Practice content for {unavailableLabel} isn't built out in this prototype yet.
-          </p>
-          <button
-            onClick={exitPractice}
-            style={{ marginTop: 14, background: '#dd6a2f', color: '#fff', border: 'none', borderRadius: 10, padding: '12px 22px', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}
-          >
-            {s.fpLabel ? '← Back to Free play' : '← Back to Home'}
-          </button>
-        </div>
-      </div>
-    )
+    return renderUnavailable()
   }
 
   // top nav — the tab that stays lit for each screen
@@ -851,12 +1093,14 @@ export default function StudentApp() {
   const selNode = s.selectedNode ? graphTopics().find((n) => n.id === s.selectedNode) : null
 
   // ---- problem set (homework) ----
-  // Teacher-authored sets (data/teacherProblemSets.ts) alongside the static PS_SET/PROBLEM_SETS
-  // demo data - see that module's comment for the cross-route caveat. activePsId is null for the
-  // static demo set (PS_SET) and an authored set's id once one of its cards is opened.
-  const authoredSets = getProblemSets()
-  const activeAuthoredSet = s.activePsId ? authoredSets.find((p) => p.id === s.activePsId) : undefined
-  const curPS: { title: string; topics: string; due: string; questions: AuthoredQuestion[]; requireHandwriting?: boolean } = activeAuthoredSet ?? PS_SET
+  // Falls back to a set that can actually be opened, never to an empty or locked one - the psolve
+  // screen indexes straight into `questions` and there is no honest screen to show for a set with
+  // nothing in it. The cards below only open an openable set, so this is belt and braces.
+  const curPS: StudentProblemSet =
+    problemSets.find((p) => p.id === s.activePsId && p.questions.length > 0) ??
+    problemSets.find((p) => p.openable) ??
+    problemSets.find((p) => p.questions.length > 0) ??
+    problemSets[0]
   const psIdx = s.psIdx
   const psAns = s.psAnswers
   const psAnsweredCount = curPS.questions.filter((_, i) => (psAns[i] || '').trim()).length
@@ -896,7 +1140,7 @@ export default function StudentApp() {
             {/* your path: lessons + reviews */}
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 4, flexWrap: 'wrap' }}>
               <h2 style={{ fontFamily: FONT_SERIF, fontSize: 19, fontWeight: 600, margin: 0, color: '#0e2a43' }}>Your path</h2>
-              <span style={{ fontFamily: FONT_MONO, fontSize: 12, color: '#8a7c63' }}>{pathPrefixDone(s.pathCompleted)} of {path.length} done</span>
+              <span style={{ fontFamily: FONT_MONO, fontSize: 12, color: '#8a7c63' }}>{pathPrefixDone(path, s.pathCompleted)} of {path.length} done</span>
               {pendingReviews.length > 0 && (
                 <span style={{ fontFamily: FONT_MONO, fontSize: 12, color: '#b6531f' }}>
                   · {pendingReviews.length} review{pendingReviews.length === 1 ? '' : 's'} pending
@@ -916,9 +1160,9 @@ export default function StudentApp() {
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
               {path.map((it, i) => {
-                const complete = s.pathCompleted.includes(i)
+                const complete = s.pathCompleted.includes(it.id)
                 const locked = isPathItemLocked(i)
-                const isNext = !complete && i === pathPrefixDone(s.pathCompleted)
+                const isNext = !complete && i === pathPrefixDone(path, s.pathCompleted)
                 const isReview = it.kind === 'Review'
                 return (
                   <div
@@ -975,13 +1219,13 @@ export default function StudentApp() {
                 Set by your teacher, on their own deadlines. Some unlock only once you've finished the lessons they build on.
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                {PROBLEM_SETS.map((p) => (
-                  <div key={p.title} style={{ background: '#fff', border: `1px solid ${p.locked ? '#e4dccb' : '#d3e0ea'}`, borderRadius: 12, padding: '16px 18px', opacity: p.locked ? 0.92 : 1 }}>
+                {problemSets.map((p) => (
+                  <div key={p.id} style={{ background: '#fff', border: `1px solid ${p.locked ? '#e4dccb' : '#d3e0ea'}`, borderRadius: 12, padding: '16px 18px', opacity: p.locked ? 0.92 : 1 }}>
                     <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap' }}>
                       <div style={{ minWidth: 0, flex: 1 }}>
                         <div style={{ fontSize: 15, fontWeight: 600, color: '#1a2129' }}>{p.title}</div>
                         <div style={{ fontSize: 12.5, color: '#8a7c63', marginTop: 3 }}>
-                          {p.topics} · {p.qs}
+                          {p.topics} · {p.questions.length} question{p.questions.length === 1 ? '' : 's'}
                         </div>
                       </div>
                       <span
@@ -1011,49 +1255,11 @@ export default function StudentApp() {
                     )}
                     <button
                       onClick={() => {
-                        if (!p.locked) setState({ screen: 'psolve', psIdx: 0, psAnswers: {}, psSubmitted: false, activePsId: null })
+                        if (p.openable) setState({ screen: 'psolve', psIdx: 0, psAnswers: {}, psSubmitted: false, activePsId: p.id })
                       }}
-                      style={{ marginTop: 12, background: p.locked ? '#f2ece0' : '#dd6a2f', color: p.locked ? '#a99e88' : '#fff', border: 'none', borderRadius: 9, padding: '11px 16px', fontSize: 13.5, fontWeight: 600, cursor: p.locked ? 'not-allowed' : 'pointer' }}
+                      style={{ marginTop: 12, background: p.openable ? '#dd6a2f' : '#f2ece0', color: p.openable ? '#fff' : '#a99e88', border: 'none', borderRadius: 9, padding: '11px 16px', fontSize: 13.5, fontWeight: 600, cursor: p.openable ? 'pointer' : 'not-allowed' }}
                     >
-                      {p.locked ? '🔒 Locked' : 'Start homework →'}
-                    </button>
-                  </div>
-                ))}
-                {/* Teacher-authored sets (data/teacherProblemSets.ts) - always unlocked, since this
-                    prototype's authoring form has no prerequisite/lock concept of its own. */}
-                {authoredSets.map((t) => (
-                  <div key={t.id} style={{ background: '#fff', border: '1px solid #d3e0ea', borderRadius: 12, padding: '16px 18px' }}>
-                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap' }}>
-                      <div style={{ minWidth: 0, flex: 1 }}>
-                        <div style={{ fontSize: 15, fontWeight: 600, color: '#1a2129' }}>{t.title}</div>
-                        <div style={{ fontSize: 12.5, color: '#8a7c63', marginTop: 3 }}>
-                          {t.topics} · {t.questions.length} question{t.questions.length === 1 ? '' : 's'}
-                        </div>
-                      </div>
-                      <span
-                        style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: 6,
-                          fontFamily: FONT_MONO,
-                          fontSize: 11,
-                          fontWeight: 600,
-                          padding: '4px 10px',
-                          borderRadius: 20,
-                          whiteSpace: 'nowrap',
-                          background: '#eef3f7',
-                          color: '#1f4e75',
-                          border: '1px solid #d3e0ea',
-                        }}
-                      >
-                        🗓 {t.due}
-                      </span>
-                    </div>
-                    <button
-                      onClick={() => setState({ screen: 'psolve', psIdx: 0, psAnswers: {}, psSubmitted: false, activePsId: t.id })}
-                      style={{ marginTop: 12, background: '#dd6a2f', color: '#fff', border: 'none', borderRadius: 9, padding: '11px 16px', fontSize: 13.5, fontWeight: 600, cursor: 'pointer' }}
-                    >
-                      Start homework →
+                      {p.locked ? '🔒 Locked' : p.openable ? 'Start homework →' : 'Not built out yet'}
                     </button>
                   </div>
                 ))}
@@ -1529,8 +1735,8 @@ export default function StudentApp() {
               The complete map of maths. Pick a topic to see its subtopics — you can free-play any subtopic whose lesson you've already done. Free play counts towards how recently you've studied a subtopic.
             </p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(240px,1fr))', gap: 14 }}>
-              {FP_TOPICS.map((t) => {
-                const unlocked = t.subs.filter(isSubUnlocked).length
+              {fpGroups.map((t) => {
+                const unlocked = t.subs.filter((su) => su.unlocked).length
                 return (
                   <div
                     key={t.key}
@@ -1542,7 +1748,7 @@ export default function StudentApp() {
                       {unlocked} of {t.subs.length} unlocked
                     </div>
                     <div style={{ height: 6, background: '#efe7d9', borderRadius: 4, overflow: 'hidden' }}>
-                      <div style={{ width: `${(unlocked / t.subs.length) * 100}%`, height: '100%', background: '#1f4e75', borderRadius: 4 }} />
+                      <div style={{ width: `${(unlocked / Math.max(1, t.subs.length)) * 100}%`, height: '100%', background: '#1f4e75', borderRadius: 4 }} />
                     </div>
                     <div style={{ marginTop: 12, fontSize: 12.5, color: '#dd6a2f', fontWeight: 600 }}>Open topic →</div>
                   </div>
@@ -1556,7 +1762,8 @@ export default function StudentApp() {
       {/* ============ FREE PLAY: subtopics for a topic ============ */}
       {s.screen === 'fptopic' &&
         (() => {
-          const curT = FP_TOPICS.find((t) => t.key === s.fpTopic) || FP_TOPICS[0]
+          const curT = fpGroups.find((t) => t.key === s.fpTopic) ?? fpGroups[0]
+          if (!curT) return null
           return (
             <div style={{ minHeight: '100vh', background: '#f6f1e7' }}>
               <div style={{ background: '#0e2a43', color: '#dbe6ef', padding: '11px 22px' }}>
@@ -1571,14 +1778,19 @@ export default function StudentApp() {
                 <div style={monoCap()}>Free play · subtopics</div>
                 <h1 style={{ fontFamily: FONT_SERIF, fontWeight: 600, fontSize: 25, margin: '6px 0 4px', color: '#0e2a43' }}>{curT.label}</h1>
                 <p style={{ margin: '0 0 18px', fontSize: 13, lineHeight: 1.5, color: '#5c6773', maxWidth: 520, textWrap: 'pretty' }}>
-                  Each subtopic has unlimited practice problems. Locked subtopics open once you've done their lesson on Home — free play never gives you a lesson you haven't reached yet.
+                  Each subtopic with practice built has unlimited problems. Locked subtopics open once you've done their lesson on Home — free play never gives you a lesson you haven't reached yet.
                 </p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                   {curT.subs.map((su) => {
-                    const unlocked = isSubUnlocked(su)
+                    const unlocked = su.unlocked
+                    // Unlocked is the lesson gate; playable also needs questions to exist. The two
+                    // used to be the same thing only because four subtopics were hand-listed with a
+                    // topic behind them - across the whole curriculum most topics have no bank yet,
+                    // and a "Free play →" button into an empty pool is worse than saying so.
+                    const playable = unlocked && su.questions > 0
                     return (
                       <div
-                        key={su.name}
+                        key={su.id}
                         style={{ display: 'flex', alignItems: 'center', gap: 14, background: '#fff', border: `1px solid ${unlocked ? '#d3e0ea' : '#e4dccb'}`, borderRadius: 11, padding: '15px 17px', opacity: unlocked ? 1 : 0.85 }}
                       >
                         <span style={{ width: 10, height: 10, borderRadius: '50%', flex: 'none', background: unlocked ? '#1f4e75' : '#cdbfa6' }} />
@@ -1587,29 +1799,30 @@ export default function StudentApp() {
                           {unlocked ? (
                             <div style={{ fontSize: 12, color: '#8a7c63', marginTop: 2 }}>
                               Last studied: {su.last}
-                              {(() => {
-                                const tid = FREEPLAY_TOPIC_ID[su.name]
-                                if (!tid) return null
-                                const pool = questionsForTopic(tid)
-                                const templated = pool.some((q) => q.id.includes('#'))
-                                return (
-                                  <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: templated ? '#b6531f' : '#8a7c63', marginLeft: 8 }}>
-                                    · {templated ? 'unlimited questions' : `${pool.length} questions`}
-                                  </span>
-                                )
-                              })()}
+                              <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: su.templated ? '#b6531f' : '#8a7c63', marginLeft: 8 }}>
+                                {su.questions > 0
+                                  ? `· ${su.templated ? 'unlimited questions' : `${su.questions} questions`}`
+                                  : su.subtopics > 0
+                                    ? `· ${su.subtopics} subtopics · no questions yet`
+                                    : '· no questions yet'}
+                              </span>
                             </div>
                           ) : (
-                            <div style={{ fontSize: 12, color: '#a99e88', marginTop: 2 }}>Lesson not done yet</div>
+                            <div style={{ fontSize: 12, color: '#a99e88', marginTop: 2 }}>
+                              Lesson not done yet
+                              {su.subtopics > 0 && (
+                                <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: '#a99e88', marginLeft: 8 }}>· {su.subtopics} subtopics</span>
+                              )}
+                            </div>
                           )}
                         </div>
                         <button
                           onClick={() => {
-                            if (unlocked) openFreePlay(su.name)
+                            if (playable) openFreePlay(su)
                           }}
-                          style={{ marginLeft: 'auto', border: 'none', borderRadius: 9, padding: '9px 15px', fontSize: 13, fontWeight: 600, whiteSpace: 'nowrap', cursor: unlocked ? 'pointer' : 'not-allowed', background: unlocked ? '#dd6a2f' : '#f2ece0', color: unlocked ? '#fff' : '#a99e88' }}
+                          style={{ marginLeft: 'auto', border: 'none', borderRadius: 9, padding: '9px 15px', fontSize: 13, fontWeight: 600, whiteSpace: 'nowrap', cursor: playable ? 'pointer' : 'not-allowed', background: playable ? '#dd6a2f' : '#f2ece0', color: playable ? '#fff' : '#a99e88' }}
                         >
-                          {unlocked ? 'Free play →' : '🔒 Do the lesson first'}
+                          {playable ? 'Free play →' : unlocked ? 'Not built out yet' : '🔒 Do the lesson first'}
                         </button>
                       </div>
                     )

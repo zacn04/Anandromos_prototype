@@ -20,8 +20,9 @@
  *    product exists to avoid, and an unpayable backlog is exactly that.
  */
 import type { TopicId } from '../content'
-import { lessonForTopic, topicLabel } from '../content'
+import { lessonForTopic, questionsForTopic, topicLabel } from '../content'
 import { dueInDays } from './engine'
+import { needsRelesson } from './xp'
 import type { EngineState } from './engine'
 
 /** How many items a student is shown in one sitting. The rest wait for tomorrow. */
@@ -101,9 +102,24 @@ export function buildQueue(state: EngineState, opts: BuildQueueOptions = {}): Qu
     const node = state.nodes[topicId]
     const due = dueInDays(node, now)
 
-    // Frontier topics are the ready-to-learn edge of the graph: a lesson, not a
-    // review, because there is nothing yet to review.
-    if (node.status === 'frontier') {
+    // A frontier topic is the ready-to-learn edge of the graph — but only
+    // counts as a LESSON until the student has actually attempted it. After
+    // that there is something to review, so it falls through to the review
+    // branch and obeys the spaced-repetition schedule like everything else.
+    //
+    // Without the `reps === 0` guard this branch queued a lesson
+    // unconditionally: `status` stays 'frontier' until mastery crosses the
+    // promotion threshold, and the branch ignored the due date, so finishing a
+    // lesson put the identical row straight back at the top of the student's
+    // path. From the student's side that reads as "I finished it and nothing
+    // changed", which is exactly the demoralising dead end the design brief
+    // says to avoid.
+    // The second half of the rule is build-plan §3.3: a student whose mastery
+    // has decayed past the re-lesson threshold is sent back to the lesson
+    // rather than made to keep failing reviews. `needsRelesson` reads
+    // difficulty-weighted mastery, never XP, for the reason given in xp.ts.
+    const relearn = needsRelesson(state.masteryByTopic[topicId])
+    if (node.status === 'frontier' && (node.reps === 0 || relearn)) {
       // Only queue a lesson we can actually deliver.
       if (!lessonForTopic(topicId)) continue
       items.push({
@@ -120,6 +136,14 @@ export function buildQueue(state: EngineState, opts: BuildQueueOptions = {}): Qu
     // Reviews are for material already met. Nothing not-yet-started is due.
     if (node.status === 'notready' || node.status === 'locked') continue
     if (due > 0) continue
+
+    // And only a review we can actually serve — the same rule the lesson
+    // branch above already applies via `lessonForTopic`. Queueing a review for
+    // a topic with no question bank puts a row on the student's path that
+    // dead-ends in "not built out yet" when they click it. An honest empty
+    // queue reads as "you're up to date"; a queue full of things you cannot do
+    // reads as the product being broken.
+    if (questionsForTopic(topicId).length === 0) continue
 
     items.push({
       kind: 'review',
