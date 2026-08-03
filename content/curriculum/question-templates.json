@@ -105,6 +105,411 @@
       "boardStyle": null,
       "source": "ai",
       "status": "draft"
+    },
+    {
+      "id": "alg.linear.cross-equals.t02",
+      "topicId": "alg.linear",
+      "subtopicId": "alg.linear.cross-equals",
+      "familyId": "cross-equals-plus",
+      "difficulty": "core",
+      "params": [
+        { "name": "a", "min": 2, "max": 9 },
+        { "name": "b", "min": 2, "max": 20 },
+        { "name": "x", "min": 2, "max": 12 }
+      ],
+      "constraints": [],
+      "prompt": "Solve for x",
+      "statement": "{a}x + {b} = {a*x + b}",
+      "answerLabel": "x =",
+      "correctAnswer": "{x}",
+      "lines": [
+        { "text": "{a}x + {b} = {a*x + b}", "note": "", "prereqSubtopicIds": [] },
+        { "text": "{a}x = {a*x + b} − {b}", "note": "+{b} crosses the =, so it becomes −{b}", "prereqSubtopicIds": [] },
+        { "text": "{a}x = {a*x}", "note": "", "prereqSubtopicIds": [] },
+        { "text": "x = {x}", "note": "divide both sides by {a}", "prereqSubtopicIds": [] }
+      ],
+      "errorLineIndex": 1,
+      "distractors": [
+        { "text": "{(a*x + 2*b)/a}", "cause": "added {b} again instead of flipping the sign across the =" },
+        { "text": "{(a*x + b)/a}", "cause": "divided by {a} before moving {b} across, so {b} got divided too" },
+        { "text": "{x - 1}", "cause": "slipped dividing {a*x} by {a}" }
+      ],
+      "boardStyle": null,
+      "source": "ai",
+      "status": "draft"
+    },
+    {
+      "id": "alg.linear.divide-negative.t01",
+      "topicId": "alg.linear",
+      "subtopicId": "alg.linear.divide-negative",
+      "familyId": "divide-negative",
+      "difficulty": "foundations",
+      "params": [
+        { "name": "a", "min": 2, "max": 9 },
+        { "name": "x", "min": 2, "max": 12 },
+        { "name": "c", "min": 1, "max": 20 }
+      ],
+      "constraints": [],
+      "prompt": "Solve for x",
+      "statement": "{a*x + c} − {a}x = {c}",
+      "answerLabel": "x =",
+      "correctAnswer": "{x}",
+      "lines": [
+        { "text": "{a*x + c} − {a}x = {c}", "note": "", "prereqSubtopicIds": [] },
+        { "text": "−{a}x = {c} − {a*x + c}", "note": "move {a*x + c} across: it becomes −{a*x + c} on the right", "prereqSubtopicIds": [] },
+        { "text": "−{a}x = −{a*x}", "note": "", "prereqSubtopicIds": [] },
+        { "text": "x = {x}", "note": "divide both sides by −{a} · a negative divided by a negative is positive", "prereqSubtopicIds": [] }
+      ],
+      "errorLineIndex": 3,
+      "distractors": [
+        { "text": "−{x}", "cause": "forgot a negative divided by a negative is positive (−{a*x} ÷ −{a} read as −{x})" },
+        { "text": "−{a*x}", "cause": "correctly reached −{a}x = −{a*x} but forgot to divide by −{a} at all" },
+        { "text": "{x + 1}", "cause": "divided −{a*x} ÷ −{a} wrong" }
+      ],
+      "boardStyle": null,
+      "source": "ai",
+      "status": "draft"
+    },
+    {
+      "id": "alg.substitution.single-term.t01",
+      "topicId": "alg.substitution",
+      "subtopicId": "alg.substitution.single-term",
+      "familyId": "single-term",
+      "difficulty": "foundations",
+      "params": [
+        { "name": "p", "min": 2, "max": 9 },
+        { "name": "q", "min": 2, "max": 15 },
+        { "name": "v", "min": 2, "max": 12 }
+      ],
+      "constraints": ["p * v != p + v", "p * v != p + v + q"],
+      "prompt": "Evaluate the expression",
+      "statement": "{p}x + {q}, when x = {v}",
+      "answerLabel": "=",
+      "correctAnswer": "{p*v + q}",
+      "lines": [
+        { "text": "{p}x + {q}", "note": "", "prereqSubtopicIds": [] },
+        { "text": "{p}×{v} + {q}", "note": "substitute x = {v}", "prereqSubtopicIds": [] },
+        { "text": "{p*v} + {q}", "note": "", "prereqSubtopicIds": [] },
+        { "text": "{p*v + q}", "note": "", "prereqSubtopicIds": [] }
+      ],
+      "errorLineIndex": 1,
+      "distractors": [
+        { "text": "{p + v + q}", "cause": "added {p} and {v} instead of multiplying them" },
+        { "text": "{p*(v + q)}", "cause": "added the {q} on before multiplying — {p} only multiplies x" },
+        { "text": "{p*v}", "cause": "substituted correctly but dropped the + {q}" }
+      ],
+      "boardStyle": null,
+      "source": "ai",
+      "status": "draft"
+    },
+    {
+      "id": "alg.substitution.two-term.t02",
+      "topicId": "alg.substitution",
+      "subtopicId": "alg.substitution.two-term",
+      "familyId": "two-term-difference",
+      "difficulty": "core",
+      "params": [
+        { "name": "p", "min": 2, "max": 9 },
+        { "name": "q", "min": 2, "max": 9 },
+        { "name": "a", "min": 2, "max": 12 },
+        { "name": "b", "min": 2, "max": 12 }
+      ],
+      "constraints": ["p != q", "a != b", "p * a - q * b > 0"],
+      "prompt": "Work out the value",
+      "statement": "a = {a} and b = {b}.  Work out {p}a − {q}b",
+      "answerLabel": "=",
+      "correctAnswer": "{p*a - q*b}",
+      "lines": [
+        { "text": "{p}a − {q}b", "note": "", "prereqSubtopicIds": [] },
+        { "text": "= {p} × {a} − {q} × {b}", "note": "substitute a = {a} and b = {b}", "prereqSubtopicIds": [] },
+        { "text": "= {p*a} − {q*b}", "note": "", "prereqSubtopicIds": [] },
+        { "text": "= {p*a - q*b}", "note": "", "prereqSubtopicIds": [] }
+      ],
+      "errorLineIndex": 1,
+      "distractors": [
+        { "text": "{p*a + q*b}", "cause": "added the two terms instead of subtracting" },
+        { "text": "−{p*a - q*b}", "cause": "subtracted the wrong way round ({q*b} − {p*a})" },
+        { "text": "{p*a}", "cause": "worked out {p} × {a} and forgot to subtract {q}b" }
+      ],
+      "boardStyle": null,
+      "source": "ai",
+      "status": "draft"
+    },
+    {
+      "id": "num.fractions-to-percent.convert.t02",
+      "topicId": "num.fractions-to-percent",
+      "subtopicId": "num.fractions-to-percent.convert",
+      "familyId": "fraction-to-percent-decimal",
+      "difficulty": "stretch",
+      "params": [
+        { "name": "n", "min": 1, "max": 39 },
+        { "name": "d", "min": 8, "max": 40 }
+      ],
+      "constraints": ["800 % d == 0", "100 % d != 0", "n < d", "gcd(n, d) == 1"],
+      "prompt": "Write as a percentage",
+      "statement": "{n}/{d}",
+      "answerLabel": "=",
+      "correctAnswer": "{n*100/d}%",
+      "lines": [
+        { "text": "{n}/{d}", "note": "", "prereqSubtopicIds": [] },
+        { "text": "= {n} ÷ {d} × 100", "note": "a percentage is how many parts out of 100", "prereqSubtopicIds": [] },
+        {
+          "text": "= {n*100} ÷ {d}",
+          "note": "{d} does not divide into 100, so multiply by 100 first and keep whole numbers",
+          "prereqSubtopicIds": []
+        },
+        {
+          "text": "= {n*100/d}%",
+          "note": "{n*100} ÷ {d} = {n*100/d}",
+          "prereqSubtopicIds": ["num.fractions.to-decimal"]
+        }
+      ],
+      "errorLineIndex": 3,
+      "distractors": [
+        { "text": "{n*100/d*10}%", "cause": "dropped the decimal point instead of multiplying by 100, so the answer is ten times too big" },
+        { "text": "{d*100/n}%", "cause": "divided the wrong way round ({d} ÷ {n} instead of {n} ÷ {d})" },
+        { "text": "{n*100}%", "cause": "multiplied by 100 but never divided by {d}" }
+      ],
+      "boardStyle": null,
+      "source": "ai",
+      "status": "draft"
+    },
+    {
+      "id": "num.fractions.simplify.t01",
+      "topicId": "num.fractions",
+      "subtopicId": "num.fractions.simplify",
+      "familyId": "simplify-fraction",
+      "difficulty": "core",
+      "params": [
+        { "name": "n", "min": 1, "max": 11 },
+        { "name": "d", "min": 2, "max": 12 },
+        { "name": "k", "min": 2, "max": 9 }
+      ],
+      "constraints": ["n < d", "gcd(n, d) == 1"],
+      "prompt": "Write in its simplest form",
+      "statement": "{n*k}/{d*k}",
+      "answerLabel": "=",
+      "correctAnswer": "{n}/{d}",
+      "lines": [
+        { "text": "{n*k}/{d*k}", "note": "", "prereqSubtopicIds": [] },
+        { "text": "HCF of {n*k} and {d*k} = {k}", "note": "the largest number that divides both the top and the bottom", "prereqSubtopicIds": [] },
+        {
+          "text": "= {n}/{d}",
+          "note": "divide the top and the bottom by {k}",
+          "prereqSubtopicIds": ["num.fractions.equivalent"]
+        }
+      ],
+      "errorLineIndex": 1,
+      "distractors": [
+        { "text": "{n}/{d*k}", "cause": "divided the top by {k} but left the bottom alone" },
+        { "text": "{n*k}/{d}", "cause": "divided the bottom by {k} but left the top alone" },
+        { "text": "{d}/{n}", "cause": "simplified correctly but wrote the fraction upside down" }
+      ],
+      "boardStyle": null,
+      "source": "ai",
+      "status": "draft"
+    },
+    {
+      "id": "num.fractions.of-quantity.t01",
+      "topicId": "num.fractions",
+      "subtopicId": "num.fractions.of-quantity",
+      "familyId": "fraction-of-quantity",
+      "difficulty": "core",
+      "params": [
+        { "name": "n", "min": 2, "max": 9 },
+        { "name": "d", "min": 3, "max": 12 },
+        { "name": "m", "min": 3, "max": 15 }
+      ],
+      "constraints": ["n < d", "gcd(n, d) == 1"],
+      "prompt": "Work out the value",
+      "statement": "{n}/{d} of {d*m}",
+      "answerLabel": "=",
+      "correctAnswer": "{n*m}",
+      "lines": [
+        { "text": "{n}/{d} of {d*m}", "note": "", "prereqSubtopicIds": [] },
+        {
+          "text": "{d*m} ÷ {d} = {m}",
+          "note": "split {d*m} into {d} equal parts",
+          "prereqSubtopicIds": ["num.fractions.part-of-whole"]
+        },
+        { "text": "{m} × {n} = {n*m}", "note": "take {n} of those parts", "prereqSubtopicIds": [] }
+      ],
+      "errorLineIndex": 1,
+      "distractors": [
+        { "text": "{m}", "cause": "found one part but forgot to take {n} of them" },
+        { "text": "{d*d*m/n}", "cause": "divided by the top and multiplied by the bottom — the wrong way round" },
+        { "text": "{m + n}", "cause": "added at the last step instead of multiplying" }
+      ],
+      "boardStyle": null,
+      "source": "ai",
+      "status": "draft"
+    },
+    {
+      "id": "num.decimals.to-percent.t01",
+      "topicId": "num.decimals",
+      "subtopicId": "num.decimals.to-percent",
+      "familyId": "decimal-to-percent",
+      "difficulty": "foundations",
+      "params": [
+        { "name": "h", "min": 1, "max": 99 }
+      ],
+      "constraints": [],
+      "prompt": "Write as a percentage",
+      "statement": "{h/100}",
+      "answerLabel": "=",
+      "correctAnswer": "{h}%",
+      "lines": [
+        { "text": "{h/100}", "note": "", "prereqSubtopicIds": [] },
+        {
+          "text": "= {h/100} × 100",
+          "note": "multiply by 100 to turn a decimal into a percentage",
+          "prereqSubtopicIds": ["num.decimals.multiply-powers-ten"]
+        },
+        { "text": "= {h}%", "note": "", "prereqSubtopicIds": [] }
+      ],
+      "errorLineIndex": 1,
+      "distractors": [
+        { "text": "{h/100}%", "cause": "wrote the decimal down with a % sign and never multiplied by 100" },
+        { "text": "{h/10}%", "cause": "moved the decimal point one place instead of two" },
+        { "text": "{h*10}%", "cause": "moved the decimal point three places instead of two" }
+      ],
+      "boardStyle": null,
+      "source": "ai",
+      "status": "draft"
+    },
+    {
+      "id": "num.negatives-arithmetic.subtract.t01",
+      "topicId": "num.negatives-arithmetic",
+      "subtopicId": "num.negatives-arithmetic.subtract",
+      "familyId": "subtract-a-negative",
+      "difficulty": "core",
+      "params": [
+        { "name": "a", "min": 1, "max": 15 },
+        { "name": "b", "min": 2, "max": 20 }
+      ],
+      "constraints": ["b > a"],
+      "prompt": "Work out the value",
+      "statement": "−{a} − (−{b})",
+      "answerLabel": "=",
+      "correctAnswer": "{b - a}",
+      "lines": [
+        { "text": "−{a} − (−{b})", "note": "", "prereqSubtopicIds": [] },
+        { "text": "= −{a} + {b}", "note": "subtracting a negative is the same as adding", "prereqSubtopicIds": [] },
+        {
+          "text": "= {b - a}",
+          "note": "start at −{a} and count on {b}",
+          "prereqSubtopicIds": ["num.negatives-arithmetic.add", "num.negatives.number-line"]
+        }
+      ],
+      "errorLineIndex": 1,
+      "distractors": [
+        { "text": "−{a + b}", "cause": "treated − (−{b}) as one more subtraction" },
+        { "text": "−{b - a}", "cause": "got the size right but left the answer negative" },
+        { "text": "{a + b}", "cause": "added {a} and {b} and ignored the − in front of {a}" }
+      ],
+      "boardStyle": null,
+      "source": "ai",
+      "status": "draft"
+    },
+    {
+      "id": "num.negatives-arithmetic.multiply.t01",
+      "topicId": "num.negatives-arithmetic",
+      "subtopicId": "num.negatives-arithmetic.multiply",
+      "familyId": "multiply-two-negatives",
+      "difficulty": "core",
+      "params": [
+        { "name": "a", "min": 2, "max": 12 },
+        { "name": "b", "min": 2, "max": 12 }
+      ],
+      "constraints": ["a * b != a + b"],
+      "prompt": "Work out the value",
+      "statement": "−{a} × −{b}",
+      "answerLabel": "=",
+      "correctAnswer": "{a*b}",
+      "lines": [
+        { "text": "−{a} × −{b}", "note": "", "prereqSubtopicIds": [] },
+        { "text": "{a} × {b} = {a*b}", "note": "multiply the numbers first, then decide the sign", "prereqSubtopicIds": [] },
+        { "text": "= {a*b}", "note": "a negative times a negative is positive", "prereqSubtopicIds": [] }
+      ],
+      "errorLineIndex": 2,
+      "distractors": [
+        { "text": "−{a*b}", "cause": "thought a negative times a negative stays negative" },
+        { "text": "{a + b}", "cause": "added the two numbers instead of multiplying them" },
+        { "text": "−{a + b}", "cause": "added instead of multiplying and kept the answer negative" }
+      ],
+      "boardStyle": null,
+      "source": "ai",
+      "status": "draft"
+    },
+    {
+      "id": "num.ratio.simplify.t01",
+      "topicId": "num.ratio",
+      "subtopicId": "num.ratio.simplify",
+      "familyId": "simplify-ratio",
+      "difficulty": "core",
+      "params": [
+        { "name": "a", "min": 1, "max": 9 },
+        { "name": "b", "min": 1, "max": 9 },
+        { "name": "g", "min": 2, "max": 9 }
+      ],
+      "constraints": ["a != b", "gcd(a, b) == 1"],
+      "prompt": "Write the ratio in its simplest form",
+      "statement": "{a*g} : {b*g}",
+      "answerLabel": "=",
+      "correctAnswer": "{a} : {b}",
+      "lines": [
+        { "text": "{a*g} : {b*g}", "note": "", "prereqSubtopicIds": [] },
+        {
+          "text": "HCF of {a*g} and {b*g} = {g}",
+          "note": "the largest number that divides both parts",
+          "prereqSubtopicIds": ["num.primes.hcf"]
+        },
+        { "text": "= {a} : {b}", "note": "divide both parts by {g}", "prereqSubtopicIds": [] }
+      ],
+      "errorLineIndex": 1,
+      "distractors": [
+        { "text": "{b} : {a}", "cause": "simplified correctly but wrote the two parts the wrong way round" },
+        { "text": "{a} : {b*g}", "cause": "divided the first part by {g} but left the second alone" },
+        { "text": "{a*g} : {b}", "cause": "divided the second part by {g} but left the first alone" }
+      ],
+      "boardStyle": null,
+      "source": "ai",
+      "status": "draft"
+    },
+    {
+      "id": "num.percent-change.increase.t01",
+      "topicId": "num.percent-change",
+      "subtopicId": "num.percent-change.increase",
+      "familyId": "percent-increase",
+      "difficulty": "core",
+      "params": [
+        { "name": "u", "min": 1, "max": 25, "exclude": [5] },
+        { "name": "k", "min": 1, "max": 9 }
+      ],
+      "constraints": [],
+      "prompt": "Work out the new value",
+      "statement": "Increase {20*u} by {5*k}%",
+      "answerLabel": "=",
+      "correctAnswer": "{20*u + u*k}",
+      "lines": [
+        { "text": "Increase {20*u} by {5*k}%", "note": "", "prereqSubtopicIds": [] },
+        {
+          "text": "{5*k}% of {20*u} = {u*k}",
+          "note": "{5*k}% means {5*k} out of every 100",
+          "prereqSubtopicIds": ["num.fractions-to-percent.percent-of-quantity"]
+        },
+        { "text": "{20*u} + {u*k}", "note": "an increase is added on to what you started with", "prereqSubtopicIds": [] },
+        { "text": "= {20*u + u*k}", "note": "", "prereqSubtopicIds": [] }
+      ],
+      "errorLineIndex": 1,
+      "distractors": [
+        { "text": "{u*k}", "cause": "worked out the increase but forgot to add it on" },
+        { "text": "{20*u - u*k}", "cause": "took the percentage off instead of adding it on" },
+        { "text": "{20*u + 5*k}", "cause": "added {5*k} as if it were an amount rather than a percentage" }
+      ],
+      "boardStyle": null,
+      "source": "ai",
+      "status": "draft"
     }
   ]
 }

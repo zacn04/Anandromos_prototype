@@ -1,15 +1,44 @@
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
 import { Logo } from '../components/Logo'
 import { GraphSvg } from '../components/GraphSvg'
 import { NodeInfoCard } from '../components/NodeInfoCard'
-import { edgePairs, edgePath, graphTopics, sampleNodeStats, sampleNodeStatus } from '../content'
+import {
+  activityLogFor,
+  edgePairs,
+  edgePath,
+  graphTopics,
+  sampleNodeStats,
+  sampleNodeStatus,
+  topicLabel,
+} from '../content'
+import type { LogActivity, NodeStatus, TopicId } from '../content'
+import { buildQueue, dueLabel } from '../data/schedule'
+import { getLiveSessions } from '../data/liveSessions'
+import { getProblemSets } from '../data/teacherProblemSets'
+import { refreshFor, useEngine } from '../data/students'
+import type { EngineState } from '../data/students'
+import { masteryBand } from '../data/xp'
 import { FONT_MONO, FONT_SERIF, NODE_STYLE } from '../theme'
 
 /**
  * Parent POV — read-only: child progress, previous sessions (what she
  * struggled with and why, never the mark), what's coming up, and her map.
+ *
+ * ┌──────────────────────────────────────────────────────────────────────┐
+ * │ THE ONE INVIOLABLE RULE                                              │
+ * └──────────────────────────────────────────────────────────────────────┘
+ *
+ * Never a mark, never a score, never a percentage, never a comparison to
+ * another child. Everything on this route is derived from the same live engine
+ * state the student and teacher POVs read, but the *numbers* stop at this
+ * boundary: `LogActivity.result` ("2 of 5 correct"), `LogActivity.detail`
+ * ("3 of 5 items failed on the same step") and the raw mastery fractions are
+ * deliberately never rendered here. A mastery bar is fine — it is about this
+ * child's own progress over time — but its percentage is never printed, and
+ * `mentionsAMark` below is a belt-and-braces guard on the one authored string
+ * this screen does pass through.
  */
 
 /** ParentApp is always Aisha's parent's app — there's no "pick a child" concept here. */
@@ -45,24 +74,58 @@ const kindStyle = (k: string): CSSProperties => ({
   color: k === 'Review' ? '#1f4e75' : k === 'Problem set' ? '#8a6d3f' : '#b6531f',
 })
 
-const MASTERY = [
-  { name: 'Negatives', pct: 96, label: 'Mastered', c: '#1f4e75' },
-  { name: 'Fractions & percentages', pct: 78, label: 'Strong', c: '#1f4e75' },
-  { name: 'Substitution', pct: 52, label: 'Building', c: '#3f82ab' },
-  { name: 'Linear equations', pct: 34, label: 'Learning now', c: '#dd6a2f' },
-  { name: 'Ratio & proportion', pct: 71, label: 'Strong', c: '#1f4e75' },
-]
+// ---------------------------------------------------------------------------
+// derivations — engine state → parent-facing wording
+// ---------------------------------------------------------------------------
 
-const DUE_LESSONS = [
-  { kind: 'Lesson', name: 'Two-step equations' },
-  { kind: 'Review', name: 'Negatives' },
-  { kind: 'Lesson', name: 'Equations with brackets' },
-]
+interface ParentMasteryRow {
+  topicId: TopicId
+  name: string
+  /** Bar width only. NEVER printed — see the file header. */
+  pct: number
+  label: string
+  c: string
+}
 
-const DUE_HOMEWORK = [
-  { title: 'Fractions & percentages', topics: 'Fractions · Percentages', due: 'Fri 25 Jul', urgency: 'later' },
-  { title: 'Ratio recap', topics: 'Ratio & proportion', due: 'today', urgency: 'urgent' },
-]
+/**
+ * The same difficulty-weighted average `engine.ts` promotes on: foundations,
+ * core and stretch given equal weight, so a topic cannot look secure on the
+ * strength of its easiest questions alone. Feeds the bar's width, nothing else.
+ */
+function tierAverage(mastery: EngineState['masteryByTopic'][string] | undefined): number {
+  if (!mastery) return 0
+  return (mastery.foundations + mastery.core + mastery.stretch) / 3
+}
+
+/**
+ * Parent-facing wording for one topic, from the engine's own two thresholds and
+ * nothing else.
+ *
+ * `masteryBand` (data/xp.ts) gives three bands — relearn / building / mastered —
+ * off `RELESSON_THRESHOLD` and `MASTERY_PROMOTE_THRESHOLD`. Those are the only
+ * two bars that exist. The parent vocabulary has four words, so the fourth
+ * ('Strong') is taken from the one genuinely distinct case the engine can
+ * report: the numbers clear the mastery bar but the node has not been promoted
+ * to 'mastered' yet (cross-topic credit raises mastery without promoting).
+ * Inventing a third numeric threshold to manufacture a 'Strong' band would be
+ * making up curriculum judgement the data does not support, so we don't.
+ *
+ * 'Learning now' is anchored on the node status the map already uses for it —
+ * frontier is literally "the topic she is on now" — plus anything that has
+ * decayed below the re-lesson bar, which is what the engine routes back to a
+ * lesson.
+ */
+function parentBand(state: EngineState, topicId: TopicId): { label: string; c: string } {
+  const band = masteryBand(state.masteryByTopic[topicId])
+  const status = state.nodes[topicId]?.status
+  if (status === 'frontier' || band === 'relearn') return { label: 'Learning now', c: '#dd6a2f' }
+  if (band === 'mastered') {
+    return status === 'mastered'
+      ? { label: 'Mastered', c: '#1f4e75' }
+      : { label: 'Strong', c: '#1f4e75' }
+  }
+  return { label: 'Building', c: '#3f82ab' }
+}
 
 interface ParentSession {
   kind: string
@@ -74,69 +137,58 @@ interface ParentSession {
   struggles: Array<{ what: string; why: string }>
 }
 
-// sessions — struggles + why only, NEVER marks
-const SESSIONS: ParentSession[] = [
-  {
-    kind: 'Review',
-    title: 'Linear equations · spaced review',
-    date: 'Today',
-    parentSummary: 'Found rearranging equations tricky.',
-    tag: 'Found tricky',
-    flag: 'attention',
-    struggles: [
-      {
-        what: 'Moving a term across the equals sign',
-        why: 'She kept the sign the same instead of flipping it (−7 should become +7). This points to inverse operations needing another look.',
-      },
-    ],
-  },
-  {
-    kind: 'Problem set',
-    title: 'Substitution into expressions',
-    date: 'Yesterday',
-    parentSummary: 'The harder two-term questions were a stretch.',
-    tag: 'Found tricky',
-    flag: 'attention',
-    struggles: [
-      {
-        what: 'Substituting into two-term expressions',
-        why: 'She put the same value into both terms. The single-term questions were comfortable — it is the multi-term step that needs practice.',
-      },
-    ],
-  },
-  {
-    kind: 'Lesson',
-    title: 'Solving two-step equations',
-    date: 'Mon',
-    parentSummary: 'Worked through it smoothly.',
-    tag: 'Went well',
-    flag: 'ok',
-    struggles: [],
-  },
-  {
-    kind: 'Problem set',
-    title: 'Fractions to percentages',
-    date: 'Last wk',
-    parentSummary: 'One small slip, nothing to worry about.',
-    tag: 'Went well',
-    flag: 'ok',
-    struggles: [
-      {
-        what: 'One conversion slip',
-        why: 'A one-off — her wider record on this is strong, so no follow-up was needed.',
-      },
-    ],
-  },
-  {
-    kind: 'Review',
-    title: 'Negatives · spaced review',
-    date: '2 wks',
-    parentSummary: 'Held up well over time.',
-    tag: 'Went well',
-    flag: 'ok',
-    struggles: [],
-  },
-]
+/**
+ * A last line of defence for the inviolable rule. Session summaries are
+ * authored for the teacher and mostly read fine to a parent, but one sample
+ * summary in the store ("Answered ... on 4 of 6 diagnostic prompts") and any
+ * future one could carry a tally. If a summary reads like a mark, we show a
+ * short honest derived sentence instead of passing it through.
+ *
+ * Deliberately applied to the summary ONLY. The per-question `why` strings are
+ * worked mathematics ("3 ÷ 8 = 0.375 = 37.5%") and would trip any such test —
+ * that is the maths, not a mark, and it is exactly what a parent needs in order
+ * to help.
+ */
+const mentionsAMark = (text: string): boolean =>
+  /\d+\s*(?:of|out of|\/)\s*\d+|\d+\s*%|\b(?:scored?|marks?|grade[ds]?|percentage points)\b/i.test(text)
+
+/**
+ * One activity-log entry as a parent sees it: what she found tricky and why.
+ *
+ * `LogQuestion.hit` is "a hiccup happened here" (the same reading TeacherApp and
+ * StudentApp render it with), so the struggle list is the hit items — no count,
+ * no total, no ratio. `result` and `detail` are dropped entirely: both carry
+ * tallies by construction.
+ */
+function toParentSession(a: LogActivity): ParentSession {
+  const struggles = a.items
+    .filter((q) => q.hit)
+    .map((q) => ({
+      what: q.q,
+      why: q.why && q.why.length > 0 ? q.why.join(' ') : q.note,
+    }))
+  const derivedSummary = a.flag === 'attention' ? 'Parts of this one were tricky.' : 'This one went smoothly.'
+  return {
+    kind: a.kind,
+    title: a.title,
+    date: a.date,
+    parentSummary: a.summary && !mentionsAMark(a.summary) ? a.summary : derivedSummary,
+    tag: a.flag === 'attention' ? 'Found tricky' : 'Went well',
+    flag: a.flag,
+    struggles,
+  }
+}
+
+/**
+ * Teacher-set due dates are free text (`data/teacherProblemSets.ts` does no
+ * date parsing), so "is this urgent?" can only be a read of the words the
+ * teacher typed. Anything that isn't plainly today or tomorrow gets the calm
+ * treatment rather than a guessed-at deadline.
+ */
+const dueIsUrgent = (due: string): boolean => /\b(today|tomorrow)\b/i.test(due)
+
+/** How many "coming up" rows the overview card shows before the quiet overflow line. */
+const COMING_UP_SHOWN = 4
 
 const NODE_META: Record<string, { ret: string; retColor: string }> = {
   mastered: { ret: 'Mastered', retColor: '#1f4e75' },
@@ -149,6 +201,17 @@ const NODE_META: Record<string, { ret: string; retColor: string }> = {
 export default function ParentApp() {
   const [s, setS] = useState<ParentState>({ screen: 'overview', selectedNode: null, openSession: null })
 
+  // Live engine state for this child, shared with every other POV
+  // (data/students.ts). `refreshFor` on mount is that module's documented
+  // escape hatch for the transitional period while StudentApp still keeps its
+  // own useState copy write-through'd to the same `engine.aisha` key — without
+  // it, a parent opening this route after a practice session would be served
+  // whatever the store happened to read first. Idempotent, so it cannot loop.
+  const engine = useEngine(STUDENT_ID)
+  useEffect(() => {
+    refreshFor(STUDENT_ID)
+  }, [])
+
   const go = (screen: Screen) => () => setS((st) => ({ ...st, screen, selectedNode: null }))
 
   const navRaw: Array<[string, Screen]> = [
@@ -157,10 +220,66 @@ export default function ParentApp() {
     ['Map', 'pmap'],
   ]
 
+  /**
+   * "Where she's growing" — every topic the engine holds mastery for, in the
+   * order the engine holds them (authored profile order, then anything she has
+   * since worked on). Deliberately not re-sorted by strength: a list that
+   * reshuffles itself every time she answers a question is harder to read, and
+   * ranking topics against each other is a step towards the league-table
+   * framing this product refuses.
+   */
+  const masteryRows: ParentMasteryRow[] = useMemo(
+    () =>
+      Object.keys(engine.masteryByTopic).map((topicId) => ({
+        topicId,
+        name: topicLabel(topicId),
+        pct: Math.round(tierAverage(engine.masteryByTopic[topicId]) * 100),
+        ...parentBand(engine, topicId),
+      })),
+    [engine],
+  )
+
+  /**
+   * What's next, straight from the scheduler — overdue reviews first, then
+   * reviews due today, then frontier lessons. Problem sets are excluded because
+   * they have their own card below; queueing them here would list the same
+   * homework twice.
+   */
+  const queue = useMemo(() => buildQueue(engine), [engine])
+  const pathItems = useMemo(() => queue.items.filter((it) => it.kind !== 'problemSet'), [queue])
+  const comingUp = pathItems.slice(0, COMING_UP_SHOWN)
+  // Quiet, never styled as a backlog — see data/schedule.ts on why an unpayable
+  // pile of red is the failure mode this product exists to avoid.
+  const comingUpOverflow = pathItems.length - comingUp.length + queue.deferred
+
+  /**
+   * Real teacher-set problem sets. Empty until Ms. Okafor creates one in the
+   * teacher POV, and the card says so rather than showing invented homework.
+   * Read per render: `data/teacherProblemSets.ts` is a module singleton with no
+   * subscription, so a set created while this route is already open appears the
+   * next time the parent navigates back to it.
+   */
+  const homework = getProblemSets()
+
+  /**
+   * Live sessions she has actually completed this tab, ahead of the sample
+   * history — the same merge StudentApp and TeacherApp do for the same student.
+   */
+  const sessions = [...getLiveSessions(), ...activityLogFor(STUDENT_ID)].map(toParentSession)
+
+  const statusOf = (topicId: TopicId): NodeStatus =>
+    engine.nodes[topicId]?.status ?? sampleNodeStatus(STUDENT_ID, topicId)
+
+  const statsOf = (topicId: TopicId): { last: string; next: string } => {
+    const node = engine.nodes[topicId]
+    if (node) return { last: node.last, next: node.next }
+    return sampleNodeStats(STUDENT_ID, topicId)
+  }
+
   const selNode = s.selectedNode ? graphTopics().find((n) => n.id === s.selectedNode) : null
 
   const mapNodes = graphTopics().map((n) => {
-    const st = NODE_STYLE[sampleNodeStatus(STUDENT_ID, n.id)]
+    const st = NODE_STYLE[statusOf(n.id)]
     return {
       id: n.id,
       x: n.x,
@@ -239,19 +358,25 @@ export default function ParentApp() {
             <p style={{ margin: '0 0 18px', fontSize: 12.5, color: '#8a7c63', textWrap: 'pretty' }}>
               How secure each topic is, weighted by difficulty — not a test score. Longer bars mean the harder ideas are holding, too.
             </p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              {MASTERY.map((t) => (
-                <div key={t.name}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>
-                    <span style={{ fontSize: 14, fontWeight: 500, color: '#1a2129' }}>{t.name}</span>
-                    <span style={{ fontFamily: FONT_MONO, fontSize: 11.5, color: t.c }}>{t.label}</span>
+            {masteryRows.length > 0 ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                {masteryRows.map((t) => (
+                  <div key={t.topicId}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>
+                      <span style={{ fontSize: 14, fontWeight: 500, color: '#1a2129' }}>{t.name}</span>
+                      <span style={{ fontFamily: FONT_MONO, fontSize: 11.5, color: t.c }}>{t.label}</span>
+                    </div>
+                    <div style={{ height: 9, background: '#efe7d9', borderRadius: 5, overflow: 'hidden' }}>
+                      <div style={{ width: `${t.pct}%`, height: '100%', background: t.c, borderRadius: 5 }} />
+                    </div>
                   </div>
-                  <div style={{ height: 9, background: '#efe7d9', borderRadius: 5, overflow: 'hidden' }}>
-                    <div style={{ width: `${t.pct}%`, height: '100%', background: t.c, borderRadius: 5 }} />
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div style={{ fontSize: 12.5, color: '#8a7c63', textWrap: 'pretty' }}>
+                Her topic-by-topic picture appears here once she's worked through a few sessions.
+              </div>
+            )}
           </div>
 
           {/* coming up */}
@@ -259,46 +384,74 @@ export default function ParentApp() {
             <div style={{ background: '#fff', border: '1px solid #e4dccb', borderRadius: 14, padding: '20px 22px' }}>
               <h2 style={{ fontFamily: FONT_SERIF, fontSize: 16, fontWeight: 600, margin: '0 0 4px', color: '#0e2a43' }}>Lessons coming up</h2>
               <p style={{ margin: '0 0 14px', fontSize: 12, color: '#8a7c63', textWrap: 'pretty' }}>On her learning path this week.</p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
-                {DUE_LESSONS.map((l) => (
-                  <div key={l.name} style={{ display: 'flex', alignItems: 'center', gap: 11, background: '#faf6ee', border: '1px solid #ece3d2', borderRadius: 10, padding: '11px 13px' }}>
-                    <span style={kindStyle(l.kind)}>{l.kind}</span>
-                    <span style={{ fontSize: 13.5, fontWeight: 500, color: '#1a2129', minWidth: 0 }}>{l.name}</span>
-                  </div>
-                ))}
-              </div>
+              {comingUp.length > 0 ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
+                  {comingUp.map((l) => {
+                    const kind = l.kind === 'review' ? 'Review' : 'Lesson'
+                    return (
+                      <div key={l.id} style={{ display: 'flex', alignItems: 'center', gap: 11, background: '#faf6ee', border: '1px solid #ece3d2', borderRadius: 10, padding: '11px 13px' }}>
+                        <span style={kindStyle(kind)}>{kind}</span>
+                        <span style={{ fontSize: 13.5, fontWeight: 500, color: '#1a2129', minWidth: 0 }}>{l.label}</span>
+                        <span style={{ marginLeft: 'auto', fontFamily: FONT_MONO, fontSize: 11, color: '#a99e88', whiteSpace: 'nowrap' }}>{dueLabel(l)}</span>
+                      </div>
+                    )
+                  })}
+                  {comingUpOverflow > 0 && (
+                    <div style={{ fontSize: 11.5, color: '#a99e88', textWrap: 'pretty' }}>
+                      {comingUpOverflow} more waiting — they'll come round in their own time.
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div style={{ display: 'flex', gap: 9, alignItems: 'flex-start', background: '#eef3f7', border: '1px solid #d3e0ea', borderRadius: 9, padding: '12px 14px' }}>
+                  <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#1f4e75', marginTop: 6, flex: 'none' }} />
+                  <div style={{ fontSize: 12.5, color: '#2b4a63', lineHeight: 1.5 }}>She's up to date — nothing due right now.</div>
+                </div>
+              )}
             </div>
             <div style={{ background: '#fff', border: '1px solid #d3e0ea', borderRadius: 14, padding: '20px 22px' }}>
               <h2 style={{ fontFamily: FONT_SERIF, fontSize: 16, fontWeight: 600, margin: '0 0 4px', color: '#0e2a43' }}>Homework due</h2>
               <p style={{ margin: '0 0 14px', fontSize: 12, color: '#8a7c63', textWrap: 'pretty' }}>Problem sets from Ms. Okafor.</p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
-                {DUE_HOMEWORK.map((h) => (
-                  <div key={h.title} style={{ background: '#faf6ee', border: '1px solid #ece3d2', borderRadius: 10, padding: '11px 13px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                      <span style={{ fontSize: 13.5, fontWeight: 600, color: '#1a2129', minWidth: 0 }}>{h.title}</span>
-                      <span
-                        style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: 5,
-                          fontFamily: FONT_MONO,
-                          fontSize: 10.5,
-                          fontWeight: 600,
-                          padding: '3px 9px',
-                          borderRadius: 20,
-                          whiteSpace: 'nowrap',
-                          background: h.urgency === 'urgent' ? '#fbe7d8' : '#eef3f7',
-                          color: h.urgency === 'urgent' ? '#b6531f' : '#1f4e75',
-                          border: `1px solid ${h.urgency === 'urgent' ? '#eecab0' : '#d3e0ea'}`,
-                        }}
-                      >
-                        🗓 {h.due}
-                      </span>
-                    </div>
-                    <div style={{ fontSize: 12, color: '#8a7c63', marginTop: 3 }}>{h.topics}</div>
+              {homework.length > 0 ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
+                  {homework.map((h) => {
+                    const urgent = dueIsUrgent(h.due)
+                    return (
+                      <div key={h.id} style={{ background: '#faf6ee', border: '1px solid #ece3d2', borderRadius: 10, padding: '11px 13px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                          <span style={{ fontSize: 13.5, fontWeight: 600, color: '#1a2129', minWidth: 0 }}>{h.title}</span>
+                          <span
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: 5,
+                              fontFamily: FONT_MONO,
+                              fontSize: 10.5,
+                              fontWeight: 600,
+                              padding: '3px 9px',
+                              borderRadius: 20,
+                              whiteSpace: 'nowrap',
+                              background: urgent ? '#fbe7d8' : '#eef3f7',
+                              color: urgent ? '#b6531f' : '#1f4e75',
+                              border: `1px solid ${urgent ? '#eecab0' : '#d3e0ea'}`,
+                            }}
+                          >
+                            🗓 {h.due}
+                          </span>
+                        </div>
+                        <div style={{ fontSize: 12, color: '#8a7c63', marginTop: 3 }}>{h.topics}</div>
+                      </div>
+                    )
+                  })}
+                </div>
+              ) : (
+                <div style={{ display: 'flex', gap: 9, alignItems: 'flex-start', background: '#eef3f7', border: '1px solid #d3e0ea', borderRadius: 9, padding: '12px 14px' }}>
+                  <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#1f4e75', marginTop: 6, flex: 'none' }} />
+                  <div style={{ fontSize: 12.5, color: '#2b4a63', lineHeight: 1.5, textWrap: 'pretty' }}>
+                    Nothing set at the moment. Anything Ms. Okafor assigns will show up here.
                   </div>
-                ))}
-              </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -312,8 +465,14 @@ export default function ParentApp() {
           <p style={{ margin: '0 0 22px', fontSize: 13.5, lineHeight: 1.5, color: '#5c6773', maxWidth: 560, textWrap: 'pretty' }}>
             Every lesson, problem set and review she's completed. Open one to see what she found tricky and why — so you can support her at home. Marks aren't shown.
           </p>
+          {sessions.length === 0 && (
+            <div style={{ display: 'flex', gap: 9, alignItems: 'flex-start', background: '#eef3f7', border: '1px solid #d3e0ea', borderRadius: 9, padding: '12px 14px' }}>
+              <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#1f4e75', marginTop: 6, flex: 'none' }} />
+              <div style={{ fontSize: 12.5, color: '#2b4a63', lineHeight: 1.5 }}>Nothing completed yet — her first session will appear here.</div>
+            </div>
+          )}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {SESSIONS.map((a, i) => {
+            {sessions.map((a, i) => {
               const open = s.openSession === i
               return (
                 <div key={i} style={{ background: '#fff', border: '1px solid #e4dccb', borderRadius: 12, padding: '15px 18px' }}>
@@ -408,9 +567,9 @@ export default function ParentApp() {
               heading="Topic"
               title={selNode.label}
               fields={[
-                { label: 'How secure', value: NODE_META[sampleNodeStatus(STUDENT_ID, selNode.id)].ret, color: NODE_META[sampleNodeStatus(STUDENT_ID, selNode.id)].retColor },
-                { label: 'Last worked', value: sampleNodeStats(STUDENT_ID, selNode.id).last },
-                { label: 'Next review', value: sampleNodeStats(STUDENT_ID, selNode.id).next },
+                { label: 'How secure', value: NODE_META[statusOf(selNode.id)].ret, color: NODE_META[statusOf(selNode.id)].retColor },
+                { label: 'Last worked', value: statsOf(selNode.id).last },
+                { label: 'Next review', value: statsOf(selNode.id).next },
               ]}
               onClose={() => setS((st) => ({ ...st, selectedNode: null }))}
             />

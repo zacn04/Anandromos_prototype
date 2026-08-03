@@ -61,6 +61,426 @@
         "alg.bracket-equations": { "status": "locked", "last": "—", "next": "when ready", "reps": 0 },
         "alg.simultaneous": { "status": "locked", "last": "—", "next": "when ready", "reps": 0 }
       }
+    },
+    {
+      "studentId": "priya",
+      "nodes": {
+        "num.negatives": { "status": "mastered", "last": "4 days ago", "next": "in 12 days", "reps": 13 },
+        "num.fractions": { "status": "mastered", "last": "9 days ago", "next": "in 15 days", "reps": 15 },
+        "num.decimals": { "status": "mastered", "last": "11 days ago", "next": "in 16 days", "reps": 12 },
+        "num.ratio": { "status": "mastered", "last": "6 days ago", "next": "in 10 days", "reps": 11 },
+        "num.negatives-arithmetic": { "status": "mastered", "last": "8 days ago", "next": "in 13 days", "reps": 10 },
+        "num.fractions-to-percent": { "status": "mastered", "last": "today", "next": "in 9 days", "reps": 17 },
+        "num.proportion": { "status": "mastered", "last": "5 days ago", "next": "in 11 days", "reps": 12 },
+        "alg.basics": { "status": "mastered", "last": "7 days ago", "next": "in 12 days", "reps": 11 },
+        "alg.substitution": { "status": "inprogress", "last": "3 days ago", "next": "in 4 days", "reps": 6 },
+        "num.percent-change": { "status": "frontier", "last": "yesterday", "next": "today", "reps": 2 },
+        "alg.linear": { "status": "notready", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.expanding": { "status": "notready", "last": "—", "next": "when ready", "reps": 0 },
+        "geo.coordinates": { "status": "frontier", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.bracket-equations": { "status": "locked", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.simultaneous": { "status": "locked", "last": "—", "next": "when ready", "reps": 0 }
+      }
+    },
+    {
+      "studentId": "tom",
+      "nodes": {
+        "num.negatives": { "status": "mastered", "last": "6 days ago", "next": "in 11 days", "reps": 12 },
+        "num.fractions": { "status": "mastered", "last": "13 days ago", "next": "in 17 days", "reps": 10 },
+        "num.decimals": { "status": "mastered", "last": "14 days ago", "next": "in 18 days", "reps": 9 },
+        "num.ratio": { "status": "inprogress", "last": "5 days ago", "next": "in 6 days", "reps": 5 },
+        "num.negatives-arithmetic": { "status": "mastered", "last": "9 days ago", "next": "in 14 days", "reps": 11 },
+        "num.fractions-to-percent": { "status": "inprogress", "last": "8 days ago", "next": "in 7 days", "reps": 7 },
+        "num.proportion": { "status": "notready", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.basics": { "status": "mastered", "last": "5 days ago", "next": "in 10 days", "reps": 14 },
+        "alg.substitution": { "status": "mastered", "last": "3 days ago", "next": "in 8 days", "reps": 12 },
+        "num.percent-change": { "status": "locked", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.linear": { "status": "frontier", "last": "today", "next": "today", "reps": 6 },
+        "alg.expanding": { "status": "notready", "last": "—", "next": "when ready", "reps": 0 },
+        "geo.coordinates": { "status": "frontier", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.bracket-equations": { "status": "locked", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.simultaneous": { "status": "locked", "last": "—", "next": "when ready", "reps": 0 }
+      }
+    },
+    {
+      "studentId": "grace",
+      "nodes": {
+        "num.negatives": { "status": "mastered", "last": "16 days ago", "next": "in 21 days", "reps": 14 },
+        "num.fractions": { "status": "mastered", "last": "15 days ago", "next": "in 20 days", "reps": 16 },
+        "num.decimals": { "status": "mastered", "last": "17 days ago", "next": "in 19 days", "reps": 13 },
+        "num.ratio": { "status": "mastered", "last": "12 days ago", "next": "in 18 days", "reps": 15 },
+        "num.negatives-arithmetic": { "status": "mastered", "last": "14 days ago", "next": "in 17 days", "reps": 12 },
+        "num.fractions-to-percent": { "status": "mastered", "last": "10 days ago", "next": "in 16 days", "reps": 13 },
+        "num.proportion": { "status": "mastered", "last": "yesterday", "next": "in 14 days", "reps": 18 },
+        "alg.basics": { "status": "inprogress", "last": "11 days ago", "next": "in 5 days", "reps": 9 },
+        "alg.substitution": { "status": "notready", "last": "—", "next": "when ready", "reps": 0 },
+        "num.percent-change": { "status": "frontier", "last": "3 days ago", "next": "in 2 days", "reps": 3 },
+        "alg.linear": { "status": "locked", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.expanding": { "status": "notready", "last": "—", "next": "when ready", "reps": 0 },
+        "geo.coordinates": { "status": "locked", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.bracket-equations": { "status": "locked", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.simultaneous": { "status": "locked", "last": "—", "next": "when ready", "reps": 0 }
+      }
+    },
+    {
+      "studentId": "marcus",
+      "nodes": {
+        "num.negatives": { "status": "mastered", "last": "7 days ago", "next": "in 12 days", "reps": 15 },
+        "num.fractions": { "status": "inprogress", "last": "12 days ago", "next": "in 4 days", "reps": 7 },
+        "num.decimals": { "status": "mastered", "last": "13 days ago", "next": "in 15 days", "reps": 10 },
+        "num.ratio": { "status": "mastered", "last": "9 days ago", "next": "in 13 days", "reps": 9 },
+        "num.negatives-arithmetic": { "status": "mastered", "last": "5 days ago", "next": "in 9 days", "reps": 16 },
+        "num.fractions-to-percent": { "status": "notready", "last": "—", "next": "when ready", "reps": 0 },
+        "num.proportion": { "status": "notready", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.basics": { "status": "mastered", "last": "4 days ago", "next": "in 10 days", "reps": 13 },
+        "alg.substitution": { "status": "mastered", "last": "3 days ago", "next": "in 8 days", "reps": 11 },
+        "num.percent-change": { "status": "locked", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.linear": { "status": "frontier", "last": "2 days ago", "next": "in 2 days", "reps": 4 },
+        "alg.expanding": { "status": "inprogress", "last": "today", "next": "in 3 days", "reps": 9 },
+        "geo.coordinates": { "status": "frontier", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.bracket-equations": { "status": "locked", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.simultaneous": { "status": "locked", "last": "—", "next": "when ready", "reps": 0 }
+      }
+    },
+    {
+      "studentId": "sofia",
+      "nodes": {
+        "num.negatives": { "status": "mastered", "last": "8 days ago", "next": "in 14 days", "reps": 13 },
+        "num.fractions": { "status": "mastered", "last": "10 days ago", "next": "in 13 days", "reps": 12 },
+        "num.decimals": { "status": "mastered", "last": "12 days ago", "next": "in 14 days", "reps": 10 },
+        "num.ratio": { "status": "mastered", "last": "7 days ago", "next": "in 11 days", "reps": 11 },
+        "num.negatives-arithmetic": { "status": "mastered", "last": "9 days ago", "next": "in 12 days", "reps": 12 },
+        "num.fractions-to-percent": { "status": "inprogress", "last": "5 days ago", "next": "in 5 days", "reps": 8 },
+        "num.proportion": { "status": "inprogress", "last": "6 days ago", "next": "in 6 days", "reps": 7 },
+        "alg.basics": { "status": "mastered", "last": "4 days ago", "next": "in 9 days", "reps": 14 },
+        "alg.substitution": { "status": "inprogress", "last": "today", "next": "in 4 days", "reps": 10 },
+        "num.percent-change": { "status": "locked", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.linear": { "status": "notready", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.expanding": { "status": "notready", "last": "—", "next": "when ready", "reps": 0 },
+        "geo.coordinates": { "status": "frontier", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.bracket-equations": { "status": "locked", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.simultaneous": { "status": "locked", "last": "—", "next": "when ready", "reps": 0 }
+      }
+    },
+    {
+      "studentId": "jack",
+      "nodes": {
+        "num.negatives": { "status": "mastered", "last": "18 days ago", "next": "in 6 days", "reps": 9 },
+        "num.fractions": { "status": "mastered", "last": "19 days ago", "next": "in 7 days", "reps": 8 },
+        "num.decimals": { "status": "mastered", "last": "20 days ago", "next": "in 8 days", "reps": 7 },
+        "num.ratio": { "status": "notready", "last": "—", "next": "when ready", "reps": 0 },
+        "num.negatives-arithmetic": { "status": "mastered", "last": "16 days ago", "next": "in 5 days", "reps": 8 },
+        "num.fractions-to-percent": { "status": "inprogress", "last": "15 days ago", "next": "in 4 days", "reps": 6 },
+        "num.proportion": { "status": "notready", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.basics": { "status": "mastered", "last": "14 days ago", "next": "in 6 days", "reps": 10 },
+        "alg.substitution": { "status": "mastered", "last": "2 days ago", "next": "in 5 days", "reps": 9 },
+        "num.percent-change": { "status": "locked", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.linear": { "status": "frontier", "last": "today", "next": "today", "reps": 3 },
+        "alg.expanding": { "status": "notready", "last": "—", "next": "when ready", "reps": 0 },
+        "geo.coordinates": { "status": "frontier", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.bracket-equations": { "status": "locked", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.simultaneous": { "status": "locked", "last": "—", "next": "when ready", "reps": 0 }
+      }
+    },
+    {
+      "studentId": "amara",
+      "nodes": {
+        "num.negatives": { "status": "mastered", "last": "9 days ago", "next": "in 10 days", "reps": 12 },
+        "num.fractions": { "status": "mastered", "last": "11 days ago", "next": "in 12 days", "reps": 13 },
+        "num.decimals": { "status": "mastered", "last": "13 days ago", "next": "in 13 days", "reps": 11 },
+        "num.ratio": { "status": "mastered", "last": "8 days ago", "next": "today", "reps": 14 },
+        "num.negatives-arithmetic": { "status": "mastered", "last": "10 days ago", "next": "in 9 days", "reps": 10 },
+        "num.fractions-to-percent": { "status": "mastered", "last": "6 days ago", "next": "in 11 days", "reps": 12 },
+        "num.proportion": { "status": "mastered", "last": "2 days ago", "next": "in 7 days", "reps": 11 },
+        "alg.basics": { "status": "mastered", "last": "7 days ago", "next": "in 8 days", "reps": 11 },
+        "alg.substitution": { "status": "inprogress", "last": "4 days ago", "next": "tomorrow", "reps": 6 },
+        "num.percent-change": { "status": "inprogress", "last": "3 days ago", "next": "in 3 days", "reps": 3 },
+        "alg.linear": { "status": "notready", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.expanding": { "status": "notready", "last": "—", "next": "when ready", "reps": 0 },
+        "geo.coordinates": { "status": "frontier", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.bracket-equations": { "status": "locked", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.simultaneous": { "status": "locked", "last": "—", "next": "when ready", "reps": 0 }
+      }
+    },
+    {
+      "studentId": "leo",
+      "nodes": {
+        "num.negatives": { "status": "mastered", "last": "3 days ago", "next": "in 15 days", "reps": 17 },
+        "num.fractions": { "status": "mastered", "last": "14 days ago", "next": "in 12 days", "reps": 10 },
+        "num.decimals": { "status": "mastered", "last": "15 days ago", "next": "in 14 days", "reps": 9 },
+        "num.ratio": { "status": "mastered", "last": "11 days ago", "next": "in 11 days", "reps": 9 },
+        "num.negatives-arithmetic": { "status": "mastered", "last": "5 days ago", "next": "in 13 days", "reps": 14 },
+        "num.fractions-to-percent": { "status": "inprogress", "last": "9 days ago", "next": "in 6 days", "reps": 6 },
+        "num.proportion": { "status": "frontier", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.basics": { "status": "mastered", "last": "6 days ago", "next": "in 10 days", "reps": 13 },
+        "alg.substitution": { "status": "inprogress", "last": "4 days ago", "next": "in 3 days", "reps": 7 },
+        "num.percent-change": { "status": "locked", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.linear": { "status": "notready", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.expanding": { "status": "notready", "last": "—", "next": "when ready", "reps": 0 },
+        "geo.coordinates": { "status": "inprogress", "last": "today", "next": "in 4 days", "reps": 9 },
+        "alg.bracket-equations": { "status": "locked", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.simultaneous": { "status": "locked", "last": "—", "next": "when ready", "reps": 0 }
+      }
+    },
+    {
+      "studentId": "hana",
+      "nodes": {
+        "num.negatives": { "status": "mastered", "last": "10 days ago", "next": "in 12 days", "reps": 11 },
+        "num.fractions": { "status": "mastered", "last": "8 days ago", "next": "in 10 days", "reps": 14 },
+        "num.decimals": { "status": "mastered", "last": "9 days ago", "next": "in 11 days", "reps": 13 },
+        "num.ratio": { "status": "mastered", "last": "12 days ago", "next": "in 13 days", "reps": 10 },
+        "num.negatives-arithmetic": { "status": "mastered", "last": "11 days ago", "next": "in 12 days", "reps": 10 },
+        "num.fractions-to-percent": { "status": "inprogress", "last": "yesterday", "next": "in 3 days", "reps": 15 },
+        "num.proportion": { "status": "frontier", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.basics": { "status": "mastered", "last": "6 days ago", "next": "in 9 days", "reps": 11 },
+        "alg.substitution": { "status": "inprogress", "last": "5 days ago", "next": "in 4 days", "reps": 6 },
+        "num.percent-change": { "status": "locked", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.linear": { "status": "notready", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.expanding": { "status": "notready", "last": "—", "next": "when ready", "reps": 0 },
+        "geo.coordinates": { "status": "frontier", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.bracket-equations": { "status": "locked", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.simultaneous": { "status": "locked", "last": "—", "next": "when ready", "reps": 0 }
+      }
+    },
+    {
+      "studentId": "noah",
+      "nodes": {
+        "num.negatives": { "status": "mastered", "last": "yesterday · free play", "next": "in 16 days", "reps": 19 },
+        "num.fractions": { "status": "mastered", "last": "7 days ago", "next": "in 14 days", "reps": 15 },
+        "num.decimals": { "status": "mastered", "last": "8 days ago", "next": "in 15 days", "reps": 14 },
+        "num.ratio": { "status": "mastered", "last": "5 days ago", "next": "in 12 days", "reps": 13 },
+        "num.negatives-arithmetic": { "status": "mastered", "last": "yesterday · free play", "next": "in 13 days", "reps": 18 },
+        "num.fractions-to-percent": { "status": "inprogress", "last": "4 days ago · free play", "next": "in 5 days", "reps": 11 },
+        "num.proportion": { "status": "inprogress", "last": "6 days ago", "next": "in 6 days", "reps": 9 },
+        "alg.basics": { "status": "mastered", "last": "3 days ago", "next": "in 11 days", "reps": 16 },
+        "alg.substitution": { "status": "inprogress", "last": "today · free play", "next": "in 3 days", "reps": 14 },
+        "num.percent-change": { "status": "locked", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.linear": { "status": "notready", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.expanding": { "status": "inprogress", "last": "2 days ago · free play", "next": "in 6 days", "reps": 5 },
+        "geo.coordinates": { "status": "frontier", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.bracket-equations": { "status": "locked", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.simultaneous": { "status": "locked", "last": "—", "next": "when ready", "reps": 0 }
+      }
+    },
+    {
+      "studentId": "ivy",
+      "nodes": {
+        "num.negatives": { "status": "mastered", "last": "11 days ago", "next": "in 13 days", "reps": 12 },
+        "num.fractions": { "status": "mastered", "last": "6 days ago", "next": "in 11 days", "reps": 15 },
+        "num.decimals": { "status": "mastered", "last": "10 days ago", "next": "in 12 days", "reps": 12 },
+        "num.ratio": { "status": "mastered", "last": "4 days ago", "next": "in 9 days", "reps": 14 },
+        "num.negatives-arithmetic": { "status": "mastered", "last": "12 days ago", "next": "in 14 days", "reps": 10 },
+        "num.fractions-to-percent": { "status": "mastered", "last": "5 days ago", "next": "in 10 days", "reps": 13 },
+        "num.proportion": { "status": "inprogress", "last": "today", "next": "in 4 days", "reps": 10 },
+        "alg.basics": { "status": "mastered", "last": "8 days ago", "next": "in 12 days", "reps": 12 },
+        "alg.substitution": { "status": "inprogress", "last": "9 days ago", "next": "in 5 days", "reps": 5 },
+        "num.percent-change": { "status": "notready", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.linear": { "status": "notready", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.expanding": { "status": "notready", "last": "—", "next": "when ready", "reps": 0 },
+        "geo.coordinates": { "status": "frontier", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.bracket-equations": { "status": "locked", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.simultaneous": { "status": "locked", "last": "—", "next": "when ready", "reps": 0 }
+      }
+    },
+    {
+      "studentId": "ben",
+      "nodes": {
+        "num.negatives": { "status": "mastered", "last": "9 days ago", "next": "in 13 days", "reps": 12 },
+        "num.fractions": { "status": "mastered", "last": "12 days ago", "next": "in 14 days", "reps": 11 },
+        "num.decimals": { "status": "mastered", "last": "13 days ago", "next": "in 15 days", "reps": 10 },
+        "num.ratio": { "status": "mastered", "last": "10 days ago", "next": "in 12 days", "reps": 10 },
+        "num.negatives-arithmetic": { "status": "mastered", "last": "8 days ago", "next": "in 11 days", "reps": 12 },
+        "num.fractions-to-percent": { "status": "inprogress", "last": "7 days ago", "next": "in 6 days", "reps": 8 },
+        "num.proportion": { "status": "inprogress", "last": "9 days ago", "next": "in 7 days", "reps": 6 },
+        "alg.basics": { "status": "mastered", "last": "5 days ago", "next": "in 10 days", "reps": 14 },
+        "alg.substitution": { "status": "mastered", "last": "3 days ago", "next": "in 8 days", "reps": 12 },
+        "num.percent-change": { "status": "locked", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.linear": { "status": "frontier", "last": "today", "next": "today", "reps": 5 },
+        "alg.expanding": { "status": "mastered", "last": "6 days ago", "next": "in 9 days", "reps": 11 },
+        "geo.coordinates": { "status": "frontier", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.bracket-equations": { "status": "notready", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.simultaneous": { "status": "locked", "last": "—", "next": "when ready", "reps": 0 }
+      }
+    },
+    {
+      "studentId": "ruth",
+      "nodes": {
+        "num.negatives": { "status": "mastered", "last": "10 days ago", "next": "in 14 days", "reps": 12 },
+        "num.fractions": { "status": "mastered", "last": "11 days ago", "next": "in 13 days", "reps": 11 },
+        "num.decimals": { "status": "mastered", "last": "12 days ago", "next": "in 12 days", "reps": 10 },
+        "num.ratio": { "status": "inprogress", "last": "8 days ago", "next": "in 4 days", "reps": 5 },
+        "num.negatives-arithmetic": { "status": "mastered", "last": "9 days ago", "next": "in 12 days", "reps": 11 },
+        "num.fractions-to-percent": { "status": "inprogress", "last": "6 days ago", "next": "in 5 days", "reps": 7 },
+        "num.proportion": { "status": "notready", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.basics": { "status": "mastered", "last": "5 days ago", "next": "in 10 days", "reps": 13 },
+        "alg.substitution": { "status": "inprogress", "last": "4 days ago", "next": "in 4 days", "reps": 8 },
+        "num.percent-change": { "status": "locked", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.linear": { "status": "notready", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.expanding": { "status": "inprogress", "last": "2 days ago", "next": "in 3 days", "reps": 4 },
+        "geo.coordinates": { "status": "frontier", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.bracket-equations": { "status": "locked", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.simultaneous": { "status": "locked", "last": "—", "next": "when ready", "reps": 0 }
+      }
+    },
+    {
+      "studentId": "sam",
+      "nodes": {
+        "num.negatives": { "status": "mastered", "last": "9 days ago", "next": "in 12 days", "reps": 11 },
+        "num.fractions": { "status": "mastered", "last": "10 days ago", "next": "in 12 days", "reps": 11 },
+        "num.decimals": { "status": "mastered", "last": "11 days ago", "next": "in 12 days", "reps": 11 },
+        "num.ratio": { "status": "mastered", "last": "10 days ago", "next": "in 11 days", "reps": 10 },
+        "num.negatives-arithmetic": { "status": "mastered", "last": "9 days ago", "next": "in 11 days", "reps": 11 },
+        "num.fractions-to-percent": { "status": "inprogress", "last": "8 days ago", "next": "in 6 days", "reps": 7 },
+        "num.proportion": { "status": "inprogress", "last": "8 days ago", "next": "in 6 days", "reps": 7 },
+        "alg.basics": { "status": "mastered", "last": "6 days ago", "next": "in 10 days", "reps": 12 },
+        "alg.substitution": { "status": "inprogress", "last": "5 days ago", "next": "in 5 days", "reps": 7 },
+        "num.percent-change": { "status": "locked", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.linear": { "status": "notready", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.expanding": { "status": "notready", "last": "—", "next": "when ready", "reps": 0 },
+        "geo.coordinates": { "status": "inprogress", "last": "today", "next": "in 5 days", "reps": 8 },
+        "alg.bracket-equations": { "status": "locked", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.simultaneous": { "status": "locked", "last": "—", "next": "when ready", "reps": 0 }
+      }
+    },
+    {
+      "studentId": "elif",
+      "nodes": {
+        "num.negatives": { "status": "mastered", "last": "13 days ago", "next": "in 21 days", "reps": 16 },
+        "num.fractions": { "status": "mastered", "last": "14 days ago", "next": "in 20 days", "reps": 15 },
+        "num.decimals": { "status": "mastered", "last": "15 days ago", "next": "in 19 days", "reps": 14 },
+        "num.ratio": { "status": "mastered", "last": "12 days ago", "next": "in 18 days", "reps": 14 },
+        "num.negatives-arithmetic": { "status": "mastered", "last": "11 days ago", "next": "in 17 days", "reps": 15 },
+        "num.fractions-to-percent": { "status": "mastered", "last": "9 days ago", "next": "in 16 days", "reps": 14 },
+        "num.proportion": { "status": "mastered", "last": "10 days ago", "next": "in 15 days", "reps": 13 },
+        "alg.basics": { "status": "mastered", "last": "8 days ago", "next": "in 14 days", "reps": 17 },
+        "alg.substitution": { "status": "mastered", "last": "7 days ago", "next": "in 13 days", "reps": 16 },
+        "num.percent-change": { "status": "frontier", "last": "5 days ago", "next": "in 4 days", "reps": 4 },
+        "alg.linear": { "status": "mastered", "last": "4 days ago", "next": "in 11 days", "reps": 15 },
+        "alg.expanding": { "status": "mastered", "last": "6 days ago", "next": "in 12 days", "reps": 12 },
+        "geo.coordinates": { "status": "mastered", "last": "3 days ago", "next": "in 10 days", "reps": 12 },
+        "alg.bracket-equations": { "status": "frontier", "last": "2 days ago", "next": "in 2 days", "reps": 5 },
+        "alg.simultaneous": { "status": "inprogress", "last": "today", "next": "in 3 days", "reps": 7 }
+      }
+    },
+    {
+      "studentId": "oscar",
+      "nodes": {
+        "num.negatives": { "status": "mastered", "last": "12 days ago", "next": "in 18 days", "reps": 15 },
+        "num.fractions": { "status": "mastered", "last": "13 days ago", "next": "in 17 days", "reps": 13 },
+        "num.decimals": { "status": "mastered", "last": "14 days ago", "next": "in 16 days", "reps": 12 },
+        "num.ratio": { "status": "mastered", "last": "11 days ago", "next": "in 15 days", "reps": 12 },
+        "num.negatives-arithmetic": { "status": "mastered", "last": "10 days ago", "next": "in 16 days", "reps": 14 },
+        "num.fractions-to-percent": { "status": "mastered", "last": "8 days ago", "next": "in 14 days", "reps": 13 },
+        "num.proportion": { "status": "inprogress", "last": "9 days ago", "next": "in 6 days", "reps": 7 },
+        "alg.basics": { "status": "mastered", "last": "6 days ago", "next": "in 13 days", "reps": 16 },
+        "alg.substitution": { "status": "mastered", "last": "5 days ago", "next": "in 12 days", "reps": 14 },
+        "num.percent-change": { "status": "notready", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.linear": { "status": "mastered", "last": "3 days ago", "next": "in 10 days", "reps": 14 },
+        "alg.expanding": { "status": "mastered", "last": "4 days ago", "next": "in 11 days", "reps": 13 },
+        "geo.coordinates": { "status": "frontier", "last": "yesterday", "next": "in 2 days", "reps": 3 },
+        "alg.bracket-equations": { "status": "frontier", "last": "today", "next": "today", "reps": 6 },
+        "alg.simultaneous": { "status": "notready", "last": "—", "next": "when ready", "reps": 0 }
+      }
+    },
+    {
+      "studentId": "maya",
+      "nodes": {
+        "num.negatives": { "status": "mastered", "last": "11 days ago", "next": "in 17 days", "reps": 14 },
+        "num.fractions": { "status": "mastered", "last": "12 days ago", "next": "in 16 days", "reps": 13 },
+        "num.decimals": { "status": "mastered", "last": "10 days ago", "next": "in 15 days", "reps": 13 },
+        "num.ratio": { "status": "mastered", "last": "13 days ago", "next": "in 14 days", "reps": 11 },
+        "num.negatives-arithmetic": { "status": "mastered", "last": "9 days ago", "next": "in 15 days", "reps": 13 },
+        "num.fractions-to-percent": { "status": "mastered", "last": "7 days ago", "next": "in 13 days", "reps": 12 },
+        "num.proportion": { "status": "mastered", "last": "8 days ago", "next": "in 12 days", "reps": 11 },
+        "alg.basics": { "status": "mastered", "last": "5 days ago", "next": "in 12 days", "reps": 15 },
+        "alg.substitution": { "status": "mastered", "last": "6 days ago", "next": "in 11 days", "reps": 13 },
+        "num.percent-change": { "status": "frontier", "last": "4 days ago", "next": "in 3 days", "reps": 3 },
+        "alg.linear": { "status": "mastered", "last": "3 days ago", "next": "in 9 days", "reps": 13 },
+        "alg.expanding": { "status": "inprogress", "last": "5 days ago", "next": "in 5 days", "reps": 6 },
+        "geo.coordinates": { "status": "mastered", "last": "yesterday", "next": "in 8 days", "reps": 14 },
+        "alg.bracket-equations": { "status": "notready", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.simultaneous": { "status": "frontier", "last": "2 days ago", "next": "in 2 days", "reps": 2 }
+      }
+    },
+    {
+      "studentId": "finn",
+      "nodes": {
+        "num.negatives": { "status": "mastered", "last": "10 days ago", "next": "in 21 days", "reps": 18 },
+        "num.fractions": { "status": "mastered", "last": "12 days ago", "next": "in 19 days", "reps": 16 },
+        "num.decimals": { "status": "mastered", "last": "13 days ago", "next": "in 18 days", "reps": 15 },
+        "num.ratio": { "status": "mastered", "last": "9 days ago", "next": "in 17 days", "reps": 15 },
+        "num.negatives-arithmetic": { "status": "mastered", "last": "8 days ago", "next": "in 18 days", "reps": 17 },
+        "num.fractions-to-percent": { "status": "mastered", "last": "7 days ago", "next": "in 15 days", "reps": 15 },
+        "num.proportion": { "status": "mastered", "last": "8 days ago", "next": "in 14 days", "reps": 14 },
+        "alg.basics": { "status": "mastered", "last": "6 days ago", "next": "in 16 days", "reps": 19 },
+        "alg.substitution": { "status": "mastered", "last": "5 days ago", "next": "in 14 days", "reps": 17 },
+        "num.percent-change": { "status": "frontier", "last": "3 days ago · free play", "next": "in 4 days", "reps": 5 },
+        "alg.linear": { "status": "mastered", "last": "4 days ago", "next": "in 13 days", "reps": 16 },
+        "alg.expanding": { "status": "mastered", "last": "5 days ago", "next": "in 12 days", "reps": 15 },
+        "geo.coordinates": { "status": "mastered", "last": "2 days ago", "next": "in 11 days", "reps": 13 },
+        "alg.bracket-equations": { "status": "inprogress", "last": "yesterday · free play", "next": "in 4 days", "reps": 9 },
+        "alg.simultaneous": { "status": "inprogress", "last": "today", "next": "in 3 days", "reps": 8 }
+      }
+    },
+    {
+      "studentId": "zara",
+      "nodes": {
+        "num.negatives": { "status": "mastered", "last": "11 days ago", "next": "in 16 days", "reps": 15 },
+        "num.fractions": { "status": "mastered", "last": "10 days ago", "next": "in 15 days", "reps": 14 },
+        "num.decimals": { "status": "mastered", "last": "12 days ago", "next": "in 14 days", "reps": 13 },
+        "num.ratio": { "status": "mastered", "last": "9 days ago", "next": "in 13 days", "reps": 12 },
+        "num.negatives-arithmetic": { "status": "mastered", "last": "10 days ago", "next": "in 14 days", "reps": 14 },
+        "num.fractions-to-percent": { "status": "mastered", "last": "8 days ago", "next": "in 12 days", "reps": 13 },
+        "num.proportion": { "status": "mastered", "last": "9 days ago", "next": "in 11 days", "reps": 12 },
+        "alg.basics": { "status": "mastered", "last": "5 days ago", "next": "in 13 days", "reps": 16 },
+        "alg.substitution": { "status": "mastered", "last": "6 days ago", "next": "in 12 days", "reps": 14 },
+        "num.percent-change": { "status": "frontier", "last": "3 days ago", "next": "in 3 days", "reps": 4 },
+        "alg.linear": { "status": "mastered", "last": "4 days ago", "next": "in 10 days", "reps": 15 },
+        "alg.expanding": { "status": "mastered", "last": "5 days ago", "next": "in 11 days", "reps": 14 },
+        "geo.coordinates": { "status": "frontier", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.bracket-equations": { "status": "inprogress", "last": "today", "next": "in 4 days", "reps": 8 },
+        "alg.simultaneous": { "status": "notready", "last": "—", "next": "when ready", "reps": 0 }
+      }
+    },
+    {
+      "studentId": "louis",
+      "nodes": {
+        "num.negatives": { "status": "mastered", "last": "12 days ago", "next": "in 15 days", "reps": 14 },
+        "num.fractions": { "status": "mastered", "last": "13 days ago", "next": "in 14 days", "reps": 12 },
+        "num.decimals": { "status": "mastered", "last": "11 days ago", "next": "in 16 days", "reps": 13 },
+        "num.ratio": { "status": "mastered", "last": "14 days ago", "next": "in 13 days", "reps": 11 },
+        "num.negatives-arithmetic": { "status": "mastered", "last": "10 days ago", "next": "in 14 days", "reps": 13 },
+        "num.fractions-to-percent": { "status": "mastered", "last": "9 days ago", "next": "in 12 days", "reps": 12 },
+        "num.proportion": { "status": "inprogress", "last": "10 days ago", "next": "in 6 days", "reps": 7 },
+        "alg.basics": { "status": "mastered", "last": "6 days ago", "next": "in 12 days", "reps": 15 },
+        "alg.substitution": { "status": "mastered", "last": "5 days ago", "next": "in 11 days", "reps": 13 },
+        "num.percent-change": { "status": "notready", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.linear": { "status": "mastered", "last": "4 days ago", "next": "in 10 days", "reps": 14 },
+        "alg.expanding": { "status": "inprogress", "last": "7 days ago", "next": "in 5 days", "reps": 6 },
+        "geo.coordinates": { "status": "mastered", "last": "today", "next": "in 9 days", "reps": 15 },
+        "alg.bracket-equations": { "status": "notready", "last": "—", "next": "when ready", "reps": 0 },
+        "alg.simultaneous": { "status": "frontier", "last": "yesterday", "next": "today", "reps": 3 }
+      }
+    },
+    {
+      "studentId": "nina",
+      "nodes": {
+        "num.negatives": { "status": "mastered", "last": "14 days ago", "next": "today", "reps": 15 },
+        "num.fractions": { "status": "mastered", "last": "13 days ago", "next": "tomorrow", "reps": 14 },
+        "num.decimals": { "status": "mastered", "last": "15 days ago", "next": "today", "reps": 13 },
+        "num.ratio": { "status": "mastered", "last": "12 days ago", "next": "in 2 days", "reps": 12 },
+        "num.negatives-arithmetic": { "status": "mastered", "last": "11 days ago", "next": "tomorrow", "reps": 13 },
+        "num.fractions-to-percent": { "status": "mastered", "last": "10 days ago", "next": "in 3 days", "reps": 12 },
+        "num.proportion": { "status": "mastered", "last": "11 days ago", "next": "in 4 days", "reps": 11 },
+        "alg.basics": { "status": "mastered", "last": "7 days ago", "next": "in 6 days", "reps": 15 },
+        "alg.substitution": { "status": "mastered", "last": "8 days ago", "next": "in 5 days", "reps": 14 },
+        "num.percent-change": { "status": "inprogress", "last": "5 days ago", "next": "in 2 days", "reps": 5 },
+        "alg.linear": { "status": "mastered", "last": "6 days ago", "next": "in 7 days", "reps": 14 },
+        "alg.expanding": { "status": "mastered", "last": "9 days ago", "next": "in 4 days", "reps": 12 },
+        "geo.coordinates": { "status": "mastered", "last": "4 days ago", "next": "in 8 days", "reps": 12 },
+        "alg.bracket-equations": { "status": "frontier", "last": "3 days ago", "next": "in 3 days", "reps": 4 },
+        "alg.simultaneous": { "status": "inprogress", "last": "2 days ago", "next": "tomorrow", "reps": 6 }
+      }
     }
   ]
 }

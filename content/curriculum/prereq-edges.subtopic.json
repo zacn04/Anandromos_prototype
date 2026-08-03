@@ -561,6 +561,1798 @@
       "strength": 1,
       "source": "ai",
       "confidence": 0.7
+    },
+    {
+      "from": "geo.angles.name-types",
+      "to": "geo.angles.measure",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.angles.measure",
+      "to": "geo.angles.draw",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.angles.name-types",
+      "to": "geo.angles.on-a-line",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.angles.on-a-line",
+      "to": "geo.angles.at-a-point",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.angles.on-a-line",
+      "to": "geo.angles.vertically-opposite",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.angles.on-a-line",
+      "to": "geo.angles.in-a-triangle",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.angles.in-a-triangle",
+      "to": "geo.angles.in-a-quadrilateral",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.angles.on-a-line",
+      "to": "geo.angles.parallel-lines",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.angles.vertically-opposite",
+      "to": "geo.angles.parallel-lines",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.area.rectangle",
+      "to": "geo.area.triangle",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.area.rectangle",
+      "to": "geo.area.parallelogram",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.area.triangle",
+      "to": "geo.area.trapezium",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.area.parallelogram",
+      "to": "geo.area.trapezium",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.area.rectangle",
+      "to": "geo.area.compound",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.area.triangle",
+      "to": "geo.area.compound",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.area.rectangle",
+      "to": "geo.area.missing-length",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.decimals.multiply-powers-ten",
+      "to": "geo.area.units",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.substitution.two-term",
+      "to": "geo.area.trapezium",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.6
+    },
+    {
+      "from": "geo.coordinates.grid-basics",
+      "to": "geo.coordinates.negative-quadrants",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.coordinates.grid-basics",
+      "to": "geo.coordinates.scaled-axes",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.coordinates.grid-basics",
+      "to": "geo.coordinates.line-length",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.coordinates.grid-basics",
+      "to": "geo.coordinates.complete-shape",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.coordinates.negative-quadrants",
+      "to": "geo.coordinates.midpoint",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.coordinates.negative-quadrants",
+      "to": "geo.coordinates.three-dimensions",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.negatives.number-line",
+      "to": "geo.coordinates.negative-quadrants",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.substitution.single-term",
+      "to": "geo.linear-graphs.table-of-values",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.substitution.two-term",
+      "to": "geo.linear-graphs.table-of-values",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.linear-graphs.table-of-values",
+      "to": "geo.linear-graphs.plot-a-line",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.coordinates.grid-basics",
+      "to": "geo.linear-graphs.plot-a-line",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.coordinates.negative-quadrants",
+      "to": "geo.linear-graphs.plot-a-line",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.coordinates.grid-basics",
+      "to": "geo.linear-graphs.horizontal-vertical",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.linear-graphs.plot-a-line",
+      "to": "geo.linear-graphs.gradient",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.linear-graphs.plot-a-line",
+      "to": "geo.linear-graphs.intercept",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.negatives-arithmetic.divide",
+      "to": "geo.linear-graphs.gradient",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.6
+    },
+    {
+      "from": "geo.linear-graphs.gradient",
+      "to": "geo.linear-graphs.y-mx-c",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.linear-graphs.intercept",
+      "to": "geo.linear-graphs.y-mx-c",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.linear-graphs.y-mx-c",
+      "to": "geo.linear-graphs.equation-from-graph",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.linear-graphs.y-mx-c",
+      "to": "geo.linear-graphs.parallel-equations",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.linear-graphs.gradient",
+      "to": "geo.linear-graphs.interpret-context",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.polygons.name-by-sides",
+      "to": "geo.polygons.regular-irregular",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.polygons.name-by-sides",
+      "to": "geo.polygons.interior-angle-sum",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.angles.in-a-triangle",
+      "to": "geo.polygons.interior-angle-sum",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.angles.in-a-quadrilateral",
+      "to": "geo.polygons.interior-angle-sum",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.polygons.interior-angle-sum",
+      "to": "geo.polygons.exterior-angles",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.angles.on-a-line",
+      "to": "geo.polygons.exterior-angles",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.angles.name-types",
+      "to": "geo.polygons.triangle-types",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.polygons.triangle-types",
+      "to": "geo.polygons.quadrilateral-types",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.polygons.regular-irregular",
+      "to": "geo.polygons.symmetry",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.polygons.interior-angle-sum",
+      "to": "geo.polygons.missing-angle",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.polygons.exterior-angles",
+      "to": "geo.polygons.missing-angle",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.area.rectangle",
+      "to": "geo.volume.cube-cuboid",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.area.rectangle",
+      "to": "geo.volume.surface-area-cuboid",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.volume.nets",
+      "to": "geo.volume.surface-area-cuboid",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.volume.cube-cuboid",
+      "to": "geo.volume.prism",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.area.triangle",
+      "to": "geo.volume.prism",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.area.compound",
+      "to": "geo.volume.prism",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.6
+    },
+    {
+      "from": "geo.volume.nets",
+      "to": "geo.volume.surface-area-prism",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.volume.surface-area-cuboid",
+      "to": "geo.volume.surface-area-prism",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.volume.prism",
+      "to": "geo.volume.cylinder",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.circles.area",
+      "to": "geo.volume.cylinder",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.volume.cube-cuboid",
+      "to": "geo.volume.missing-dimension",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.area.missing-length",
+      "to": "geo.volume.missing-dimension",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.decimals.multiply-powers-ten",
+      "to": "geo.volume.units",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.coordinates.grid-basics",
+      "to": "geo.transformations.translation",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.coordinates.negative-quadrants",
+      "to": "geo.transformations.translation",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.coordinates.grid-basics",
+      "to": "geo.transformations.reflection",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.coordinates.grid-basics",
+      "to": "geo.transformations.rotation",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.ratio.equivalent",
+      "to": "geo.transformations.enlargement",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.6
+    },
+    {
+      "from": "geo.coordinates.grid-basics",
+      "to": "geo.transformations.enlargement",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.transformations.translation",
+      "to": "geo.transformations.describe",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.transformations.reflection",
+      "to": "geo.transformations.describe",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.transformations.rotation",
+      "to": "geo.transformations.describe",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.transformations.enlargement",
+      "to": "geo.transformations.describe",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.transformations.reflection",
+      "to": "geo.transformations.congruence",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.transformations.enlargement",
+      "to": "geo.transformations.congruence",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.transformations.enlargement",
+      "to": "geo.transformations.negative-scale-factor",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.negatives-arithmetic.multiply",
+      "to": "geo.transformations.negative-scale-factor",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.transformations.describe",
+      "to": "geo.transformations.combined",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.polygons.triangle-types",
+      "to": "geo.pythagoras.right-angle-sides",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.pythagoras.right-angle-sides",
+      "to": "geo.pythagoras.theorem-statement",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.pythagoras.theorem-statement",
+      "to": "geo.pythagoras.find-hypotenuse",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.pythagoras.find-hypotenuse",
+      "to": "geo.pythagoras.find-shorter-side",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.pythagoras.theorem-statement",
+      "to": "geo.pythagoras.is-right-angled",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.coordinates.line-length",
+      "to": "geo.pythagoras.on-a-grid",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.pythagoras.find-hypotenuse",
+      "to": "geo.pythagoras.on-a-grid",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.pythagoras.find-hypotenuse",
+      "to": "geo.pythagoras.in-context",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.pythagoras.find-shorter-side",
+      "to": "geo.pythagoras.in-context",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.pythagoras.find-hypotenuse",
+      "to": "geo.pythagoras.surds-exact",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.surds.simplify",
+      "to": "geo.pythagoras.surds-exact",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.circles.parts",
+      "to": "geo.circles.circumference",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.circles.parts",
+      "to": "geo.circles.area",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.area.perimeter",
+      "to": "geo.circles.circumference",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.decimals.multiply",
+      "to": "geo.circles.circumference",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.6
+    },
+    {
+      "from": "num.decimals.multiply",
+      "to": "geo.circles.area",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.6
+    },
+    {
+      "from": "geo.circles.area",
+      "to": "geo.circles.radius-from-area",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.circles.circumference",
+      "to": "geo.circles.semicircle",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.circles.area",
+      "to": "geo.circles.semicircle",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.circles.circumference",
+      "to": "geo.circles.arc-length",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.circles.area",
+      "to": "geo.circles.sector-area",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.fractions.of-quantity",
+      "to": "geo.circles.arc-length",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.fractions.of-quantity",
+      "to": "geo.circles.sector-area",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.circles.circumference",
+      "to": "geo.circles.exact-pi",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.circles.area",
+      "to": "geo.circles.exact-pi",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.charts.tally-frequency",
+      "to": "stat.charts.bar-chart",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.charts.tally-frequency",
+      "to": "stat.charts.pictogram",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.fractions.of-quantity",
+      "to": "stat.charts.pictogram",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.charts.bar-chart",
+      "to": "stat.charts.dual-bar-chart",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.charts.tally-frequency",
+      "to": "stat.charts.two-way-table",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.charts.tally-frequency",
+      "to": "stat.charts.grouped-frequency",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.charts.tally-frequency",
+      "to": "stat.charts.pie-chart-read",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.fractions.part-of-whole",
+      "to": "stat.charts.pie-chart-read",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.charts.pie-chart-read",
+      "to": "stat.charts.pie-chart-angles",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.angles.measure",
+      "to": "stat.charts.pie-chart-angles",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.angles.at-a-point",
+      "to": "stat.charts.pie-chart-angles",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.proportion.unitary-method",
+      "to": "stat.charts.pie-chart-angles",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.charts.bar-chart",
+      "to": "stat.charts.misleading",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.charts.line-graph",
+      "to": "stat.charts.misleading",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.6
+    },
+    {
+      "from": "stat.charts.tally-frequency",
+      "to": "stat.averages.mode",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.averages.mode",
+      "to": "stat.averages.median",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.decimals.ordering",
+      "to": "stat.averages.median",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.6
+    },
+    {
+      "from": "num.decimals.divide",
+      "to": "stat.averages.mean",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.6
+    },
+    {
+      "from": "stat.averages.mean",
+      "to": "stat.averages.mean-from-total",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.averages.mean-from-total",
+      "to": "stat.averages.missing-value",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.averages.mode",
+      "to": "stat.averages.choose-average",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.averages.median",
+      "to": "stat.averages.choose-average",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.averages.mean",
+      "to": "stat.averages.choose-average",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.averages.mean",
+      "to": "stat.averages.compare-sets",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.charts.tally-frequency",
+      "to": "stat.averages.from-frequency-table",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.averages.mean",
+      "to": "stat.averages.from-frequency-table",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.averages.median",
+      "to": "stat.averages.from-frequency-table",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.charts.grouped-frequency",
+      "to": "stat.averages.grouped-estimate",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.averages.from-frequency-table",
+      "to": "stat.averages.grouped-estimate",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.negatives-arithmetic.subtract",
+      "to": "stat.spread.range",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.6
+    },
+    {
+      "from": "stat.spread.range",
+      "to": "stat.spread.compare-ranges",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.averages.compare-sets",
+      "to": "stat.spread.compare-ranges",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.spread.range",
+      "to": "stat.spread.outliers",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.charts.tally-frequency",
+      "to": "stat.spread.stem-and-leaf",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.averages.median",
+      "to": "stat.spread.stem-and-leaf",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.averages.median",
+      "to": "stat.spread.quartiles",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.spread.quartiles",
+      "to": "stat.spread.iqr",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.spread.range",
+      "to": "stat.spread.iqr",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.spread.iqr",
+      "to": "stat.spread.compare-distributions",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.spread.compare-ranges",
+      "to": "stat.spread.compare-distributions",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.averages.compare-sets",
+      "to": "stat.spread.compare-distributions",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.probability.language",
+      "to": "stat.probability.scale",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.fractions-to-percent.compare-forms",
+      "to": "stat.probability.scale",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.6
+    },
+    {
+      "from": "stat.probability.scale",
+      "to": "stat.probability.single-event",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.probability.single-event",
+      "to": "stat.probability.as-fraction",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.fractions.part-of-whole",
+      "to": "stat.probability.as-fraction",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.fractions.simplify",
+      "to": "stat.probability.as-fraction",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.probability.single-event",
+      "to": "stat.probability.sample-space",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.probability.as-fraction",
+      "to": "stat.probability.not-happening",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.probability.as-fraction",
+      "to": "stat.probability.mutually-exclusive",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.probability.not-happening",
+      "to": "stat.probability.mutually-exclusive",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.fractions.add-same",
+      "to": "stat.probability.mutually-exclusive",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.probability.single-event",
+      "to": "stat.probability.expected-number",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.fractions.of-quantity",
+      "to": "stat.probability.expected-number",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.charts.tally-frequency",
+      "to": "stat.probability.relative-frequency",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.probability.as-fraction",
+      "to": "stat.probability.relative-frequency",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.probability.sample-space",
+      "to": "stat.probability.combined-events",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.fractions.multiply",
+      "to": "stat.probability.combined-events",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.coordinates.grid-basics",
+      "to": "stat.scatter.plot-points",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "geo.coordinates.scaled-axes",
+      "to": "stat.scatter.plot-points",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.scatter.plot-points",
+      "to": "stat.scatter.correlation-type",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.scatter.plot-points",
+      "to": "stat.scatter.line-of-best-fit",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.scatter.correlation-type",
+      "to": "stat.scatter.line-of-best-fit",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.scatter.line-of-best-fit",
+      "to": "stat.scatter.estimate-from-line",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.scatter.estimate-from-line",
+      "to": "stat.scatter.interpolate-extrapolate",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.scatter.plot-points",
+      "to": "stat.scatter.outliers",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.spread.outliers",
+      "to": "stat.scatter.outliers",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.scatter.correlation-type",
+      "to": "stat.scatter.correlation-causation",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.probability.sample-space",
+      "to": "stat.trees.draw-two-stage",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.trees.draw-two-stage",
+      "to": "stat.trees.label-branches",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.probability.as-fraction",
+      "to": "stat.trees.label-branches",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.probability.mutually-exclusive",
+      "to": "stat.trees.label-branches",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.trees.label-branches",
+      "to": "stat.trees.multiply-along",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.fractions.multiply",
+      "to": "stat.trees.multiply-along",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.trees.multiply-along",
+      "to": "stat.trees.add-outcomes",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.fractions.add-different",
+      "to": "stat.trees.add-outcomes",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.trees.multiply-along",
+      "to": "stat.trees.independent",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.probability.combined-events",
+      "to": "stat.trees.independent",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.trees.independent",
+      "to": "stat.trees.without-replacement",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.probability.not-happening",
+      "to": "stat.trees.at-least-one",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "stat.trees.add-outcomes",
+      "to": "stat.trees.at-least-one",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.basics.variable",
+      "to": "alg.basics.term",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.basics.term",
+      "to": "alg.basics.inverse-operations",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.negatives-arithmetic.add",
+      "to": "alg.basics.inverse-operations",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.negatives-arithmetic.subtract",
+      "to": "alg.basics.inverse-operations",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.basics.inverse-operations",
+      "to": "alg.basics.solve-one-step",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.negatives-arithmetic.divide",
+      "to": "alg.basics.solve-one-step",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.basics.variable",
+      "to": "alg.basics.substitute-value",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.basics.term",
+      "to": "alg.notation.implicit-multiply",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.notation.implicit-multiply",
+      "to": "alg.notation.write-expression",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.notation.implicit-multiply",
+      "to": "alg.notation.powers",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.notation.implicit-multiply",
+      "to": "alg.notation.division-as-fraction",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.fractions.part-of-whole",
+      "to": "alg.notation.division-as-fraction",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.basics.term",
+      "to": "alg.simplifying.like-terms",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.simplifying.like-terms",
+      "to": "alg.simplifying.collect-like-terms",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.negatives-arithmetic.add",
+      "to": "alg.simplifying.collect-like-terms",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.notation.implicit-multiply",
+      "to": "alg.simplifying.multiply-terms",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.negatives-arithmetic.multiply",
+      "to": "alg.simplifying.multiply-terms",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.simplifying.multiply-terms",
+      "to": "alg.simplifying.divide-terms",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.negatives-arithmetic.divide",
+      "to": "alg.simplifying.divide-terms",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.simplifying.multiply-terms",
+      "to": "alg.expanding.single-bracket",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.expanding.single-bracket",
+      "to": "alg.expanding.negative-outside",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.negatives-arithmetic.multiply",
+      "to": "alg.expanding.negative-outside",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.expanding.single-bracket",
+      "to": "alg.expanding.expand-and-simplify",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.simplifying.collect-like-terms",
+      "to": "alg.expanding.expand-and-simplify",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.expanding.expand-and-simplify",
+      "to": "alg.expanding.two-brackets",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.simplifying.multiply-terms",
+      "to": "alg.factorising.common-factor",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.primes.hcf",
+      "to": "alg.factorising.common-factor",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.factorising.common-factor",
+      "to": "alg.factorising.single-bracket",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.expanding.single-bracket",
+      "to": "alg.factorising.single-bracket",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.factorising.single-bracket",
+      "to": "alg.factorising.check-by-expanding",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.basics.term",
+      "to": "alg.sequences.term-to-term",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.sequences.term-to-term",
+      "to": "alg.sequences.position-to-term",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.sequences.position-to-term",
+      "to": "alg.sequences.nth-term-linear",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.basics.substitute-value",
+      "to": "alg.sequences.nth-term-linear",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.sequences.nth-term-linear",
+      "to": "alg.sequences.is-it-in-the-sequence",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.linear.cross-equals",
+      "to": "alg.sequences.is-it-in-the-sequence",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.expanding.single-bracket",
+      "to": "alg.bracket-equations.expand-then-solve",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.linear.cross-equals",
+      "to": "alg.bracket-equations.expand-then-solve",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.bracket-equations.expand-then-solve",
+      "to": "alg.bracket-equations.brackets-both-sides",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.bracket-equations.expand-then-solve",
+      "to": "alg.bracket-equations.unknown-both-sides",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.bracket-equations.expand-then-solve",
+      "to": "alg.bracket-equations.fractional",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.fractions.divide",
+      "to": "alg.bracket-equations.fractional",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.basics.substitute-value",
+      "to": "alg.simultaneous.substitution-method",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.linear.cross-equals",
+      "to": "alg.simultaneous.substitution-method",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.linear.cross-equals",
+      "to": "alg.simultaneous.elimination-add",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.negatives-arithmetic.add",
+      "to": "alg.simultaneous.elimination-add",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.simultaneous.elimination-add",
+      "to": "alg.simultaneous.elimination-subtract",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.negatives-arithmetic.subtract",
+      "to": "alg.simultaneous.elimination-subtract",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.simultaneous.elimination-subtract",
+      "to": "alg.simultaneous.scale-then-eliminate",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.simplifying.multiply-terms",
+      "to": "alg.simultaneous.scale-then-eliminate",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.negatives.compare",
+      "to": "alg.inequalities.notation",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.inequalities.notation",
+      "to": "alg.inequalities.number-line",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.negatives.number-line",
+      "to": "alg.inequalities.number-line",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.inequalities.notation",
+      "to": "alg.inequalities.solve-linear",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.linear.cross-equals",
+      "to": "alg.inequalities.solve-linear",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.inequalities.solve-linear",
+      "to": "alg.inequalities.flip-on-negative",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.linear.divide-negative",
+      "to": "alg.inequalities.flip-on-negative",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.expanding.two-brackets",
+      "to": "alg.quadratics.expand-double",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.quadratics.expand-double",
+      "to": "alg.quadratics.factorise-simple",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.factorising.common-factor",
+      "to": "alg.quadratics.factorise-simple",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.quadratics.factorise-simple",
+      "to": "alg.quadratics.solve-by-factorising",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.linear.cross-equals",
+      "to": "alg.quadratics.solve-by-factorising",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.quadratics.expand-double",
+      "to": "alg.quadratics.difference-of-squares",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.basics.substitute-value",
+      "to": "alg.substitution.single-term",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.notation.implicit-multiply",
+      "to": "alg.substitution.single-term",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.substitution.single-term",
+      "to": "alg.substitution.two-term",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.negatives-arithmetic.subtract",
+      "to": "alg.substitution.two-term",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.basics.inverse-operations",
+      "to": "alg.linear.cross-equals",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.basics.solve-one-step",
+      "to": "alg.linear.cross-equals",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "alg.linear.cross-equals",
+      "to": "alg.linear.divide-negative",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.negatives-arithmetic.divide",
+      "to": "alg.linear.divide-negative",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.negatives-arithmetic.subtract",
+      "to": "alg.linear.divide-negative",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
     }
   ]
 }

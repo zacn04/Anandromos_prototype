@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import type { CSSProperties } from 'react'
+import { useRef, useState } from 'react'
+import type { ChangeEvent, CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
 import { Logo } from '../components/Logo'
 import { GraphSvg } from '../components/GraphSvg'
@@ -15,19 +15,26 @@ import {
   graphFilters,
   graphTopics,
   oversightItems,
+  prereqsOf,
   questionAt,
-  sampleNodeStats,
-  sampleNodeStatus,
+  schoolClasses,
+  teachers,
+  topicById,
   topicLabel,
   studentProfile,
   yearBands,
 } from '../content'
-import type { LogQuestion, OversightDetail, Topic } from '../content'
+import type { LogQuestion, NodeStats, NodeStatus, OversightDetail, Topic, TopicId } from '../content'
 import { getLiveFlags } from '../data/liveOversight'
 import { summariseGaps } from '../data/liveGaps'
 import { suggestedOrder, orderWarnings, missingPrereqs } from '../data/basket'
 import { exportProfile, importProfile, importSummary } from '../data/transfer'
-import { initEngineState } from '../data/engine'
+import type { ImportResult, TransferableProfile } from '../data/transfer'
+import { buildQueue, dueLabel } from '../data/schedule'
+import { masteryBand } from '../data/xp'
+import { engineFor, setEngineFor, useEngineVersion, useKnownStudentIds } from '../data/students'
+import type { EngineState } from '../data/students'
+import type { TierMastery } from '../data/engine'
 import { getLiveSessions } from '../data/liveSessions'
 import { addProblemSet, getProblemSets } from '../data/teacherProblemSets'
 import type { AuthoredQuestion } from '../data/teacherProblemSets'
@@ -67,6 +74,21 @@ interface LogDetailSource {
   items: readonly LogQuestion[]
 }
 
+/**
+ * The result of reading a transferable profile off disk. `result` is null when
+ * the file could not be read at all, in which case `error` says why — a
+ * mangled download and a profile from a different graph are two different
+ * problems and must not look the same.
+ */
+interface ImportPanel {
+  fileName: string
+  studentId: string
+  result: ImportResult | null
+  error: string | null
+  /** True once the teacher has explicitly loaded it into that student's live state. */
+  applied: boolean
+}
+
 interface TeacherState {
   screen: Screen
   layout: 'attention' | 'lanes' | 'roster'
@@ -76,6 +98,8 @@ interface TeacherState {
   selectedStudentId: string
   /** One-line result of the last transferable-profile export. */
   transferNote: string | null
+  /** The last transferable-profile *import*, with everything it could not carry over. */
+  importPanel: ImportPanel | null
   graphFilter: string
   openLog: number | null
   selectedNode: string | null
@@ -188,52 +212,553 @@ const T = (f: number, c: number, st: number) => [
   { f: st, color: '#e8a06a' },
 ]
 
-const CLASSES = [
-  { key: '8M2', grade: 'Year 8', n: 24 },
-  { key: '8M4', grade: 'Year 8', n: 26 },
-  { key: '9S1', grade: 'Year 9', n: 22 },
-]
+// ---------------------------------------------------------------------------
+// LIVE CLASS TRIAGE
+// ---------------------------------------------------------------------------
+// The three lanes, the per-student sentence and the class mastery bars used to
+// be three hand-written arrays. They are now computed from every student's
+// `EngineState` (via `data/students.ts`), which is the same state the student
+// and parent POVs read and the same state practice writes to.
+//
+// WHY NOT A BARE AVERAGE. The design brief is explicit that a student must not
+// be able to look fine by only clearing a topic's easy items. Every mastery
+// number below is therefore difficulty-weighted — a stretch item counts three
+// times a foundations one — and the "avoiding the hard end" signal is scored
+// separately on top of that. A flat mean of the three tiers would put Daniel
+// (foundations 95%, stretch 0%) in the middle of the class.
+//
+// THE SIGNALS, all read from live state, none of them a name list:
+//
+//   STALLED   real attempts behind the current topic and its difficulty-weighted
+//             mastery still very low. Names the weakest *prerequisite* when the
+//             graph has one below par — that is the "missing foundation" read.
+//   AVOIDING  foundations strong, stretch near zero, with enough reps for that
+//             shape to be a habit rather than a start.
+//   THIN      practice volume far below the class median. Measured against the
+//             class rather than an invented target, because "enough practice"
+//             is not a number anyone can state in the abstract.
+//   OVERDUE   reviews that `buildQueue` says are due or overdue, weighted by how
+//             overdue the oldest one is.
+//   STALE     nothing logged for over a week.
+//   SLIPPED   topics `masteryBand` puts in the 'relearn' band, with enough reps
+//             behind them for that to be evidence rather than a fresh start.
+//
+// A student is in the attention lane when those sum past ATTENTION_BAR; the
+// heaviest single signal becomes the row's cause and its one sentence, so the
+// sentence always says the thing that actually put them there.
+//
+// AHEAD is deliberately not "high score". It is: working on material above the
+// class's own year band, with the prerequisites under it mastered. That is a
+// fact about the curriculum graph rather than a ranking, which matters — the
+// design brief rules out anything that reads as a class league table.
 
-const ATTENTION = [
-  { id: 'aisha', initials: 'AB', name: 'Aisha Bello', trend: 'Stuck 3 sessions', topic: 'Linear equations', cause: 'Missing foundational knowledge', line: 'Rearranges equations as a memorised ritual - the prerequisite, inverse operations, never became solid.' },
-  { id: 'daniel', initials: 'DK', name: 'Daniel Kovač', trend: 'Plateaued 2 weeks', topic: 'Fractions → percentages', cause: 'Ineffective practice method', line: 'Clears the easy items, avoids the hard ones - his average looks higher than his real mastery.' },
-  { id: 'reuben', initials: 'RC', name: 'Reuben Clarke', trend: '2 sessions this fortnight', topic: 'Substitution', cause: 'Not enough practice', line: 'Understands it in the moment but has logged too few reps for it to become durable.' },
-]
+/** The one class in this prototype with a roster of real student state behind it. */
+const SAMPLE_ROSTER_CLASS = '8M2'
 
-const ON_TRACK: Array<[string, string, string, string]> = [
-  ['Priya Shah', 'Fractions → %', '2h ago', 'Steady across difficulties; ready to move to % change.'],
-  ['Tom Weller', 'Linear equations', 'today', 'Solid on one-step; two-step just clicked this week.'],
-  ['Grace Idowu', 'Proportion', 'yesterday', 'Strong recall on spaced reviews; retention holding.'],
-  ['Marcus Lin', 'Expanding ( )', 'today', 'Careful with signs now — earlier slip is gone.'],
-  ['Sofia Rossi', 'Substitution', '3h ago', 'Consistent method; times her own working well.'],
-  ['Jack Enright', 'Linear equations', 'today', 'Back on pace after a slow fortnight.'],
-  ['Amara Okoli', 'Ratio', '2d ago', 'Due a spaced review — last worked 8 days ago.'],
-  ['Leo Marsh', 'Coordinates', 'today', 'Plotting confidently; negatives quadrant secure.'],
-  ['Hana Ali', 'Fractions → %', 'yesterday', 'Improving on the harder non-calculator items.'],
-  ['Noah Pratt', 'Substitution', 'today', 'Free-plays extra sets most evenings.'],
-  ['Ivy Chen', 'Proportion', '4h ago', 'Reasoning shown clearly; explains her steps well.'],
-  ['Ben Osei', 'Linear equations', 'today', 'On track; watch bracket equations next.'],
-  ['Ruth Adeyemi', 'Expanding ( )', '2d ago', 'Strong start; a review is scheduled for Friday.'],
-  ['Sam Doyle', 'Coordinates', 'today', 'Quietly consistent — no misconceptions flagged.'],
-]
+/** Stable empty roster, so a class with no students does not reallocate per render. */
+const NO_IDS: readonly string[] = []
 
-const AHEAD: Array<[string, string, string, string]> = [
-  ['Elif Demir', 'Simultaneous eqns', 'today', 'A full term ahead; handling elimination cleanly.'],
-  ['Oscar Reid', 'Bracket equations', 'today', 'Ready for stretch problem sets on brackets.'],
-  ['Maya Kumar', 'Coordinates', 'yesterday', 'Extending into straight-line graphs early.'],
-  ['Finn Walsh', 'Simultaneous eqns', 'today', 'Enjoys the hardest items; rarely uses hints.'],
-  ['Zara Haq', 'Bracket equations', '3h ago', 'Accurate at speed; good to give harder stretch.'],
-  ['Louis Berger', 'Coordinates', 'today', 'Midpoints and gradients already secure.'],
-  ['Nina Petrov', 'Simultaneous eqns', '2d ago', 'Ahead on pace; a review keeps it durable.'],
-]
+/** Whose dashboard this is. Matches `content/school/teachers.json`. */
+const TEACHER_ID = 'teacher.okafor'
 
-const CLASS_TOPICS = [
-  { name: 'Negatives', t: T(1, 0.92, 0.7) },
-  { name: 'Fractions & %', t: T(0.95, 0.6, 0.25) },
-  { name: 'Algebra basics', t: T(0.88, 0.55, 0.2) },
-  { name: 'Linear equations', t: T(0.7, 0.35, 0.05) },
-  { name: 'Ratio & proportion', t: T(0.9, 0.7, 0.4) },
-]
+/**
+ * Roster display names. The content store holds student *ids* (lowercase first
+ * names) and no display names at all — `defaultRoster()` is eight names for the
+ * class-setup form, not the twenty-four this class actually has. Surnames are
+ * therefore the one authored thing left on this screen; who is in the class,
+ * and everything shown about them, comes from content. An id with no entry here
+ * still renders, under its capitalised first name.
+ */
+const ROSTER_NAMES: Record<string, string> = {
+  aisha: 'Aisha Bello',
+  daniel: 'Daniel Kovač',
+  reuben: 'Reuben Clarke',
+  priya: 'Priya Shah',
+  tom: 'Tom Weller',
+  grace: 'Grace Idowu',
+  marcus: 'Marcus Lin',
+  sofia: 'Sofia Rossi',
+  jack: 'Jack Enright',
+  amara: 'Amara Okoli',
+  leo: 'Leo Marsh',
+  hana: 'Hana Ali',
+  noah: 'Noah Pratt',
+  ivy: 'Ivy Chen',
+  ben: 'Ben Osei',
+  ruth: 'Ruth Adeyemi',
+  sam: 'Sam Doyle',
+  elif: 'Elif Demir',
+  oscar: 'Oscar Reid',
+  maya: 'Maya Kumar',
+  finn: 'Finn Walsh',
+  zara: 'Zara Haq',
+  louis: 'Louis Berger',
+  nina: 'Nina Petrov',
+}
+
+const displayName = (id: string): string => ROSTER_NAMES[id] ?? id.charAt(0).toUpperCase() + id.slice(1)
+
+// ---- tuning ---------------------------------------------------------------
+/** Attempts before a tier profile is evidence rather than a topic just opened. */
+const MIN_REPS_FOR_EVIDENCE = 5
+/** Difficulty-weighted mastery under this, with reps behind it, reads as stalled. */
+const STALLED_BELOW = 0.3
+/** A prerequisite under this is worth naming as the thing to re-teach first. */
+const WEAK_PREREQ_BELOW = 0.45
+/** foundations − stretch at or above this is the "clears the easy items" shape. */
+const AVOIDANCE_GAP = 0.8
+/** Practice volume below this fraction of the class median is thin. */
+const THIN_RATIO = 0.75
+/** Days with nothing logged before it is worth the teacher's attention. */
+const STALE_DAYS = 7
+/** Summed signal weight at which a student enters the attention lane. */
+const ATTENTION_BAR = 0.6
+/** A class average is only shown once this share of the class has worked the topic. */
+const CLASS_AVERAGE_SHARE = 5
+
+type Lane = 'attention' | 'ontrack' | 'ahead'
+
+interface WeakLink {
+  topicId: TopicId
+  label: string
+  weighted: number
+}
+
+interface StudentSignal {
+  id: string
+  name: string
+  initials: string
+  lane: Lane
+  score: number
+  /** The topic they are actually working on now, derived from node status + recency. */
+  topicId: TopicId | null
+  topicLabel: string
+  /** Days since anything at all was logged; null when nothing ever was. */
+  daysSince: number | null
+  lastLabel: string
+  /** Short tag under the name on an attention card, e.g. "Stuck · 5 attempts". */
+  trend: string
+  /** The one-word status chip on an attention card. */
+  chipLabel: string
+  /** Plain-language cause, e.g. "Missing foundational knowledge". */
+  cause: string
+  /** The single sentence every lane's row shows. Derived from the dominant signal. */
+  line: string
+  /** Weakest prerequisite under the current topic, when it has one with evidence. */
+  weakestLink: WeakLink | null
+  dueCount: number
+  totalReps: number
+}
+
+/** Difficulty-weighted mastery: a stretch item is worth three foundations items. */
+const weightedMastery = (m: TierMastery): number => (m.foundations + 2 * m.core + 3 * m.stretch) / 6
+
+const pct = (n: number): string => `${Math.round(n * 100)}%`
+
+const plural = (n: number, word: string): string => `${n} ${word}${n === 1 ? '' : 's'}`
+
+/**
+ * Days since an engine `last` label. Handles the suffixed forms `recordAttempt`
+ * writes ('today · trickle-down') and the sample overlays carry ('2 days ago ·
+ * free play'). Returns null for '—' and anything else it cannot read, which is
+ * "never worked" — never 0, which would read as "worked today".
+ */
+function daysSinceLabel(label: string): number | null {
+  const head = (label ?? '').split(' · ')[0].trim()
+  if (head === 'today') return 0
+  if (head === 'yesterday') return 1
+  const match = /^(\d+) days? ago$/.exec(head)
+  return match ? Number(match[1]) : null
+}
+
+const recencyLabel = (days: number | null): string =>
+  days === null ? 'not started' : days === 0 ? 'today' : days === 1 ? 'yesterday' : `${days}d ago`
+
+function totalRepsOf(state: EngineState): number {
+  let total = 0
+  for (const id of Object.keys(state.nodes)) total += state.nodes[id].reps ?? 0
+  return total
+}
+
+/**
+ * The topic a student is actually on: the most recently touched frontier or
+ * in-progress node, breaking ties on reps and then on depth in the graph. Falls
+ * back to whatever they touched most recently when nothing is open.
+ */
+function currentTopicOf(state: EngineState, depthOf: (id: TopicId) => number): TopicId | null {
+  let best: TopicId | null = null
+  let bestDays = Infinity
+  let bestReps = -1
+  let bestDepth = -1
+  for (const id of Object.keys(state.nodes)) {
+    const node = state.nodes[id]
+    if (node.status !== 'frontier' && node.status !== 'inprogress') continue
+    const days = daysSinceLabel(node.last)
+    if (days === null) continue
+    const depth = depthOf(id)
+    const better =
+      days < bestDays ||
+      (days === bestDays && (node.reps > bestReps || (node.reps === bestReps && depth > bestDepth)))
+    if (better) {
+      best = id
+      bestDays = days
+      bestReps = node.reps
+      bestDepth = depth
+    }
+  }
+  if (best) return best
+
+  for (const id of Object.keys(state.nodes)) {
+    const days = daysSinceLabel(state.nodes[id].last)
+    if (days === null || days >= bestDays) continue
+    best = id
+    bestDays = days
+  }
+  return best
+}
+
+/** One scored signal, carrying the words the row will use if it turns out to be the dominant one. */
+interface Reason {
+  weight: number
+  cause: string
+  trend: string
+  chip: string
+  line: string
+}
+
+interface AssessContext {
+  medianReps: number
+  depthOf: (id: TopicId) => number
+  classYearBand: string
+  /** Year bands in curriculum order, so "above this class" is an ordering, not a string compare. */
+  bandOrder: readonly string[]
+}
+
+function assessStudent(id: string, state: EngineState, ctx: AssessContext): StudentSignal {
+  const name = displayName(id)
+  const initials = name
+    .split(' ')
+    .map((w) => w[0])
+    .join('')
+  const nodeIds = Object.keys(state.nodes)
+
+  const base = {
+    id,
+    name,
+    initials,
+    score: 0,
+    trend: '',
+    chipLabel: '',
+    cause: '',
+    weakestLink: null,
+    dueCount: 0,
+  }
+
+  // Nothing behind this student at all. Say so, rather than showing a 0% that
+  // reads as "knows nothing".
+  if (nodeIds.length === 0) {
+    return {
+      ...base,
+      lane: 'ontrack',
+      topicId: null,
+      topicLabel: 'Not started',
+      daysSince: null,
+      lastLabel: 'not started',
+      line: 'No practice recorded yet — nothing has been logged against this student.',
+      totalReps: 0,
+    }
+  }
+
+  const topicId = currentTopicOf(state, ctx.depthOf)
+  const node = topicId ? state.nodes[topicId] : null
+  const label = topicId ? topicLabel(topicId) : 'Not started'
+  const current = topicId ? state.masteryByTopic[topicId] : undefined
+  const currentWeighted = current ? weightedMastery(current) : null
+
+  let daysSince: number | null = null
+  for (const t of nodeIds) {
+    const d = daysSinceLabel(state.nodes[t].last)
+    if (d !== null && (daysSince === null || d < daysSince)) daysSince = d
+  }
+
+  // The scheduler decides what is due, not this screen.
+  const queue = buildQueue(state)
+  const dueReviews = queue.items.filter((item) => item.kind === 'review' && item.dueInDays <= 0)
+  let oldestDue = dueReviews[0] ?? null
+  for (const item of dueReviews) if (item.dueInDays < oldestDue.dueInDays) oldestDue = item
+  const overdueDays = oldestDue ? Math.max(0, -oldestDue.dueInDays) : 0
+
+  const totalReps = totalRepsOf(state)
+
+  // Topics below the re-teach line, with enough attempts behind them that the
+  // band is a read on the student rather than on a topic barely begun.
+  let slipped: WeakLink | null = null
+  let slippedCount = 0
+  for (const t of Object.keys(state.masteryByTopic)) {
+    const mastery = state.masteryByTopic[t]
+    if (masteryBand(mastery) !== 'relearn') continue
+    if ((state.nodes[t]?.reps ?? 0) < MIN_REPS_FOR_EVIDENCE) continue
+    slippedCount++
+    const w = weightedMastery(mastery)
+    if (!slipped || w < slipped.weighted) slipped = { topicId: t, label: topicLabel(t), weighted: w }
+  }
+
+  // The weakest direct prerequisite of what they are on now — the real weakest link.
+  let weakestLink: WeakLink | null = null
+  if (topicId) {
+    for (const p of prereqsOf(topicId)) {
+      const mastery = state.masteryByTopic[p]
+      if (!mastery) continue
+      const w = weightedMastery(mastery)
+      if (!weakestLink || w < weakestLink.weighted) weakestLink = { topicId: p, label: topicLabel(p), weighted: w }
+    }
+  }
+
+  // Work above the class's own year band, with everything under it mastered.
+  const classBand = ctx.bandOrder.indexOf(ctx.classYearBand)
+  let beyondBand: TopicId | null = null
+  for (const t of nodeIds) {
+    const status = state.nodes[t].status
+    if (status !== 'frontier' && status !== 'inprogress' && status !== 'mastered') continue
+    const topic = topicById(t)
+    if (!topic || ctx.bandOrder.indexOf(topic.yearBand) <= classBand) continue
+    if (!beyondBand || ctx.depthOf(t) > ctx.depthOf(beyondBand)) beyondBand = t
+  }
+
+  const reasons: Reason[] = []
+
+  if (current && node && currentWeighted !== null && node.reps >= MIN_REPS_FOR_EVIDENCE && currentWeighted < STALLED_BELOW) {
+    const blocked = weakestLink && weakestLink.weighted < WEAK_PREREQ_BELOW ? weakestLink : null
+    reasons.push({
+      weight: (STALLED_BELOW - currentWeighted) * 4,
+      cause: blocked ? 'Missing foundational knowledge' : 'Stalled on the current topic',
+      trend: `Stuck · ${plural(node.reps, 'attempt')}`,
+      chip: 'Stuck',
+      line:
+        `${label}: ${plural(node.reps, 'attempt')} logged and core is still ${pct(current.core)}, stretch ${pct(current.stretch)}.` +
+        // "weakest prerequisite", never "weakest link" — it is the weakest of the
+        // topic's prerequisites, which is not the same claim as being the weakest
+        // thing the student has, and the two must not be conflated.
+        (blocked ? ` The weakest prerequisite under it, ${blocked.label}, is itself only at ${pct(blocked.weighted)}.` : ''),
+    })
+  }
+
+  if (current && node && node.reps >= MIN_REPS_FOR_EVIDENCE + 1 && current.foundations - current.stretch >= AVOIDANCE_GAP) {
+    reasons.push({
+      weight: 0.6,
+      cause: 'Ineffective practice method',
+      trend: 'Plateaued · easy items only',
+      chip: 'Plateaued',
+      line: `${label}: foundations at ${pct(current.foundations)} but stretch at ${pct(current.stretch)} — the average reads higher than the real mastery.`,
+    })
+  }
+
+  const repRatio = ctx.medianReps > 0 ? totalReps / ctx.medianReps : 1
+  if (repRatio < THIN_RATIO) {
+    reasons.push({
+      weight: (THIN_RATIO - repRatio) * 2.5,
+      cause: 'Not enough practice',
+      trend: `${plural(totalReps, 'attempt')} in total`,
+      chip: 'Thin practice',
+      line:
+        `${plural(totalReps, 'attempt')} logged against a class median of ${ctx.medianReps}` +
+        (node ? `, and ${label} has ${node.reps} of them — too few for it to become durable.` : ' — too few to build on.'),
+    })
+  }
+
+  if (oldestDue) {
+    reasons.push({
+      weight: 0.12 * dueReviews.length + 0.04 * overdueDays,
+      cause: 'Reviews falling due',
+      trend: `${plural(dueReviews.length, 'review')} due`,
+      chip: 'Reviews due',
+      line: `${plural(dueReviews.length, 'review')} due — the oldest, ${oldestDue.label}, came up ${dueLabel(oldestDue)}.`,
+    })
+  }
+
+  if (daysSince !== null && daysSince >= STALE_DAYS) {
+    reasons.push({
+      weight: (daysSince - (STALE_DAYS - 1)) * 0.12,
+      cause: 'No recent activity',
+      trend: `${daysSince} days since a session`,
+      chip: 'Inactive',
+      line:
+        `Nothing logged for ${daysSince} days` +
+        (dueReviews.length > 0 ? `, and ${plural(dueReviews.length, 'review')} have come due since.` : '.'),
+    })
+  }
+
+  if (slipped) {
+    const mastery = state.masteryByTopic[slipped.topicId]
+    reasons.push({
+      weight: 0.3 * slippedCount,
+      cause: 'Topic below the re-teach line',
+      trend: `${plural(slippedCount, 'topic')} to re-teach`,
+      chip: 'Slipped',
+      line: `${slipped.label} has dropped below the re-teach line — foundations ${pct(mastery.foundations)}, stretch ${pct(mastery.stretch)}.`,
+    })
+  }
+
+  let score = 0
+  let dominant: Reason | null = null
+  for (const reason of reasons) {
+    score += reason.weight
+    if (!dominant || reason.weight > dominant.weight) dominant = reason
+  }
+
+  const lane: Lane = score >= ATTENTION_BAR ? 'attention' : beyondBand ? 'ahead' : 'ontrack'
+
+  let line: string
+  if (lane === 'attention' && dominant) {
+    line = dominant.line
+  } else if (lane === 'ahead' && beyondBand) {
+    const aheadTopic = node && beyondBand === topicId ? topicId : beyondBand
+    const aheadLabel = topicLabel(aheadTopic)
+    const band = topicById(aheadTopic)?.yearBand ?? ''
+    const prereqs = prereqsOf(aheadTopic)
+    const secure = prereqs.length > 0 && prereqs.every((p) => state.nodes[p]?.status === 'mastered')
+    line = oldestDue
+      ? `Ahead on ${aheadLabel}, ${band} work; ${plural(dueReviews.length, 'review')} due keeps it durable.`
+      : `${aheadLabel} is ${band} work, ahead of this class's ${ctx.classYearBand} basket${secure ? ' — every prerequisite under it is mastered' : ''}.`
+  } else if (oldestDue) {
+    // The recency here is the *reviewed* topic's, not the student's overall —
+    // "a review is due on Ratio, last worked today" would be a contradiction.
+    const dueNode = oldestDue.topicId ? state.nodes[oldestDue.topicId] : null
+    line = `A review is due on ${oldestDue.label} — last worked ${recencyLabel(dueNode ? daysSinceLabel(dueNode.last) : daysSince)}.`
+  } else if (current && masteryBand(current) === 'mastered') {
+    line = `${label} is holding across all three difficulty tiers, stretch included at ${pct(current.stretch)}.`
+  } else if (node && node.status === 'frontier' && node.reps < MIN_REPS_FOR_EVIDENCE) {
+    const prereqs = topicId ? prereqsOf(topicId) : []
+    const secure = prereqs.length > 0 && prereqs.every((p) => state.nodes[p]?.status === 'mastered')
+    line = secure
+      ? `${label} has just opened — every prerequisite under it is mastered.`
+      : `${label} has just opened; ${plural(node.reps, 'attempt')} so far.`
+  } else if (current && node) {
+    line = `Building on ${label}: foundations ${pct(current.foundations)}, core ${pct(current.core)}, over ${plural(node.reps, 'attempt')}.`
+  } else if (node) {
+    line = `Working on ${label}; ${plural(node.reps, 'attempt')} logged, nothing flagged.`
+  } else {
+    line = 'No topic open right now.'
+  }
+
+  return {
+    id,
+    name,
+    initials,
+    lane,
+    score,
+    topicId,
+    topicLabel: label,
+    daysSince,
+    lastLabel: recencyLabel(daysSince),
+    trend: lane === 'attention' && dominant ? dominant.trend : '',
+    chipLabel: lane === 'attention' && dominant ? dominant.chip : '',
+    cause: lane === 'attention' && dominant ? dominant.cause : '',
+    line,
+    weakestLink,
+    dueCount: dueReviews.length,
+    totalReps,
+  }
+}
+
+/**
+ * Every roster student, triaged. Two passes: practice volume is scored against
+ * the class median, which cannot be known until every student has been read.
+ */
+function buildSignals(ids: readonly string[], classYearBand: string): StudentSignal[] {
+  const order = new Map<TopicId, number>()
+  graphTopics().forEach((t, i) => order.set(t.id, i))
+  const depthOf = (id: TopicId): number => order.get(id) ?? -1
+
+  const states = ids.map((id) => ({ id, state: engineFor(id) }))
+  const volumes = states.map((s) => totalRepsOf(s.state)).sort((a, b) => a - b)
+  const medianReps = volumes.length === 0
+    ? 0
+    : volumes.length % 2 === 1
+      ? volumes[(volumes.length - 1) / 2]
+      : Math.round((volumes[volumes.length / 2 - 1] + volumes[volumes.length / 2]) / 2)
+
+  const ctx: AssessContext = { medianReps, depthOf, classYearBand, bandOrder: yearBands() }
+  return states.map((s) => assessStudent(s.id, s.state, ctx))
+}
+
+interface ClassTopicRow {
+  topicId: TopicId
+  name: string
+  /** How many students this average is actually made of. */
+  n: number
+  foundations: number
+  core: number
+  stretch: number
+}
+
+/**
+ * Per-topic class aggregates. Averaged only over the students who have recorded
+ * mastery on that topic — folding in students who have never met it as zero
+ * would understate every topic the class has not reached yet. A topic worked by
+ * only a handful of students is dropped rather than shown as a "class average"
+ * computed from two people.
+ */
+function classTopicRows(ids: readonly string[]): ClassTopicRow[] {
+  const totals = new Map<TopicId, { n: number; f: number; c: number; s: number }>()
+  for (const id of ids) {
+    const state = engineFor(id)
+    for (const t of Object.keys(state.masteryByTopic)) {
+      const m = state.masteryByTopic[t]
+      const acc = totals.get(t) ?? { n: 0, f: 0, c: 0, s: 0 }
+      acc.n += 1
+      acc.f += m.foundations
+      acc.c += m.core
+      acc.s += m.stretch
+      totals.set(t, acc)
+    }
+  }
+  const floor = Math.max(3, Math.ceil(ids.length / CLASS_AVERAGE_SHARE))
+  const rows: ClassTopicRow[] = []
+  // graphTopics() is the one accessor that returns curriculum order, which is
+  // the order a teacher reads a topic list in. Its labels are the graph's own
+  // short forms though, so the name comes from topicLabel() — the same topic
+  // must not read one way in a lane row and another way here.
+  for (const topic of graphTopics()) {
+    const acc = totals.get(topic.id)
+    if (!acc || acc.n < floor) continue
+    rows.push({
+      topicId: topic.id,
+      name: topicLabel(topic.id),
+      n: acc.n,
+      foundations: acc.f / acc.n,
+      core: acc.c / acc.n,
+      stretch: acc.s / acc.n,
+    })
+  }
+  return rows
+}
+
+/**
+ * Reads a downloaded transferable profile back off disk, tolerantly. Missing
+ * graph versions become 'unknown' rather than failing the read, precisely so
+ * `importProfile` still gets to raise its mismatch warning — a profile with no
+ * version stamp is exactly the case the teacher most needs telling about.
+ */
+function readProfile(value: unknown): TransferableProfile | null {
+  if (!value || typeof value !== 'object') return null
+  const raw = value as Record<string, unknown>
+  if (typeof raw.studentId !== 'string' || raw.studentId === '') return null
+  if (!raw.nodeStates || typeof raw.nodeStates !== 'object') return null
+  const str = (v: unknown): string => (typeof v === 'string' && v !== '' ? v : 'unknown')
+  return {
+    formatVersion: typeof raw.formatVersion === 'number' ? raw.formatVersion : 0,
+    studentId: raw.studentId,
+    exportedAt: typeof raw.exportedAt === 'string' ? raw.exportedAt : '',
+    topicGraphVersion: str(raw.topicGraphVersion),
+    subtopicGraphVersion: str(raw.subtopicGraphVersion),
+    contentVersion: str(raw.contentVersion),
+    nodeStates: raw.nodeStates as TransferableProfile['nodeStates'],
+    masteryByTopic: (raw.masteryByTopic && typeof raw.masteryByTopic === 'object'
+      ? raw.masteryByTopic
+      : {}) as TransferableProfile['masteryByTopic'],
+  }
+}
 
 const NODE_META: Record<string, { ret: string; retColor: string }> = {
   mastered: { ret: 'Strong', retColor: '#1f4e75' },
@@ -243,11 +768,24 @@ const NODE_META: Record<string, { ret: string; retColor: string }> = {
   locked: { ret: 'Not started', retColor: '#8a7c63' },
 }
 
+// The knowledge graph and its node card read the LIVE engine state rather than
+// `sampleNodeStatus`/`sampleNodeStats`. For a student who has not practised the
+// two are identical — `initEngineState` seeds itself from exactly those overlays
+// — but only this version moves when they do, or when a transferred profile is
+// loaded in. Fallbacks match the sample accessors' documented ones (§5.6) so a
+// topic the student has no entry for still renders as not-started rather than
+// blank.
+const liveStatus = (studentId: string, topicId: TopicId): NodeStatus =>
+  engineFor(studentId).nodes[topicId]?.status ?? 'notready'
+
+const liveStats = (studentId: string, topicId: TopicId): NodeStats =>
+  engineFor(studentId).nodes[topicId] ?? { last: '—', next: '—', reps: 0 }
+
 /** Derives the Frontier panel's three buckets from live per-student node status, instead of hand-curating them per student. */
 function buildFrontierGroups(studentId: string) {
   const chipsFor = (pred: (st: string) => boolean, color: string, bg: string, bd: string) =>
     graphTopics()
-      .filter((n) => pred(sampleNodeStatus(studentId, n.id)))
+      .filter((n) => pred(liveStatus(studentId, n.id)))
       .map((n) => ({ name: n.label, style: chipStyle(bg, color, bd) }))
   return [
     { label: 'Mastered', color: '#1f4e75', chips: chipsFor((st) => st === 'mastered', '#1f4e75', '#e4edf3', '#cddceb') },
@@ -269,6 +807,7 @@ export default function TeacherApp() {
     activeClass: '8M2',
     selectedStudentId: 'aisha',
     transferNote: null,
+    importPanel: null,
     graphFilter: 'all',
     openLog: null,
     selectedNode: null,
@@ -302,6 +841,88 @@ export default function TeacherApp() {
   }))
   const setState = (patch: Partial<TeacherState> | ((st: TeacherState) => Partial<TeacherState>)) =>
     setS((st) => ({ ...st, ...(typeof patch === 'function' ? patch(st) : patch) }))
+
+  // ---- live class state -----------------------------------------------------
+  // One subscription for the whole dashboard: `useEngineVersion` re-renders this
+  // tree when ANY student's state moves, including a write from the student POV
+  // or a profile import below. It is called for the subscription and not for its
+  // value — see `data/students.ts`, which documents exactly this pattern for a
+  // screen that needs many students rather than one.
+  useEngineVersion()
+  const knownIds = useKnownStudentIds()
+
+  // Ms. Okafor's classes, from content. Only 8M2 has student state behind it —
+  // 8M4 and 9S1 exist in `content/school/classes.json` with no roster, and this
+  // screen says so rather than showing 8M2's twenty-four students three times.
+  const okafor = teachers().find((t) => t.id === TEACHER_ID)
+  const classes = schoolClasses().filter((c) =>
+    okafor ? okafor.classIds.includes(c.id) : c.teacherId === TEACHER_ID,
+  )
+  // `ac` can legitimately be undefined if the school's class list stops naming
+  // this teacher; `activeClassId` is what the screen says either way, so a
+  // content change can never white-screen the dashboard.
+  const ac = classes.find((c) => c.id === s.activeClass) ?? classes[0]
+  const activeClassId = ac?.id ?? s.activeClass
+  const rosterIds = activeClassId === SAMPLE_ROSTER_CLASS ? knownIds : NO_IDS
+  const hasRoster = rosterIds.length > 0
+
+  // Deliberately not memoised. Triaging twenty-four students is a few thousand
+  // arithmetic operations, and a memo here would have to be keyed on a store
+  // version that the dependency linter cannot see — a stale class dashboard is a
+  // far worse bug than a recomputation nobody can measure.
+  //
+  // Every known student is assessed, not just the active class's, so the
+  // drill-down still resolves while a rosterless class is selected and so a
+  // student loaded in from an imported profile is reachable at once.
+  const allSignals = buildSignals(knownIds, ac?.yearBand ?? 'Year 8')
+  const signals = hasRoster ? allSignals : []
+  const classTopics = hasRoster ? classTopicRows(rosterIds) : []
+
+  const fileRef = useRef<HTMLInputElement>(null)
+
+  /**
+   * Reads a transferable profile off disk and runs it through `importProfile`.
+   * Nothing is written to the student's live state here — that is the explicit
+   * "load into" action in the panel, so the teacher sees the graph-version
+   * warning before anything moves.
+   */
+  const onProfileFile = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    // Cleared so re-picking the same file fires a fresh change event.
+    event.target.value = ''
+    if (!file) return
+    const fileName = file.name
+    file
+      .text()
+      .then((text) => {
+        let parsed: unknown
+        try {
+          parsed = JSON.parse(text)
+        } catch {
+          setState({ importPanel: { fileName, studentId: '', result: null, error: 'That file is not valid JSON.', applied: false } })
+          return
+        }
+        const profile = readProfile(parsed)
+        if (!profile) {
+          setState({
+            importPanel: {
+              fileName,
+              studentId: '',
+              result: null,
+              error: 'That JSON is not a transferable profile — it needs a studentId and a nodeStates object.',
+              applied: false,
+            },
+          })
+          return
+        }
+        setState({
+          importPanel: { fileName, studentId: profile.studentId, result: importProfile(profile), error: null, applied: false },
+        })
+      })
+      .catch(() => {
+        setState({ importPanel: { fileName, studentId: '', result: null, error: 'That file could not be read.', applied: false } })
+      })
+  }
 
   const pushAddress = (p: Omit<AddressItem, 'id'>) =>
     setState((st) => ({
@@ -359,59 +980,80 @@ export default function TeacherApp() {
     { key: 'setup', label: 'Class setup', go: () => setState({ screen: 'setup' }) },
   ]
 
-  // ---- class switcher ----
-  const ac = CLASSES.find((c) => c.key === s.activeClass) || CLASSES[0]
-
   // ---- roster / lanes data ----
-  const mkStudent = (name: string, topic: string, status: string, last: string, insight = '') => {
-    const initials = name
-      .split(' ')
-      .map((w) => w[0])
-      .join('')
-    const color = status === 'ahead' ? '#2f6f92' : status === 'attention' ? '#dd6a2f' : '#1f4e75'
+  // Every row is one triaged `StudentSignal`; the shapes below only dress it.
+  const mkStudent = (sig: StudentSignal) => {
+    const color = sig.lane === 'ahead' ? '#2f6f92' : sig.lane === 'attention' ? '#dd6a2f' : '#1f4e75'
     return {
-      id: idForName(name),
-      name,
-      topic,
-      sub: topic,
-      last,
-      insight,
-      initials,
-      status,
-      statusLabel: status === 'attention' ? 'Needs attention' : status === 'ahead' ? 'Ahead' : 'On track',
+      id: sig.id,
+      name: sig.name,
+      topic: sig.topicLabel,
+      sub: sig.topicLabel,
+      last: sig.lastLabel,
+      insight: sig.line,
+      initials: sig.initials,
+      status: sig.lane,
+      statusLabel: sig.lane === 'attention' ? 'Needs attention' : sig.lane === 'ahead' ? 'Ahead' : 'On track',
       avatarStyle: avatar(color),
-      chipStyle: chip(status),
+      chipStyle: chip(sig.lane),
     }
   }
-  const onTrackStudents = ON_TRACK.map(([n, t, l, ins]) => mkStudent(n, t, 'ontrack', l, ins))
-  const aheadStudents = AHEAD.map(([n, t, l, ins]) => mkStudent(n, t, 'ahead', l, ins))
+  // Attention first, and within it the strongest signal first — the lane is an
+  // ordering of how much the teacher's time is needed, not a ranking of students.
+  const attentionSignals = signals.filter((sig) => sig.lane === 'attention').sort((a, b) => b.score - a.score)
+  const onTrackSignals = signals.filter((sig) => sig.lane === 'ontrack')
+  const aheadSignals = signals.filter((sig) => sig.lane === 'ahead')
+  const attentionStudents = attentionSignals.map(mkStudent)
+  const onTrackStudents = onTrackSignals.map(mkStudent)
+  const aheadStudents = aheadSignals.map(mkStudent)
   const lanes = [
-    { title: 'Needs attention', count: 3, dot: '#dd6a2f', students: ATTENTION.map((a) => mkStudent(a.name, a.topic, 'attention', 'stuck', a.line)) },
-    { title: 'On track', count: 14, dot: '#1f4e75', students: onTrackStudents.slice(0, 6) },
-    { title: 'Ahead', count: 7, dot: '#2f6f92', students: aheadStudents.slice(0, 5) },
+    { title: 'Needs attention', count: attentionStudents.length, dot: '#dd6a2f', students: attentionStudents },
+    { title: 'On track', count: onTrackStudents.length, dot: '#1f4e75', students: onTrackStudents.slice(0, 6) },
+    { title: 'Ahead', count: aheadStudents.length, dot: '#2f6f92', students: aheadStudents.slice(0, 5) },
   ]
-  const rosterAll = [
-    ...ATTENTION.map((a) => mkStudent(a.name, a.topic, 'attention', 'stuck', a.line)),
-    ...onTrackStudents,
-    ...aheadStudents,
-  ]
+  const rosterAll = [...attentionStudents, ...onTrackStudents, ...aheadStudents]
   const collapsed = [
-    { title: 'On track', count: 14, open: s.expOnTrack, toggle: () => setState({ expOnTrack: !s.expOnTrack }), dot: '#1f4e75', students: onTrackStudents },
-    { title: 'Ahead of pace', count: 7, open: s.expAhead, toggle: () => setState({ expAhead: !s.expAhead }), dot: '#2f6f92', students: aheadStudents },
+    { title: 'On track', count: onTrackStudents.length, open: s.expOnTrack, toggle: () => setState({ expOnTrack: !s.expOnTrack }), dot: '#1f4e75', students: onTrackStudents },
+    { title: 'Ahead of pace', count: aheadStudents.length, open: s.expAhead, toggle: () => setState({ expAhead: !s.expAhead }), dot: '#2f6f92', students: aheadStudents },
   ]
 
   // ---- selected student (drill-down) ----
-  // Every one of the 24 roster names resolves to a summary card (name, topic, status, insight);
-  // only Aisha/Daniel/Reuben additionally have a full profile (pace, mastery, activity log).
-  // A name without a profile shows the summary plus an honest "not built out yet" note —
-  // never another student's data relabeled.
-  const selectedRoster = rosterAll.find((r) => r.id === s.selectedStudentId) ?? rosterAll[0]
+  // Resolved from the full signal list rather than the active class's lanes, so
+  // the drill-down still works while a rosterless class is selected, and so a
+  // student loaded in from an imported profile is reachable immediately.
+  const selectedSignal =
+    allSignals.find((sig) => sig.id === s.selectedStudentId) ?? allSignals[0] ?? null
+  const selectedRoster = selectedSignal
+    ? mkStudent(selectedSignal)
+    : { id: s.selectedStudentId, name: displayName(s.selectedStudentId), topic: 'Not started', sub: 'Not started', last: 'not started', insight: '', initials: displayName(s.selectedStudentId).slice(0, 2).toUpperCase(), status: 'ontrack', statusLabel: 'On track', avatarStyle: avatar('#1f4e75'), chipStyle: chip('ontrack') }
   const selectedProfile = studentProfile(s.selectedStudentId)
+
+  // "Where to start" leads with the live weakest link where the graph gives one,
+  // then the authored diagnostic bullets. The derived line is what actually
+  // moves when the student practises.
+  const derivedWhereToStart = ((): string | null => {
+    if (!selectedSignal || !selectedSignal.topicId) return null
+    const state = engineFor(selectedSignal.id)
+    const node = state.nodes[selectedSignal.topicId]
+    const mastery = state.masteryByTopic[selectedSignal.topicId]
+    const link = selectedSignal.weakestLink
+    if (link && link.weighted < WEAK_PREREQ_BELOW) {
+      return `Re-teach candidate: ${link.label}, the weakest prerequisite under ${selectedSignal.topicLabel}, at ${pct(link.weighted)} difficulty-weighted${mastery ? ` — ${selectedSignal.topicLabel} itself is at ${pct(weightedMastery(mastery))}` : ''}, over ${plural(node?.reps ?? 0, 'attempt')}.`
+    }
+    if (mastery) {
+      return `${selectedSignal.topicLabel} is the live focus: foundations ${pct(mastery.foundations)}, core ${pct(mastery.core)}, stretch ${pct(mastery.stretch)} across ${plural(node?.reps ?? 0, 'attempt')}.`
+    }
+    return `${selectedSignal.topicLabel} is the live focus, with ${plural(node?.reps ?? 0, 'attempt')} logged and no tier breakdown recorded yet.`
+  })()
+  const whereToStart = [
+    ...(derivedWhereToStart ? [derivedWhereToStart] : []),
+    ...(selectedProfile?.whereToStart ?? []),
+  ]
   const frontierGroups = buildFrontierGroups(s.selectedStudentId)
 
   // ---- knowledge graph (student drill-down) ----
   const graphNodes = graphTopics().map((n) => {
-    const st = NODE_STYLE[sampleNodeStatus(s.selectedStudentId, n.id)]
+    const st = NODE_STYLE[liveStatus(s.selectedStudentId, n.id)]
     const sel = s.selectedNode === n.id
     return {
       id: n.id,
@@ -429,7 +1071,7 @@ export default function TeacherApp() {
     }
   })
   const graphEdges = edgePairs().map(([a, b]) => {
-    const frontier = sampleNodeStatus(s.selectedStudentId, b) === 'frontier'
+    const frontier = liveStatus(s.selectedStudentId, b) === 'frontier'
     return { d: edgePath(a, b), stroke: frontier ? '#e8a06a' : '#d3c6ab', sw: frontier ? 2 : 1.4 }
   })
   const gf = s.graphFilter
@@ -452,13 +1094,13 @@ export default function TeacherApp() {
       heading="Topic"
       title={selNode.label}
       fields={[
-        { label: 'Last worked', value: sampleNodeStats(s.selectedStudentId, selNode.id).last },
-        { label: 'Next review', value: sampleNodeStats(s.selectedStudentId, selNode.id).next },
-        { label: 'Times practised', value: sampleNodeStats(s.selectedStudentId, selNode.id).reps },
+        { label: 'Last worked', value: liveStats(s.selectedStudentId, selNode.id).last },
+        { label: 'Next review', value: liveStats(s.selectedStudentId, selNode.id).next },
+        { label: 'Times practised', value: liveStats(s.selectedStudentId, selNode.id).reps },
         {
           label: 'Retention',
-          value: NODE_META[sampleNodeStatus(s.selectedStudentId, selNode.id)].ret,
-          color: NODE_META[sampleNodeStatus(s.selectedStudentId, selNode.id)].retColor,
+          value: NODE_META[liveStatus(s.selectedStudentId, selNode.id)].ret,
+          color: NODE_META[liveStatus(s.selectedStudentId, selNode.id)].retColor,
         },
       ]}
       onClose={() => setState({ selectedNode: null })}
@@ -584,16 +1226,16 @@ export default function TeacherApp() {
             <div style={{ padding: '30px 40px 60px', maxWidth: 1180 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
                 <span style={monoCap({ letterSpacing: '.6px', marginRight: 4 })}>Your classes</span>
-                {CLASSES.map((c) => {
-                  const on = c.key === s.activeClass
+                {classes.map((c) => {
+                  const on = c.id === s.activeClass
                   return (
                     <button
-                      key={c.key}
-                      onClick={() => setState({ activeClass: c.key })}
+                      key={c.id}
+                      onClick={() => setState({ activeClass: c.id })}
                       style={{ cursor: 'pointer', textAlign: 'left', padding: '8px 15px', borderRadius: 9, background: on ? '#0e2a43' : '#efe7d9', color: on ? '#fff' : '#5c6773', border: on ? '1px solid #0e2a43' : '1px solid #e0d4bd' }}
                     >
-                      <span style={{ fontWeight: 600, fontSize: 13.5, display: 'block', lineHeight: 1.2 }}>{c.key}</span>
-                      <span style={{ fontSize: 10.5, opacity: 0.75, display: 'block' }}>{c.grade}</span>
+                      <span style={{ fontWeight: 600, fontSize: 13.5, display: 'block', lineHeight: 1.2 }}>{c.id}</span>
+                      <span style={{ fontSize: 10.5, opacity: 0.75, display: 'block' }}>{c.yearBand}</span>
                     </button>
                   )
                 })}
@@ -602,9 +1244,11 @@ export default function TeacherApp() {
                 <div>
                   <div style={monoCap({ fontSize: 11, letterSpacing: '1.5px' })}>Class overview</div>
                   <h1 style={{ fontFamily: FONT_SERIF, fontWeight: 600, fontSize: 30, margin: '6px 0 4px', color: '#0e2a43' }}>
-                    {ac.key} · {ac.grade} Mathematics
+                    {ac ? `${ac.id} · ${ac.yearBand} ${ac.subject}` : activeClassId}
                   </h1>
-                  <div style={{ fontSize: 14, color: '#5c6773' }}>{ac.n} students · Autumn term, week 9 · updated live from practice</div>
+                  <div style={{ fontSize: 14, color: '#5c6773' }}>
+                    {hasRoster ? `${rosterIds.length} students` : 'Roster not imported'} · Autumn term, week 9 · updated live from practice
+                  </div>
                 </div>
                 <div style={{ display: 'flex', background: '#efe7d9', border: '1px solid #e0d4bd', borderRadius: 11, padding: 3, gap: 2 }}>
                   {(
@@ -753,50 +1397,72 @@ export default function TeacherApp() {
                 )}
               </div>
 
+              {/* No roster behind this class — say so rather than showing another class's students */}
+              {!hasRoster && (
+                <div style={{ marginTop: 26, background: '#fff', border: '1px dashed #d8cfbb', borderRadius: 12, padding: '30px 24px' }}>
+                  <p style={{ margin: 0, fontSize: 14, fontWeight: 600, color: '#0e2a43' }}>No roster imported for {activeClassId}</p>
+                  <p style={{ margin: '6px 0 0', fontSize: 13, color: '#8a7c63', maxWidth: 560, textWrap: 'pretty' }}>
+                    {activeClassId} exists in the school's class list, but no students have been brought in against
+                    it in this prototype. {SAMPLE_ROSTER_CLASS} is the class with live practice behind it.
+                    Bring a roster in from Class setup, or from a transferring student's profile.
+                  </p>
+                </div>
+              )}
+
               {/* ATTENTION FIRST layout */}
-              {s.layout === 'attention' && (
+              {hasRoster && s.layout === 'attention' && (
                 <div style={{ marginTop: 26 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 9, marginBottom: 14 }}>
                     <span style={{ width: 9, height: 9, borderRadius: '50%', background: '#dd6a2f', display: 'inline-block' }} />
                     <h2 style={{ fontFamily: FONT_SERIF, fontSize: 17, fontWeight: 600, margin: 0, color: '#0e2a43' }}>Needs attention first</h2>
-                    <span style={{ fontFamily: FONT_MONO, fontSize: 12, color: '#8a7c63' }}>3 students</span>
+                    <span style={{ fontFamily: FONT_MONO, fontSize: 12, color: '#8a7c63' }}>{attentionSignals.length} students</span>
                   </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(340px,1fr))', gap: 16 }}>
-                    {ATTENTION.map((a) => (
-                      <div key={a.id} style={{ background: '#fff', border: '1px solid #eecab0', borderTop: '3px solid #dd6a2f', borderRadius: 12, padding: '18px 18px 16px', boxShadow: '0 1px 3px rgba(20,48,74,.05)' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                          <div style={{ width: 38, height: 38, borderRadius: '50%', background: '#0e2a43', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 600, fontSize: 14, flex: 'none' }}>{a.initials}</div>
-                          <div style={{ minWidth: 0 }}>
-                            <div style={{ fontWeight: 600, fontSize: 15, color: '#1a2129' }}>{a.name}</div>
-                            <div style={{ fontSize: 12.5, color: '#8a7c63' }}>{a.trend}</div>
+                  {attentionSignals.length === 0 ? (
+                    <div style={{ background: '#fff', border: '1px dashed #d8cfbb', borderRadius: 12, padding: '26px 20px' }}>
+                      <p style={{ margin: 0, fontSize: 13.5, fontWeight: 600, color: '#0e2a43' }}>Nobody is flagged right now</p>
+                      <p style={{ margin: '6px 0 0', fontSize: 13, color: '#8a7c63', textWrap: 'pretty' }}>
+                        No student is stalled on a topic, avoiding its hard end, short of practice or carrying
+                        overdue reviews. The lanes below still show where everyone is.
+                      </p>
+                    </div>
+                  ) : (
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(340px,1fr))', gap: 16 }}>
+                      {attentionSignals.map((a) => (
+                        <div key={a.id} style={{ background: '#fff', border: '1px solid #eecab0', borderTop: '3px solid #dd6a2f', borderRadius: 12, padding: '18px 18px 16px', boxShadow: '0 1px 3px rgba(20,48,74,.05)' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                            <div style={{ width: 38, height: 38, borderRadius: '50%', background: '#0e2a43', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 600, fontSize: 14, flex: 'none' }}>{a.initials}</div>
+                            <div style={{ minWidth: 0 }}>
+                              <div style={{ fontWeight: 600, fontSize: 15, color: '#1a2129' }}>{a.name}</div>
+                              <div style={{ fontSize: 12.5, color: '#8a7c63' }}>{a.trend}</div>
+                            </div>
+                            <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 600, color: '#b6531f', background: '#fbe7d8', border: '1px solid #eecab0', padding: '3px 9px', borderRadius: 20, whiteSpace: 'nowrap' }}>{a.chipLabel}</span>
                           </div>
-                          <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 600, color: '#b6531f', background: '#fbe7d8', border: '1px solid #eecab0', padding: '3px 9px', borderRadius: 20, whiteSpace: 'nowrap' }}>Stuck</span>
+                          <div style={{ marginTop: 14, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                            <div style={{ display: 'flex', gap: 8, alignItems: 'baseline' }}>
+                              <span style={monoCap({ width: 56, flex: 'none' })}>Topic</span>
+                              <span style={{ fontSize: 13.5, fontWeight: 500, color: '#1a2129' }}>{a.topicLabel}</span>
+                            </div>
+                            <div style={{ display: 'flex', gap: 8, alignItems: 'baseline' }}>
+                              <span style={monoCap({ width: 56, flex: 'none' })}>Cause</span>
+                              <span style={{ fontSize: 13.5, fontWeight: 600, color: '#b6531f' }}>{a.cause}</span>
+                            </div>
+                            <p style={{ margin: '4px 0 0', fontSize: 13, lineHeight: 1.5, color: '#5c6773', textWrap: 'pretty' }}>{a.line}</p>
+                          </div>
+                          <button
+                            onClick={() => openStudent(a.id)}
+                            style={{ marginTop: 15, width: '100%', background: '#dd6a2f', color: '#fff', border: 'none', borderRadius: 9, padding: 10, fontWeight: 600, fontSize: 13.5, cursor: 'pointer' }}
+                          >
+                            Open profile →
+                          </button>
                         </div>
-                        <div style={{ marginTop: 14, display: 'flex', flexDirection: 'column', gap: 8 }}>
-                          <div style={{ display: 'flex', gap: 8, alignItems: 'baseline' }}>
-                            <span style={monoCap({ width: 56, flex: 'none' })}>Topic</span>
-                            <span style={{ fontSize: 13.5, fontWeight: 500, color: '#1a2129' }}>{a.topic}</span>
-                          </div>
-                          <div style={{ display: 'flex', gap: 8, alignItems: 'baseline' }}>
-                            <span style={monoCap({ width: 56, flex: 'none' })}>Cause</span>
-                            <span style={{ fontSize: 13.5, fontWeight: 600, color: '#b6531f' }}>{a.cause}</span>
-                          </div>
-                          <p style={{ margin: '4px 0 0', fontSize: 13, lineHeight: 1.5, color: '#5c6773', textWrap: 'pretty' }}>{a.line}</p>
-                        </div>
-                        <button
-                          onClick={() => openStudent(a.id)}
-                          style={{ marginTop: 15, width: '100%', background: '#dd6a2f', color: '#fff', border: 'none', borderRadius: 9, padding: 10, fontWeight: 600, fontSize: 13.5, cursor: 'pointer' }}
-                        >
-                          Open profile →
-                        </button>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
 
               {/* THREE LANES layout */}
-              {s.layout === 'lanes' && (
+              {hasRoster && s.layout === 'lanes' && (
                 <div style={{ marginTop: 26, display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16 }}>
                   {lanes.map((lane) => (
                     <div key={lane.title} style={{ background: '#faf6ee', border: '1px solid #ece3d2', borderRadius: 12, padding: 16 }}>
@@ -822,7 +1488,7 @@ export default function TeacherApp() {
               )}
 
               {/* ROSTER layout */}
-              {s.layout === 'roster' && (
+              {hasRoster && s.layout === 'roster' && (
                 <div style={{ marginTop: 22, background: '#fff', border: '1px solid #e4dccb', borderRadius: 12, overflow: 'hidden' }}>
                   <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 1.4fr 1fr 0.8fr', gap: 12, padding: '11px 18px', background: '#efe7d9', fontFamily: FONT_MONO, fontSize: 10.5, letterSpacing: '.6px', textTransform: 'uppercase', color: '#8a7c63' }}>
                     <div>Student</div>
@@ -850,7 +1516,7 @@ export default function TeacherApp() {
               )}
 
               {/* Collapsed rest (shown only in attention layout) */}
-              {s.layout === 'attention' && (
+              {hasRoster && s.layout === 'attention' && (
                 <div style={{ marginTop: 26, display: 'flex', flexDirection: 'column', gap: 10 }}>
                   {collapsed.map((grp) => (
                     <div key={grp.title} style={{ background: '#fff', border: '1px solid #e4dccb', borderRadius: 12, overflow: 'hidden' }}>
@@ -876,6 +1542,7 @@ export default function TeacherApp() {
               )}
 
               {/* Class mastery by topic (difficulty-weighted) */}
+              {hasRoster && (
               <div style={{ marginTop: 30, background: '#fff', border: '1px solid #e4dccb', borderRadius: 12, padding: '22px 24px' }}>
                 <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
                   <h2 style={{ fontFamily: FONT_SERIF, fontSize: 17, fontWeight: 600, margin: 0, color: '#0e2a43' }}>Class mastery by topic</h2>
@@ -895,14 +1562,22 @@ export default function TeacherApp() {
                   </div>
                 </div>
                 <p style={{ margin: '6px 0 18px', fontSize: 12.5, color: '#8a7c63', maxWidth: 640 }}>
-                  Weighted by item difficulty, so a class can't look finished on a topic by only clearing its easy items. Thin stretch bars are where the hardest work still sits.
+                  Weighted by item difficulty, so a class can't look finished on a topic by only clearing its easy items. Thin stretch bars are where the hardest work still sits. Each row averages only the students who have actually worked that topic — the count says how many.
                 </p>
+                {classTopics.length === 0 ? (
+                  <p style={{ margin: 0, fontSize: 13, color: '#8a7c63', textWrap: 'pretty' }}>
+                    No topic has been worked by enough of {activeClassId} yet to average honestly.
+                  </p>
+                ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                  {CLASS_TOPICS.map((t) => (
-                    <div key={t.name} style={{ display: 'grid', gridTemplateColumns: '170px 1fr', gap: 16, alignItems: 'center' }}>
-                      <div style={{ fontSize: 13.5, fontWeight: 500, color: '#1a2129' }}>{t.name}</div>
+                  {classTopics.map((t) => (
+                    <div key={t.topicId} style={{ display: 'grid', gridTemplateColumns: '170px 1fr', gap: 16, alignItems: 'center' }}>
+                      <div>
+                        <div style={{ fontSize: 13.5, fontWeight: 500, color: '#1a2129' }}>{t.name}</div>
+                        <div style={monoCap({ fontSize: 10, letterSpacing: '.4px' })}>{t.n} students</div>
+                      </div>
                       <div style={{ display: 'flex', gap: 6 }}>
-                        {t.t.map((tier, i) => (
+                        {T(t.foundations, t.core, t.stretch).map((tier, i) => (
                           <div key={i} style={{ flex: 1, height: 22, borderRadius: 5, background: '#f0e9dc', overflow: 'hidden', position: 'relative' }}>
                             <div style={tierFill(tier.f, tier.color)} />
                           </div>
@@ -911,7 +1586,9 @@ export default function TeacherApp() {
                     </div>
                   ))}
                 </div>
+                )}
               </div>
+              )}
             </div>
           )}
 
@@ -926,6 +1603,97 @@ export default function TeacherApp() {
                   Profile exported · {s.transferNote}
                 </div>
               )}
+
+              {/* Transferable profile IMPORT. The graph-version mismatch is the
+                  whole point of the format, so it is the loudest thing here —
+                  numbers computed against a different graph may not mean the
+                  same thing, and a receiving teacher has to be told before they
+                  act on them. */}
+              {s.importPanel && (() => {
+                const panel = s.importPanel
+                const result = panel.result
+                const mismatch = !!result && !result.exact
+                const versionIssues = result ? result.issues.filter((i) => i.kind !== 'unknown-topic') : []
+                const droppedIssues = result ? result.issues.filter((i) => i.kind === 'unknown-topic') : []
+                const bg = panel.error || mismatch ? '#fdf0e6' : '#eef3f7'
+                const bd = panel.error || mismatch ? '#f0d3bc' : '#d3e0ea'
+                const ink = panel.error || mismatch ? '#5c3a24' : '#2b4a63'
+                return (
+                  <div style={{ marginBottom: 12, background: bg, border: `1px solid ${bd}`, borderRadius: 10, padding: '15px 17px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                      <span style={{ width: 8, height: 8, borderRadius: '50%', flex: 'none', background: panel.error || mismatch ? '#dd6a2f' : '#1f4e75' }} />
+                      <span style={{ fontSize: 12.5, fontWeight: 700, letterSpacing: '.4px', textTransform: 'uppercase', color: panel.error || mismatch ? '#b6531f' : '#1f4e75', fontFamily: FONT_MONO }}>
+                        {panel.error ? 'Profile not read' : mismatch ? 'Imported from a different graph' : 'Profile imported'}
+                      </span>
+                      <span style={{ fontFamily: FONT_MONO, fontSize: 11.5, color: '#8a7c63' }}>{panel.fileName}</span>
+                      <button
+                        onClick={() => setState({ importPanel: null })}
+                        style={{ marginLeft: 'auto', border: 'none', background: 'transparent', color: '#a99e88', fontSize: 16, lineHeight: 1, cursor: 'pointer' }}
+                      >
+                        ×
+                      </button>
+                    </div>
+
+                    {panel.error ? (
+                      <p style={{ margin: '9px 0 0', fontSize: 13, lineHeight: 1.5, color: ink, textWrap: 'pretty' }}>{panel.error}</p>
+                    ) : result ? (
+                      <>
+                        <div style={{ marginTop: 9, fontSize: 13.5, fontWeight: 600, color: '#0e2a43' }}>
+                          {displayName(panel.studentId)} · {importSummary(result)}
+                        </div>
+                        {versionIssues.length > 0 && (
+                          <div style={{ marginTop: 10, background: '#fff', border: '1px solid #eecab0', borderRadius: 9, padding: '11px 13px' }}>
+                            <div style={monoCap({ color: '#b6531f', marginBottom: 6 })}>Read these before you trust the numbers</div>
+                            <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 7 }}>
+                              {versionIssues.map((issue, i) => (
+                                <li key={i} style={{ display: 'flex', gap: 9, fontSize: 13, lineHeight: 1.5, color: '#5c3a24' }}>
+                                  <span style={{ color: '#dd6a2f', flex: 'none' }}>•</span>
+                                  <span style={{ textWrap: 'pretty' }}>{issue.message}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                        {droppedIssues.length > 0 && (
+                          <div style={{ marginTop: 10, fontSize: 12.5, lineHeight: 1.5, color: ink, textWrap: 'pretty' }}>
+                            Dropped, because this school's curriculum has no such topic:{' '}
+                            {droppedIssues.map((issue) => issue.topicId).join(' · ')}
+                          </div>
+                        )}
+                        <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                          {panel.applied ? (
+                            <span style={{ fontSize: 12.5, fontWeight: 600, color: '#1f4e75' }}>
+                              Loaded into {displayName(panel.studentId)}'s live profile.
+                            </span>
+                          ) : (
+                            <>
+                              <button
+                                onClick={() => {
+                                  setEngineFor(panel.studentId, result.state)
+                                  setState((st) => ({
+                                    importPanel: st.importPanel ? { ...st.importPanel, applied: true } : null,
+                                    selectedStudentId: panel.studentId,
+                                    selectedNode: null,
+                                    selectedLog: null,
+                                    openLog: null,
+                                  }))
+                                }}
+                                style={{ background: '#dd6a2f', color: '#fff', border: 'none', borderRadius: 8, padding: '9px 14px', fontSize: 12.5, fontWeight: 600, cursor: 'pointer' }}
+                              >
+                                Load into {displayName(panel.studentId)}'s profile
+                              </button>
+                              <span style={{ fontSize: 12, color: '#8a7c63', textWrap: 'pretty' }}>
+                                Nothing has changed yet — this replaces what this school currently holds for them.
+                              </span>
+                            </>
+                          )}
+                        </div>
+                      </>
+                    ) : null}
+                  </div>
+                )
+              })()}
+
               <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
                 <div style={{ width: 52, height: 52, borderRadius: '50%', background: selectedRoster.avatarStyle.background, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 600, fontSize: 19, flex: 'none' }}>
                   {selectedRoster.initials}
@@ -941,7 +1709,9 @@ export default function TeacherApp() {
                     // school knows about the student, stamped with the graph
                     // version it was computed against so a receiving school can
                     // tell whether the numbers still mean the same thing.
-                    const state = initEngineState(s.selectedStudentId)
+                    // Exports the LIVE state, not a fresh seed, so anything the
+                    // student has done since travels with them.
+                    const state = engineFor(s.selectedStudentId)
                     const profile = exportProfile(s.selectedStudentId, state, new Date().toISOString())
                     const round = importProfile(profile)
                     const blob = new Blob([JSON.stringify(profile, null, 2)], { type: 'application/json' })
@@ -958,6 +1728,20 @@ export default function TeacherApp() {
                 >
                   ⤓ Transferable profile
                 </button>
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept="application/json,.json"
+                  onChange={onProfileFile}
+                  style={{ display: 'none' }}
+                />
+                <button
+                  onClick={() => fileRef.current?.click()}
+                  title="Read a transferable profile from another school or class"
+                  style={{ background: '#f2ece0', color: '#5c6773', border: '1px solid #e0d4bd', borderRadius: 9, padding: '11px 16px', fontWeight: 600, fontSize: 13, cursor: 'pointer' }}
+                >
+                  ⤒ Import profile
+                </button>
                 <button
                   onClick={() => setState({ screen: 'practice' })}
                   style={{ marginLeft: 'auto', background: '#0e2a43', color: '#fff', border: 'none', borderRadius: 9, padding: '11px 18px', fontWeight: 600, fontSize: 13.5, cursor: 'pointer' }}
@@ -973,7 +1757,10 @@ export default function TeacherApp() {
                   <span style={{ fontSize: 12.5, fontWeight: 700, letterSpacing: '.4px', textTransform: 'uppercase', color: '#b6531f', fontFamily: FONT_MONO }}>Where to start</span>
                 </div>
                 <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  {(selectedProfile?.whereToStart ?? [selectedRoster.insight || `${selectedRoster.name} hasn't got a detailed diagnostic history yet.`]).map((b, i) => (
+                  {(whereToStart.length > 0
+                    ? whereToStart
+                    : [selectedRoster.insight || `${selectedRoster.name} hasn't got a detailed diagnostic history yet.`]
+                  ).map((b, i) => (
                     <li key={i} style={{ display: 'flex', gap: 10, fontSize: 13.5, lineHeight: 1.5, color: '#5c3a24' }}>
                       <span style={{ color: '#dd6a2f', flex: 'none' }}>•</span>
                       <span>{b}</span>

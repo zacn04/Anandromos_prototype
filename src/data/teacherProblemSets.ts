@@ -64,7 +64,7 @@ function persist(sets: AuthoredProblemSet[]) {
   }
 }
 
-const problemSets: AuthoredProblemSet[] = loadInitial()
+let problemSets: AuthoredProblemSet[] = loadInitial()
 // Resumes numbering after whatever was already persisted, rather than a separately-stored
 // counter that could drift out of sync with it.
 let seq = problemSets.reduce((max, p) => Math.max(max, Number(p.id.slice(2)) || 0), -1) + 1
@@ -72,7 +72,11 @@ let seq = problemSets.reduce((max, p) => Math.max(max, Number(p.id.slice(2)) || 
 /** Appends a newly-authored problem set and returns it (with its assigned id). */
 export function addProblemSet(input: { title: string; topics: string; due: string; questions: AuthoredQuestion[]; requireHandwriting?: boolean }): AuthoredProblemSet {
   const created: AuthoredProblemSet = { id: `hw${seq++}`, ...input }
-  problemSets.push(created)
+  // Replaced, not mutated in place. A consumer memoising on this array can then
+  // depend on its identity like any other value; mutating in place left the
+  // reference constant and forced callers into a `.length` dependency that
+  // React's exhaustive-deps rule (correctly) reads as meaningless.
+  problemSets = [...problemSets, created]
   persist(problemSets)
   return created
 }
