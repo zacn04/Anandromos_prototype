@@ -135,8 +135,12 @@ console.log('\nschedule · finishing something actually changes the queue')
   }
   // Regression: the queue used to offer reviews for topics with no question
   // bank, so the row dead-ended in "not built out yet" when clicked.
+  // Deliberately a topic id the content store does not know, rather than a real
+  // one that happens to lack questions today: this asserts the RULE, and stays
+  // true when the question bank grows. It previously used num.surds, which
+  // later gained a template and silently turned this check into a no-op.
   const undeliverable: EngineState = {
-    nodes: { 'num.surds': { status: 'mastered', last: '', next: '', reps: 4, dueAt: NOW - DAY } },
+    nodes: { 'num.not-a-real-topic': { status: 'mastered', last: '', next: '', reps: 4, dueAt: NOW - DAY } },
     masteryByTopic: {},
   }
   check('a review with no question bank behind it is never queued',

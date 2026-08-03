@@ -1713,6 +1713,1493 @@
       "boardStyle": null,
       "source": "ai",
       "status": "draft"
+    },
+    {
+      "id": "num.rounding.nearest.t01",
+      "topicId": "num.rounding",
+      "subtopicId": "num.rounding.nearest",
+      "familyId": "round-ten",
+      "difficulty": "foundations",
+      "params": [
+        {
+          "name": "t",
+          "min": 1,
+          "max": 99
+        },
+        {
+          "name": "u",
+          "min": 0,
+          "max": 9
+        }
+      ],
+      "constraints": [],
+      "prompt": "Round to the nearest 10",
+      "statement": "Round {10*t + u} to the nearest 10",
+      "answerLabel": "=",
+      "correctAnswer": "{round((10*t + u)/10)*10}",
+      "lines": [
+        {
+          "text": "{10*t + u}",
+          "note": "",
+          "prereqSubtopicIds": []
+        },
+        {
+          "text": "The digit in the units column is {u}",
+          "note": "5 or more rounds up, less rounds down",
+          "prereqSubtopicIds": []
+        },
+        {
+          "text": "= {round((10*t + u)/10)*10}",
+          "note": "",
+          "prereqSubtopicIds": []
+        }
+      ],
+      "errorLineIndex": 1,
+      "distractors": [
+        {
+          "text": "{10*t}",
+          "cause": "always rounded down instead of looking at the units digit"
+        },
+        {
+          "text": "{10*t + 10}",
+          "cause": "always rounded up"
+        },
+        {
+          "text": "{u}",
+          "cause": "gave the units digit rather than the rounded number"
+        }
+      ],
+      "boardStyle": null,
+      "source": "ai",
+      "status": "draft"
+    },
+    {
+      "id": "num.primes.hcf.t01",
+      "topicId": "num.primes",
+      "subtopicId": "num.primes.hcf",
+      "familyId": "hcf",
+      "difficulty": "core",
+      "params": [
+        {
+          "name": "g",
+          "min": 2,
+          "max": 12
+        },
+        {
+          "name": "a",
+          "min": 2,
+          "max": 9
+        },
+        {
+          "name": "b",
+          "min": 2,
+          "max": 9
+        }
+      ],
+      "constraints": [
+        "gcd(a, b) == 1",
+        "a != b"
+      ],
+      "prompt": "Find the highest common factor",
+      "statement": "HCF of {a*g} and {b*g}",
+      "answerLabel": "=",
+      "correctAnswer": "{g}",
+      "lines": [
+        {
+          "text": "{a*g} = {g} × {a}",
+          "note": "",
+          "prereqSubtopicIds": []
+        },
+        {
+          "text": "{b*g} = {g} × {b}",
+          "note": "{a} and {b} share no factor, so {g} is the largest common one",
+          "prereqSubtopicIds": []
+        },
+        {
+          "text": "HCF = {g}",
+          "note": "",
+          "prereqSubtopicIds": []
+        }
+      ],
+      "errorLineIndex": 1,
+      "distractors": [
+        {
+          "text": "{a*g*b}",
+          "cause": "multiplied the two numbers instead of finding a common factor"
+        },
+        {
+          "text": "{a*b}",
+          "cause": "gave the product of the leftover factors"
+        },
+        {
+          "text": "1",
+          "cause": "assumed the numbers share no factor"
+        }
+      ],
+      "boardStyle": null,
+      "source": "ai",
+      "status": "draft"
+    },
+    {
+      "id": "num.standard-form.write-large.t01",
+      "topicId": "num.standard-form",
+      "subtopicId": "num.standard-form.write-large",
+      "familyId": "to-standard",
+      "difficulty": "core",
+      "params": [
+        {
+          "name": "d",
+          "min": 1,
+          "max": 9
+        },
+        {
+          "name": "e",
+          "min": 3,
+          "max": 7
+        }
+      ],
+      "constraints": [],
+      "prompt": "Write in standard form",
+      "statement": "Write {d * pow(10, e)} in standard form",
+      "answerLabel": "=",
+      "correctAnswer": "{d} × 10^{e}",
+      "lines": [
+        {
+          "text": "{d * pow(10, e)}",
+          "note": "",
+          "prereqSubtopicIds": []
+        },
+        {
+          "text": "The first digit is {d}, and the point moves {e} places",
+          "note": "standard form is one digit, then a power of ten",
+          "prereqSubtopicIds": []
+        },
+        {
+          "text": "= {d} × 10^{e}",
+          "note": "",
+          "prereqSubtopicIds": []
+        }
+      ],
+      "errorLineIndex": 1,
+      "distractors": [
+        {
+          "text": "{d} × 10^{e + 1}",
+          "cause": "counted the digits rather than the places the point moves"
+        },
+        {
+          "text": "{d} × 10^{e - 1}",
+          "cause": "moved the point one place too few"
+        },
+        {
+          "text": "{d * pow(10, e)} × 10",
+          "cause": "left the number unchanged and added a power of ten"
+        }
+      ],
+      "boardStyle": null,
+      "source": "ai",
+      "status": "draft"
+    },
+    {
+      "id": "num.surds.simplify.t01",
+      "topicId": "num.surds",
+      "subtopicId": "num.surds.simplify",
+      "familyId": "simplify-surd",
+      "difficulty": "stretch",
+      "params": [
+        {
+          "name": "k",
+          "min": 2,
+          "max": 6
+        },
+        {
+          "name": "m",
+          "min": 2,
+          "max": 10
+        }
+      ],
+      "constraints": [
+        "m != 4",
+        "m != 8",
+        "m != 9"
+      ],
+      "prompt": "Simplify the surd",
+      "statement": "√{k*k*m}",
+      "answerLabel": "=",
+      "correctAnswer": "{k}√{m}",
+      "lines": [
+        {
+          "text": "√{k*k*m}",
+          "note": "",
+          "prereqSubtopicIds": []
+        },
+        {
+          "text": "{k*k*m} = {k*k} × {m}, and {k*k} is a square number",
+          "note": "split out the largest square factor",
+          "prereqSubtopicIds": []
+        },
+        {
+          "text": "= √{k*k} × √{m} = {k}√{m}",
+          "note": "",
+          "prereqSubtopicIds": []
+        }
+      ],
+      "errorLineIndex": 1,
+      "distractors": [
+        {
+          "text": "{k*k}√{m}",
+          "cause": "brought the square number out without square-rooting it"
+        },
+        {
+          "text": "{k}√{k*m}",
+          "cause": "left a factor of {k} under the root"
+        },
+        {
+          "text": "√{k*m}",
+          "cause": "divided instead of factorising"
+        }
+      ],
+      "boardStyle": null,
+      "source": "ai",
+      "status": "draft"
+    },
+    {
+      "id": "alg.notation.implicit-multiply.t01",
+      "topicId": "alg.notation",
+      "subtopicId": "alg.notation.implicit-multiply",
+      "familyId": "tidy-product",
+      "difficulty": "foundations",
+      "params": [
+        {
+          "name": "a",
+          "min": 2,
+          "max": 9
+        },
+        {
+          "name": "b",
+          "min": 2,
+          "max": 9
+        }
+      ],
+      "constraints": [],
+      "prompt": "Write it more simply",
+      "statement": "{a} × p × {b} × q",
+      "answerLabel": "=",
+      "correctAnswer": "{a*b}pq",
+      "lines": [
+        {
+          "text": "{a} × p × {b} × q",
+          "note": "",
+          "prereqSubtopicIds": []
+        },
+        {
+          "text": "Multiply the numbers: {a} × {b} = {a*b}",
+          "note": "the letters just sit alongside",
+          "prereqSubtopicIds": []
+        },
+        {
+          "text": "= {a*b}pq",
+          "note": "",
+          "prereqSubtopicIds": []
+        }
+      ],
+      "errorLineIndex": 1,
+      "distractors": [
+        {
+          "text": "{a + b}pq",
+          "cause": "added the numbers instead of multiplying"
+        },
+        {
+          "text": "{a}{b}pq",
+          "cause": "wrote the digits side by side"
+        },
+        {
+          "text": "{a*b}p",
+          "cause": "dropped the q"
+        }
+      ],
+      "boardStyle": null,
+      "source": "ai",
+      "status": "draft"
+    },
+    {
+      "id": "alg.simplifying.collect-like-terms.t01",
+      "topicId": "alg.simplifying",
+      "subtopicId": "alg.simplifying.collect-like-terms",
+      "familyId": "collect",
+      "difficulty": "foundations",
+      "params": [
+        {
+          "name": "a",
+          "min": 2,
+          "max": 9
+        },
+        {
+          "name": "b",
+          "min": 2,
+          "max": 9
+        },
+        {
+          "name": "c",
+          "min": 2,
+          "max": 9
+        }
+      ],
+      "constraints": [],
+      "prompt": "Simplify",
+      "statement": "{a}x + {b}y + {c}x",
+      "answerLabel": "=",
+      "correctAnswer": "{a + c}x + {b}y",
+      "lines": [
+        {
+          "text": "{a}x + {b}y + {c}x",
+          "note": "",
+          "prereqSubtopicIds": []
+        },
+        {
+          "text": "The x terms are like terms: {a}x + {c}x = {a + c}x",
+          "note": "only add terms with the same letter",
+          "prereqSubtopicIds": []
+        },
+        {
+          "text": "= {a + c}x + {b}y",
+          "note": "",
+          "prereqSubtopicIds": []
+        }
+      ],
+      "errorLineIndex": 1,
+      "distractors": [
+        {
+          "text": "{a + b + c}xy",
+          "cause": "added everything and merged the letters"
+        },
+        {
+          "text": "{a + c}x",
+          "cause": "dropped the y term"
+        },
+        {
+          "text": "{a + b}x + {c}y",
+          "cause": "collected the wrong pair"
+        }
+      ],
+      "boardStyle": null,
+      "source": "ai",
+      "status": "draft"
+    },
+    {
+      "id": "alg.factorising.common-factor.t01",
+      "topicId": "alg.factorising",
+      "subtopicId": "alg.factorising.common-factor",
+      "familyId": "factorise-single",
+      "difficulty": "core",
+      "params": [
+        {
+          "name": "a",
+          "min": 2,
+          "max": 9
+        },
+        {
+          "name": "b",
+          "min": 2,
+          "max": 9
+        },
+        {
+          "name": "c",
+          "min": 1,
+          "max": 9
+        }
+      ],
+      "constraints": [
+        "gcd(b, c) == 1"
+      ],
+      "prompt": "Factorise",
+      "statement": "{a*b}x + {a*c}",
+      "answerLabel": "=",
+      "correctAnswer": "{a}({b}x + {c})",
+      "lines": [
+        {
+          "text": "{a*b}x + {a*c}",
+          "note": "",
+          "prereqSubtopicIds": []
+        },
+        {
+          "text": "Both terms divide by {a}",
+          "note": "take the highest common factor outside",
+          "prereqSubtopicIds": []
+        },
+        {
+          "text": "= {a}({b}x + {c})",
+          "note": "",
+          "prereqSubtopicIds": []
+        }
+      ],
+      "errorLineIndex": 1,
+      "distractors": [
+        {
+          "text": "{a}({a*b}x + {a*c})",
+          "cause": "took the factor out but left the terms unchanged"
+        },
+        {
+          "text": "{a*b}(x + {c})",
+          "cause": "used the wrong common factor"
+        },
+        {
+          "text": "{a}({b}x − {c})",
+          "cause": "flipped the sign inside the bracket"
+        }
+      ],
+      "boardStyle": null,
+      "source": "ai",
+      "status": "draft"
+    },
+    {
+      "id": "alg.sequences.nth-term-linear.t01",
+      "topicId": "alg.sequences",
+      "subtopicId": "alg.sequences.nth-term-linear",
+      "familyId": "nth-term",
+      "difficulty": "core",
+      "params": [
+        {
+          "name": "d",
+          "min": 2,
+          "max": 9
+        },
+        {
+          "name": "a",
+          "min": 1,
+          "max": 12
+        }
+      ],
+      "constraints": [],
+      "prompt": "Find the nth term",
+      "statement": "{a + d}, {a + 2*d}, {a + 3*d}, {a + 4*d}, ...",
+      "answerLabel": "=",
+      "correctAnswer": "{d}n + {a}",
+      "lines": [
+        {
+          "text": "{a + d}, {a + 2*d}, {a + 3*d}, {a + 4*d}",
+          "note": "",
+          "prereqSubtopicIds": []
+        },
+        {
+          "text": "Each term goes up by {d}, so the rule starts {d}n",
+          "note": "the common difference is the coefficient of n",
+          "prereqSubtopicIds": []
+        },
+        {
+          "text": "{d} × 1 = {d}, and the first term is {a + d}, so add {a}",
+          "note": "",
+          "prereqSubtopicIds": []
+        },
+        {
+          "text": "= {d}n + {a}",
+          "note": "",
+          "prereqSubtopicIds": []
+        }
+      ],
+      "errorLineIndex": 1,
+      "distractors": [
+        {
+          "text": "{d}n",
+          "cause": "found the difference but never adjusted to the first term"
+        },
+        {
+          "text": "{a + d}n",
+          "cause": "used the first term as the coefficient"
+        },
+        {
+          "text": "{d}n − {a}",
+          "cause": "subtracted the adjustment instead of adding it"
+        }
+      ],
+      "boardStyle": null,
+      "source": "ai",
+      "status": "draft"
+    },
+    {
+      "id": "alg.inequalities.solve-linear.t01",
+      "topicId": "alg.inequalities",
+      "subtopicId": "alg.inequalities.solve-linear",
+      "familyId": "solve-inequality",
+      "difficulty": "core",
+      "params": [
+        {
+          "name": "a",
+          "min": 2,
+          "max": 9
+        },
+        {
+          "name": "x",
+          "min": 2,
+          "max": 12
+        }
+      ],
+      "constraints": [],
+      "prompt": "Solve the inequality",
+      "statement": "{a}x > {a*x}",
+      "answerLabel": "=",
+      "correctAnswer": "x > {x}",
+      "lines": [
+        {
+          "text": "{a}x > {a*x}",
+          "note": "",
+          "prereqSubtopicIds": []
+        },
+        {
+          "text": "Divide both sides by {a}",
+          "note": "dividing by a positive keeps the sign the same way round",
+          "prereqSubtopicIds": []
+        },
+        {
+          "text": "x > {x}",
+          "note": "",
+          "prereqSubtopicIds": []
+        }
+      ],
+      "errorLineIndex": 1,
+      "distractors": [
+        {
+          "text": "x < {x}",
+          "cause": "flipped the inequality even though {a} is positive"
+        },
+        {
+          "text": "x > {a*x}",
+          "cause": "never divided by {a}"
+        },
+        {
+          "text": "x > {a*x*a}",
+          "cause": "multiplied by {a} instead of dividing"
+        }
+      ],
+      "boardStyle": null,
+      "source": "ai",
+      "status": "draft"
+    },
+    {
+      "id": "alg.quadratics.expand-double.t01",
+      "topicId": "alg.quadratics",
+      "subtopicId": "alg.quadratics.expand-double",
+      "familyId": "expand-double",
+      "difficulty": "stretch",
+      "params": [
+        {
+          "name": "a",
+          "min": 1,
+          "max": 9
+        },
+        {
+          "name": "b",
+          "min": 1,
+          "max": 9
+        }
+      ],
+      "constraints": [],
+      "prompt": "Expand and simplify",
+      "statement": "(x + {a})(x + {b})",
+      "answerLabel": "=",
+      "correctAnswer": "x² + {a + b}x + {a*b}",
+      "lines": [
+        {
+          "text": "(x + {a})(x + {b})",
+          "note": "",
+          "prereqSubtopicIds": []
+        },
+        {
+          "text": "x × x = x², x × {b} = {b}x, {a} × x = {a}x, {a} × {b} = {a*b}",
+          "note": "multiply every term in the first bracket by every term in the second",
+          "prereqSubtopicIds": []
+        },
+        {
+          "text": "Collect the x terms: {b}x + {a}x = {a + b}x",
+          "note": "",
+          "prereqSubtopicIds": []
+        },
+        {
+          "text": "= x² + {a + b}x + {a*b}",
+          "note": "",
+          "prereqSubtopicIds": []
+        }
+      ],
+      "errorLineIndex": 2,
+      "distractors": [
+        {
+          "text": "x² + {a*b}x + {a + b}",
+          "cause": "swapped the roles of the sum and the product"
+        },
+        {
+          "text": "x² + {a + b}",
+          "cause": "forgot the x term entirely"
+        },
+        {
+          "text": "x² + {a*b}",
+          "cause": "multiplied only the first and last terms"
+        }
+      ],
+      "boardStyle": null,
+      "source": "ai",
+      "status": "draft"
+    },
+    {
+      "id": "geo.angles.name-types.t01",
+      "topicId": "geo.angles",
+      "subtopicId": "geo.angles.name-types",
+      "familyId": "straight-line",
+      "difficulty": "foundations",
+      "params": [
+        {
+          "name": "a",
+          "min": 20,
+          "max": 160
+        }
+      ],
+      "constraints": [],
+      "prompt": "Find the missing angle",
+      "statement": "Two angles sit on a straight line. One is {a}°. What is the other?",
+      "answerLabel": "=",
+      "correctAnswer": "{180 - a}°",
+      "lines": [
+        {
+          "text": "Angles on a straight line add to 180°",
+          "note": "",
+          "prereqSubtopicIds": []
+        },
+        {
+          "text": "180 − {a}",
+          "note": "subtract the angle you know",
+          "prereqSubtopicIds": []
+        },
+        {
+          "text": "= {180 - a}°",
+          "note": "",
+          "prereqSubtopicIds": []
+        }
+      ],
+      "errorLineIndex": 1,
+      "distractors": [
+        {
+          "text": "{360 - a}°",
+          "cause": "used 360° (a full turn) instead of 180°"
+        },
+        {
+          "text": "{90 - a}°",
+          "cause": "used 90° instead of 180°"
+        },
+        {
+          "text": "{a}°",
+          "cause": "repeated the angle that was given"
+        }
+      ],
+      "boardStyle": null,
+      "source": "ai",
+      "status": "draft"
+    },
+    {
+      "id": "geo.area.rectangle.t01",
+      "topicId": "geo.area",
+      "subtopicId": "geo.area.rectangle",
+      "familyId": "rect-area",
+      "difficulty": "foundations",
+      "params": [
+        {
+          "name": "w",
+          "min": 2,
+          "max": 15
+        },
+        {
+          "name": "h",
+          "min": 2,
+          "max": 15
+        }
+      ],
+      "constraints": [],
+      "prompt": "Find the area",
+      "statement": "A rectangle is {w}cm by {h}cm",
+      "answerLabel": "=",
+      "correctAnswer": "{w*h}cm²",
+      "lines": [
+        {
+          "text": "Area = width × height",
+          "note": "",
+          "prereqSubtopicIds": []
+        },
+        {
+          "text": "{w} × {h}",
+          "note": "",
+          "prereqSubtopicIds": []
+        },
+        {
+          "text": "= {w*h}cm²",
+          "note": "",
+          "prereqSubtopicIds": []
+        }
+      ],
+      "errorLineIndex": 1,
+      "distractors": [
+        {
+          "text": "{2*w + 2*h}cm²",
+          "cause": "found the perimeter instead of the area"
+        },
+        {
+          "text": "{w + h}cm²",
+          "cause": "added the sides instead of multiplying"
+        },
+        {
+          "text": "{w*h*2}cm²",
+          "cause": "doubled the area"
+        }
+      ],
+      "boardStyle": null,
+      "source": "ai",
+      "status": "draft"
+    },
+    {
+      "id": "geo.linear-graphs.table-of-values.t01",
+      "topicId": "geo.linear-graphs",
+      "subtopicId": "geo.linear-graphs.table-of-values",
+      "familyId": "value-from-rule",
+      "difficulty": "core",
+      "params": [
+        {
+          "name": "m",
+          "min": 2,
+          "max": 9
+        },
+        {
+          "name": "c",
+          "min": 1,
+          "max": 12
+        },
+        {
+          "name": "v",
+          "min": 2,
+          "max": 10
+        }
+      ],
+      "constraints": [],
+      "prompt": "Find y",
+      "statement": "For y = {m}x + {c}, what is y when x = {v}?",
+      "answerLabel": "y =",
+      "correctAnswer": "{m*v + c}",
+      "lines": [
+        {
+          "text": "y = {m}x + {c}",
+          "note": "",
+          "prereqSubtopicIds": []
+        },
+        {
+          "text": "y = {m} × {v} + {c}",
+          "note": "substitute x = {v}",
+          "prereqSubtopicIds": []
+        },
+        {
+          "text": "= {m*v} + {c}",
+          "note": "",
+          "prereqSubtopicIds": []
+        },
+        {
+          "text": "= {m*v + c}",
+          "note": "",
+          "prereqSubtopicIds": []
+        }
+      ],
+      "errorLineIndex": 1,
+      "distractors": [
+        {
+          "text": "{m + v + c}",
+          "cause": "added the gradient to x instead of multiplying"
+        },
+        {
+          "text": "{m*v}",
+          "cause": "forgot the + {c}"
+        },
+        {
+          "text": "{m*(v + c)}",
+          "cause": "added {c} before multiplying"
+        }
+      ],
+      "boardStyle": null,
+      "source": "ai",
+      "status": "draft"
+    },
+    {
+      "id": "geo.polygons.name-by-sides.t01",
+      "topicId": "geo.polygons",
+      "subtopicId": "geo.polygons.name-by-sides",
+      "familyId": "angle-sum",
+      "difficulty": "core",
+      "params": [
+        {
+          "name": "n",
+          "min": 3,
+          "max": 25
+        }
+      ],
+      "constraints": [],
+      "prompt": "Find the interior angle sum",
+      "statement": "A polygon has {n} sides",
+      "answerLabel": "=",
+      "correctAnswer": "{(n - 2)*180}°",
+      "lines": [
+        {
+          "text": "Split the polygon into triangles from one corner",
+          "note": "",
+          "prereqSubtopicIds": []
+        },
+        {
+          "text": "{n} sides gives {n - 2} triangles, each 180°",
+          "note": "sum = (n − 2) × 180",
+          "prereqSubtopicIds": []
+        },
+        {
+          "text": "= {(n - 2)*180}°",
+          "note": "",
+          "prereqSubtopicIds": []
+        }
+      ],
+      "errorLineIndex": 1,
+      "distractors": [
+        {
+          "text": "{n*180}°",
+          "cause": "multiplied by the number of sides rather than sides minus two"
+        },
+        {
+          "text": "{(n - 2)*90}°",
+          "cause": "used 90° per triangle instead of 180°"
+        },
+        {
+          "text": "360°",
+          "cause": "gave the exterior angle sum instead"
+        }
+      ],
+      "boardStyle": null,
+      "source": "ai",
+      "status": "draft"
+    },
+    {
+      "id": "geo.volume.cube-cuboid.t01",
+      "topicId": "geo.volume",
+      "subtopicId": "geo.volume.cube-cuboid",
+      "familyId": "cuboid-volume",
+      "difficulty": "core",
+      "params": [
+        {
+          "name": "a",
+          "min": 2,
+          "max": 9
+        },
+        {
+          "name": "b",
+          "min": 2,
+          "max": 9
+        },
+        {
+          "name": "c",
+          "min": 2,
+          "max": 9
+        }
+      ],
+      "constraints": [],
+      "prompt": "Find the volume",
+      "statement": "A cuboid is {a}cm × {b}cm × {c}cm",
+      "answerLabel": "=",
+      "correctAnswer": "{a*b*c}cm³",
+      "lines": [
+        {
+          "text": "Volume = length × width × height",
+          "note": "",
+          "prereqSubtopicIds": []
+        },
+        {
+          "text": "{a} × {b} × {c}",
+          "note": "",
+          "prereqSubtopicIds": []
+        },
+        {
+          "text": "= {a*b*c}cm³",
+          "note": "",
+          "prereqSubtopicIds": []
+        }
+      ],
+      "errorLineIndex": 1,
+      "distractors": [
+        {
+          "text": "{a + b + c}cm³",
+          "cause": "added the three lengths"
+        },
+        {
+          "text": "{2*(a*b + b*c + a*c)}cm³",
+          "cause": "found the surface area instead"
+        },
+        {
+          "text": "{a*b}cm³",
+          "cause": "multiplied only two of the three dimensions"
+        }
+      ],
+      "boardStyle": null,
+      "source": "ai",
+      "status": "draft"
+    },
+    {
+      "id": "geo.transformations.translation.t01",
+      "topicId": "geo.transformations",
+      "subtopicId": "geo.transformations.translation",
+      "familyId": "translate",
+      "difficulty": "core",
+      "params": [
+        {
+          "name": "x",
+          "min": -8,
+          "max": 8
+        },
+        {
+          "name": "y",
+          "min": -8,
+          "max": 8
+        },
+        {
+          "name": "dx",
+          "min": -6,
+          "max": 6
+        },
+        {
+          "name": "dy",
+          "min": -6,
+          "max": 6
+        }
+      ],
+      "constraints": [
+        "dx != 0",
+        "dy != 0"
+      ],
+      "prompt": "Find the image",
+      "statement": "Translate ({x}, {y}) by ({dx}, {dy})",
+      "answerLabel": "=",
+      "correctAnswer": "({x + dx}, {y + dy})",
+      "lines": [
+        {
+          "text": "Start at ({x}, {y})",
+          "note": "",
+          "prereqSubtopicIds": []
+        },
+        {
+          "text": "x: {x} + {dx} = {x + dx}",
+          "note": "add the translation to each coordinate",
+          "prereqSubtopicIds": []
+        },
+        {
+          "text": "y: {y} + {dy} = {y + dy}",
+          "note": "",
+          "prereqSubtopicIds": []
+        },
+        {
+          "text": "= ({x + dx}, {y + dy})",
+          "note": "",
+          "prereqSubtopicIds": []
+        }
+      ],
+      "errorLineIndex": 1,
+      "distractors": [
+        {
+          "text": "({x - dx}, {y - dy})",
+          "cause": "translated in the opposite direction"
+        },
+        {
+          "text": "({dx}, {dy})",
+          "cause": "gave the translation rather than the image"
+        },
+        {
+          "text": "({y + dy}, {x + dx})",
+          "cause": "swapped the coordinates"
+        }
+      ],
+      "boardStyle": null,
+      "source": "ai",
+      "status": "draft"
+    },
+    {
+      "id": "geo.pythagoras.find-hypotenuse.t01",
+      "topicId": "geo.pythagoras",
+      "subtopicId": "geo.pythagoras.find-hypotenuse",
+      "familyId": "triple",
+      "difficulty": "stretch",
+      "params": [
+        {
+          "name": "k",
+          "min": 1,
+          "max": 24
+        }
+      ],
+      "constraints": [],
+      "prompt": "Find the hypotenuse",
+      "statement": "A right-angled triangle has shorter sides {3*k}cm and {4*k}cm",
+      "answerLabel": "=",
+      "correctAnswer": "{5*k}cm",
+      "lines": [
+        {
+          "text": "a² + b² = c²",
+          "note": "",
+          "prereqSubtopicIds": []
+        },
+        {
+          "text": "{3*k}² + {4*k}² = {9*k*k} + {16*k*k} = {25*k*k}",
+          "note": "square both shorter sides and add",
+          "prereqSubtopicIds": []
+        },
+        {
+          "text": "c = √{25*k*k} = {5*k}",
+          "note": "",
+          "prereqSubtopicIds": []
+        },
+        {
+          "text": "= {5*k}cm",
+          "note": "",
+          "prereqSubtopicIds": []
+        }
+      ],
+      "errorLineIndex": 1,
+      "distractors": [
+        {
+          "text": "{7*k}cm",
+          "cause": "added the two sides instead of using Pythagoras"
+        },
+        {
+          "text": "{25*k*k}cm",
+          "cause": "gave c² without square-rooting"
+        },
+        {
+          "text": "{k}cm",
+          "cause": "subtracted the sides"
+        }
+      ],
+      "boardStyle": null,
+      "source": "ai",
+      "status": "draft"
+    },
+    {
+      "id": "geo.circles.circumference.t01",
+      "topicId": "geo.circles",
+      "subtopicId": "geo.circles.circumference",
+      "familyId": "circumference",
+      "difficulty": "core",
+      "params": [
+        {
+          "name": "r",
+          "min": 2,
+          "max": 30
+        }
+      ],
+      "constraints": [],
+      "prompt": "Find the circumference in terms of π",
+      "statement": "A circle has radius {r}cm",
+      "answerLabel": "=",
+      "correctAnswer": "{2*r}πcm",
+      "lines": [
+        {
+          "text": "Circumference = 2πr",
+          "note": "",
+          "prereqSubtopicIds": []
+        },
+        {
+          "text": "2 × π × {r}",
+          "note": "",
+          "prereqSubtopicIds": []
+        },
+        {
+          "text": "= {2*r}πcm",
+          "note": "",
+          "prereqSubtopicIds": []
+        }
+      ],
+      "errorLineIndex": 1,
+      "distractors": [
+        {
+          "text": "{r*r}πcm",
+          "cause": "used the area formula πr² instead"
+        },
+        {
+          "text": "{r}πcm",
+          "cause": "forgot to double the radius"
+        },
+        {
+          "text": "{4*r}πcm",
+          "cause": "doubled the diameter rather than the radius"
+        }
+      ],
+      "boardStyle": null,
+      "source": "ai",
+      "status": "draft"
+    },
+    {
+      "id": "stat.charts.tally-frequency.t01",
+      "topicId": "stat.charts",
+      "subtopicId": "stat.charts.tally-frequency",
+      "familyId": "total-frequency",
+      "difficulty": "foundations",
+      "params": [
+        {
+          "name": "a",
+          "min": 2,
+          "max": 15
+        },
+        {
+          "name": "b",
+          "min": 2,
+          "max": 15
+        },
+        {
+          "name": "c",
+          "min": 2,
+          "max": 15
+        }
+      ],
+      "constraints": [],
+      "prompt": "Find the total frequency",
+      "statement": "A tally chart shows {a}, {b} and {c}",
+      "answerLabel": "=",
+      "correctAnswer": "{a + b + c}",
+      "lines": [
+        {
+          "text": "Add every frequency",
+          "note": "",
+          "prereqSubtopicIds": []
+        },
+        {
+          "text": "{a} + {b} + {c}",
+          "note": "",
+          "prereqSubtopicIds": []
+        },
+        {
+          "text": "= {a + b + c}",
+          "note": "",
+          "prereqSubtopicIds": []
+        }
+      ],
+      "errorLineIndex": 1,
+      "distractors": [
+        {
+          "text": "{max(a, max(b, c))}",
+          "cause": "gave the largest category instead of the total"
+        },
+        {
+          "text": "{a*b*c}",
+          "cause": "multiplied the frequencies"
+        },
+        {
+          "text": "3",
+          "cause": "counted the categories rather than the frequencies"
+        }
+      ],
+      "boardStyle": null,
+      "source": "ai",
+      "status": "draft"
+    },
+    {
+      "id": "stat.averages.mean.t01",
+      "topicId": "stat.averages",
+      "subtopicId": "stat.averages.mean",
+      "familyId": "mean-three",
+      "difficulty": "core",
+      "params": [
+        {
+          "name": "m",
+          "min": 4,
+          "max": 20
+        },
+        {
+          "name": "d",
+          "min": 1,
+          "max": 3
+        }
+      ],
+      "constraints": [],
+      "prompt": "Find the mean",
+      "statement": "{m - d}, {m}, {m + d}",
+      "answerLabel": "=",
+      "correctAnswer": "{m}",
+      "lines": [
+        {
+          "text": "Add them: {m - d} + {m} + {m + d} = {3*m}",
+          "note": "",
+          "prereqSubtopicIds": []
+        },
+        {
+          "text": "Divide by how many there are: {3*m} ÷ 3",
+          "note": "the mean is the total shared equally",
+          "prereqSubtopicIds": []
+        },
+        {
+          "text": "= {m}",
+          "note": "",
+          "prereqSubtopicIds": []
+        }
+      ],
+      "errorLineIndex": 1,
+      "distractors": [
+        {
+          "text": "{3*m}",
+          "cause": "gave the total without dividing"
+        },
+        {
+          "text": "{2*d}",
+          "cause": "gave the range instead of the mean"
+        },
+        {
+          "text": "{m + d}",
+          "cause": "gave the largest value"
+        }
+      ],
+      "boardStyle": null,
+      "source": "ai",
+      "status": "draft"
+    },
+    {
+      "id": "stat.spread.range.t01",
+      "topicId": "stat.spread",
+      "subtopicId": "stat.spread.range",
+      "familyId": "range-three",
+      "difficulty": "foundations",
+      "params": [
+        {
+          "name": "p",
+          "min": 1,
+          "max": 20
+        },
+        {
+          "name": "r",
+          "min": 2,
+          "max": 15
+        },
+        {
+          "name": "q",
+          "min": 1,
+          "max": 10
+        }
+      ],
+      "constraints": [
+        "q < r"
+      ],
+      "prompt": "Find the range",
+      "statement": "{p}, {p + q}, {p + r}",
+      "answerLabel": "=",
+      "correctAnswer": "{r}",
+      "lines": [
+        {
+          "text": "The largest is {p + r} and the smallest is {p}",
+          "note": "",
+          "prereqSubtopicIds": []
+        },
+        {
+          "text": "{p + r} − {p}",
+          "note": "the range is largest minus smallest",
+          "prereqSubtopicIds": []
+        },
+        {
+          "text": "= {r}",
+          "note": "",
+          "prereqSubtopicIds": []
+        }
+      ],
+      "errorLineIndex": 1,
+      "distractors": [
+        {
+          "text": "{p + r}",
+          "cause": "gave the largest value instead of the difference"
+        },
+        {
+          "text": "{q}",
+          "cause": "used the middle value rather than the largest"
+        },
+        {
+          "text": "{3*p + q + r}",
+          "cause": "added all three values"
+        }
+      ],
+      "boardStyle": null,
+      "source": "ai",
+      "status": "draft"
+    },
+    {
+      "id": "stat.probability.single-event.t01",
+      "topicId": "stat.probability",
+      "subtopicId": "stat.probability.single-event",
+      "familyId": "single-event",
+      "difficulty": "core",
+      "params": [
+        {
+          "name": "r",
+          "min": 1,
+          "max": 9
+        },
+        {
+          "name": "b",
+          "min": 1,
+          "max": 9
+        }
+      ],
+      "constraints": [
+        "gcd(r, b) == 1"
+      ],
+      "prompt": "Find the probability",
+      "statement": "A bag has {r} red and {b} blue counters. P(red)?",
+      "answerLabel": "=",
+      "correctAnswer": "{r}/{r + b}",
+      "lines": [
+        {
+          "text": "There are {r} red out of {r + b} altogether",
+          "note": "",
+          "prereqSubtopicIds": []
+        },
+        {
+          "text": "P(red) = {r}/{r + b}",
+          "note": "probability is the wanted outcomes over the total",
+          "prereqSubtopicIds": []
+        },
+        {
+          "text": "= {r}/{r + b}",
+          "note": "",
+          "prereqSubtopicIds": []
+        }
+      ],
+      "errorLineIndex": 1,
+      "distractors": [
+        {
+          "text": "{r}/{b}",
+          "cause": "compared red to blue instead of to the total"
+        },
+        {
+          "text": "{b}/{r + b}",
+          "cause": "gave the probability of blue"
+        },
+        {
+          "text": "{r + b}",
+          "cause": "gave the total rather than a probability"
+        }
+      ],
+      "boardStyle": null,
+      "source": "ai",
+      "status": "draft"
+    },
+    {
+      "id": "stat.scatter.line-of-best-fit.t01",
+      "topicId": "stat.scatter",
+      "subtopicId": "stat.scatter.line-of-best-fit",
+      "familyId": "predict",
+      "difficulty": "core",
+      "params": [
+        {
+          "name": "m",
+          "min": 2,
+          "max": 8
+        },
+        {
+          "name": "c",
+          "min": 1,
+          "max": 12
+        },
+        {
+          "name": "v",
+          "min": 2,
+          "max": 10
+        }
+      ],
+      "constraints": [],
+      "prompt": "Use the line of best fit",
+      "statement": "The line of best fit is y = {m}x + {c}. Estimate y when x = {v}",
+      "answerLabel": "y =",
+      "correctAnswer": "{m*v + c}",
+      "lines": [
+        {
+          "text": "y = {m}x + {c}",
+          "note": "",
+          "prereqSubtopicIds": []
+        },
+        {
+          "text": "y = {m} × {v} + {c}",
+          "note": "read the value off the line by substituting",
+          "prereqSubtopicIds": []
+        },
+        {
+          "text": "= {m*v + c}",
+          "note": "",
+          "prereqSubtopicIds": []
+        }
+      ],
+      "errorLineIndex": 1,
+      "distractors": [
+        {
+          "text": "{m + v + c}",
+          "cause": "added instead of multiplying"
+        },
+        {
+          "text": "{m*v}",
+          "cause": "forgot the + {c}"
+        },
+        {
+          "text": "{v}",
+          "cause": "gave the x value back"
+        }
+      ],
+      "boardStyle": null,
+      "source": "ai",
+      "status": "draft"
+    },
+    {
+      "id": "stat.trees.multiply-along.t01",
+      "topicId": "stat.trees",
+      "subtopicId": "stat.trees.multiply-along",
+      "familyId": "two-stage",
+      "difficulty": "stretch",
+      "params": [
+        {
+          "name": "a",
+          "min": 1,
+          "max": 9
+        },
+        {
+          "name": "b",
+          "min": 1,
+          "max": 9
+        }
+      ],
+      "constraints": [],
+      "prompt": "Find the probability of both",
+      "statement": "P(A) = {a}/10 and P(B) = {b}/10, independent. P(A and B)?",
+      "answerLabel": "=",
+      "correctAnswer": "{a*b}/100",
+      "lines": [
+        {
+          "text": "Multiply along the branches",
+          "note": "",
+          "prereqSubtopicIds": []
+        },
+        {
+          "text": "{a}/10 × {b}/10",
+          "note": "for independent events, multiply the probabilities",
+          "prereqSubtopicIds": []
+        },
+        {
+          "text": "= {a*b}/100",
+          "note": "",
+          "prereqSubtopicIds": []
+        }
+      ],
+      "errorLineIndex": 1,
+      "distractors": [
+        {
+          "text": "{a + b}/10",
+          "cause": "added the probabilities instead of multiplying"
+        },
+        {
+          "text": "{a + b}/20",
+          "cause": "added both the tops and the bottoms"
+        },
+        {
+          "text": "{a*b}/10",
+          "cause": "multiplied the tops but not the bottoms"
+        }
+      ],
+      "boardStyle": null,
+      "source": "ai",
+      "status": "draft"
     }
   ]
 }
