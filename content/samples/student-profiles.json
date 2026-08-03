@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "kind": "student-profile",
+  "items": [
+    {
+      "studentId": "aisha",
+      "whereToStart": [
+        "At the linear-equations frontier, but rearranging is a memorised ritual, not understood.",
+        "Likely root cause: the prerequisite - inverse operations (substitution) - never became solid.",
+        "Best next move: a short re-teach of that step, not more equation practice."
+      ],
+      "pace": [
+        { "label": "Ratio & proportion", "topicId": null, "tag": "Ahead · +1 term", "kind": "ahead", "actual": 0.88, "expected": 0.6 },
+        { "label": "Negatives", "topicId": "num.negatives", "tag": "Ahead", "kind": "ahead", "actual": 1, "expected": 0.9 },
+        { "label": "Fractions & %", "topicId": "num.fractions-to-percent", "tag": "On pace", "kind": "onpace", "actual": 0.78, "expected": 0.75 },
+        { "label": "Algebra basics", "topicId": "alg.basics", "tag": "Behind", "kind": "behind", "actual": 0.55, "expected": 0.78 },
+        { "label": "Linear equations", "topicId": "alg.linear", "tag": "Behind · ½ term", "kind": "behind", "actual": 0.32, "expected": 0.7 }
+      ],
+      "mastery": [
+        { "label": "Negatives", "topicId": "num.negatives", "foundations": 1, "core": 0.9, "stretch": 0.6 },
+        { "label": "Substitution", "topicId": "alg.substitution", "foundations": 0.8, "core": 0.4, "stretch": 0 },
+        { "label": "Linear equations", "topicId": "alg.linear", "foundations": 0.5, "core": 0.15, "stretch": 0 },
+        { "label": "Fractions & %", "topicId": "num.fractions-to-percent", "foundations": 0.95, "core": 0.75, "stretch": 0.4 }
+      ],
+      "workingOnNow": { "label": "Linear equations", "topicId": "alg.linear", "detail": "Two-step equations with the unknown on one side.", "note": "Scaffolding is still high here - hints show full worked steps, and will fade automatically as her mastery of this topic rises." }
+    },
+    {
+      "studentId": "daniel",
+      "whereToStart": [
+        "Plateaued on Fractions → % for two weeks - accuracy looks fine, but only on the easy items.",
+        "Likely root cause: an ineffective practice pattern - he clears simple conversions and avoids the harder non-calculator ones, so his average overstates his real mastery.",
+        "Best next move: graded, must-attempt-in-order practice on the harder items, not free choice of what to practise."
+      ],
+      "pace": [
+        { "label": "Negatives", "topicId": "num.negatives", "tag": "Ahead", "kind": "ahead", "actual": 0.95, "expected": 0.85 },
+        { "label": "Algebra basics", "topicId": "alg.basics", "tag": "On pace", "kind": "onpace", "actual": 0.7, "expected": 0.72 },
+        { "label": "Fractions & %", "topicId": "num.fractions-to-percent", "tag": "Behind · stalled", "kind": "behind", "actual": 0.42, "expected": 0.75 },
+        { "label": "Substitution", "topicId": "alg.substitution", "tag": "Behind", "kind": "behind", "actual": 0.35, "expected": 0.55 }
+      ],
+      "mastery": [
+        { "label": "Negatives", "topicId": "num.negatives", "foundations": 1, "core": 0.85, "stretch": 0.5 },
+        { "label": "Fractions & %", "topicId": "num.fractions-to-percent", "foundations": 0.95, "core": 0.3, "stretch": 0 },
+        { "label": "Algebra basics", "topicId": "alg.basics", "foundations": 0.85, "core": 0.5, "stretch": 0.1 },
+        { "label": "Substitution", "topicId": "alg.substitution", "foundations": 0.6, "core": 0.2, "stretch": 0 }
+      ],
+      "workingOnNow": { "label": "Fractions → %", "topicId": "num.fractions-to-percent", "detail": "Harder non-calculator conversions - the items he currently avoids.", "note": "Deliberately routing him into these rather than letting him choose, since free choice is exactly how the plateau happened." }
+    },
+    {
+      "studentId": "reuben",
+      "whereToStart": [
+        "Only 2 sessions logged on Substitution this fortnight - the gap itself is the signal, not a specific misconception.",
+        "Likely root cause: low practice volume. He's accurate when he's actually working on it, so this isn't a knowledge gap so much as it not being durable yet.",
+        "Best next move: a couple of short, low-stakes practice nudges this week rather than a re-teach - he doesn't need reteaching, he needs reps."
+      ],
+      "pace": [
+        { "label": "Ratio & proportion", "topicId": null, "tag": "On pace", "kind": "onpace", "actual": 0.72, "expected": 0.7 },
+        { "label": "Negatives", "topicId": "num.negatives", "tag": "On pace", "kind": "onpace", "actual": 0.88, "expected": 0.85 },
+        { "label": "Algebra basics", "topicId": "alg.basics", "tag": "On pace", "kind": "onpace", "actual": 0.68, "expected": 0.72 },
+        { "label": "Substitution", "topicId": "alg.substitution", "tag": "Behind · low volume", "kind": "behind", "actual": 0.4, "expected": 0.55 }
+      ],
+      "mastery": [
+        { "label": "Negatives", "topicId": "num.negatives", "foundations": 0.9, "core": 0.7, "stretch": 0.35 },
+        { "label": "Algebra basics", "topicId": "alg.basics", "foundations": 0.8, "core": 0.55, "stretch": 0.2 },
+        { "label": "Substitution", "topicId": "alg.substitution", "foundations": 0.55, "core": 0.25, "stretch": 0.05 },
+        { "label": "Ratio & proportion", "topicId": null, "foundations": 0.85, "core": 0.6, "stretch": 0.3 }
+      ],
+      "workingOnNow": { "label": "Substitution", "topicId": "alg.substitution", "detail": "Short, low-stakes practice nudges to build up reps.", "note": "No re-teach needed here - the priority is frequency, not content." }
+    }
+  ]
+}

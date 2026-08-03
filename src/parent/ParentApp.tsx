@@ -4,8 +4,8 @@ import { Link } from 'react-router-dom'
 import { Logo } from '../components/Logo'
 import { GraphSvg } from '../components/GraphSvg'
 import { NodeInfoCard } from '../components/NodeInfoCard'
-import { EDGES, NODES, ST, edgePath, statsFor, statusFor } from '../data/knowledgeGraph'
-import { FONT_MONO, FONT_SERIF } from '../theme'
+import { edgePairs, edgePath, graphTopics, sampleNodeStats, sampleNodeStatus } from '../content'
+import { FONT_MONO, FONT_SERIF, NODE_STYLE } from '../theme'
 
 /**
  * Parent POV — read-only: child progress, previous sessions (what she
@@ -157,10 +157,10 @@ export default function ParentApp() {
     ['Map', 'pmap'],
   ]
 
-  const selNode = s.selectedNode ? NODES.find((n) => n.id === s.selectedNode) : null
+  const selNode = s.selectedNode ? graphTopics().find((n) => n.id === s.selectedNode) : null
 
-  const mapNodes = NODES.map((n) => {
-    const st = ST[statusFor(STUDENT_ID, n.id)]
+  const mapNodes = graphTopics().map((n) => {
+    const st = NODE_STYLE[sampleNodeStatus(STUDENT_ID, n.id)]
     return {
       id: n.id,
       x: n.x,
@@ -176,7 +176,7 @@ export default function ParentApp() {
       onClick: () => setS((st2) => ({ ...st2, selectedNode: n.id })),
     }
   })
-  const mapEdges = EDGES.map(([a, b]) => ({ d: edgePath(a, b), stroke: '#d8cbb2', sw: 1.5 }))
+  const mapEdges = edgePairs().map(([a, b]) => ({ d: edgePath(a, b), stroke: '#d8cbb2', sw: 1.5 }))
 
   return (
     <div style={{ minHeight: '100vh', background: '#f6f1e7' }}>
@@ -404,12 +404,13 @@ export default function ParentApp() {
           </div>
           {selNode && (
             <NodeInfoCard
+              topicId={selNode.id}
               heading="Topic"
               title={selNode.label}
               fields={[
-                { label: 'How secure', value: NODE_META[statusFor(STUDENT_ID, selNode.id)].ret, color: NODE_META[statusFor(STUDENT_ID, selNode.id)].retColor },
-                { label: 'Last worked', value: statsFor(STUDENT_ID, selNode.id).last },
-                { label: 'Next review', value: statsFor(STUDENT_ID, selNode.id).next },
+                { label: 'How secure', value: NODE_META[sampleNodeStatus(STUDENT_ID, selNode.id)].ret, color: NODE_META[sampleNodeStatus(STUDENT_ID, selNode.id)].retColor },
+                { label: 'Last worked', value: sampleNodeStats(STUDENT_ID, selNode.id).last },
+                { label: 'Next review', value: sampleNodeStats(STUDENT_ID, selNode.id).next },
               ]}
               onClose={() => setS((st) => ({ ...st, selectedNode: null }))}
             />

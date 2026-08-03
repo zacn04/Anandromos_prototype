@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "kind": "class-defaults",
+  "roster": [
+    "Aisha Bello",
+    "Daniel Kovač",
+    "Reuben Clarke",
+    "Priya Shah",
+    "Tom Weller",
+    "Grace Idowu",
+    "Elif Demir",
+    "Oscar Reid"
+  ],
+  "basket": [
+    "num.negatives",
+    "num.fractions",
+    "num.fractions-to-percent",
+    "num.ratio",
+    "num.proportion",
+    "alg.notation",
+    "alg.substitution",
+    "alg.expanding",
+    "alg.factorising",
+    "alg.linear",
+    "geo.coordinates",
+    "geo.angles",
+    "stat.averages",
+    "stat.probability"
+  ]
+}

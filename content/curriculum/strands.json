@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "kind": "strand",
+  "items": [
+    {
+      "id": "num",
+      "label": "Number"
+    },
+    {
+      "id": "alg",
+      "label": "Algebra"
+    },
+    {
+      "id": "geo",
+      "label": "Geometry & graphs"
+    },
+    {
+      "id": "stat",
+      "label": "Statistics & probability"
+    }
+  ]
+}

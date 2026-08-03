@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "kind": "topic",
+  "items": [
+    {
+      "id": "alg.basics",
+      "strandId": "alg",
+      "label": "Algebra basics",
+      "yearBand": "Year 9",
+      "catalogue": true,
+      "onGraph": true,
+      "graph": {
+        "order": 1,
+        "x": 24,
+        "y": 44,
+        "label": "Algebra basics"
+      },
+      "aliases": [],
+      "source": "teacher",
+      "reviewedAt": null,
+      "status": "verified"
+    },
+    {
+      "id": "alg.linear",
+      "strandId": "alg",
+      "label": "Linear equations",
+      "yearBand": "Year 8",
+      "catalogue": true,
+      "onGraph": true,
+      "graph": {
+        "order": 2,
+        "x": 190,
+        "y": 44,
+        "label": "Linear equations"
+      },
+      "aliases": [],
+      "source": "teacher",
+      "reviewedAt": null,
+      "status": "verified"
+    }
+  ]
+}

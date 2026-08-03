@@ -5,21 +5,33 @@ import { Logo } from '../components/Logo'
 import { GraphSvg } from '../components/GraphSvg'
 import { NodeInfoCard } from '../components/NodeInfoCard'
 import { PracticeLoop } from '../components/PracticeLoop'
-import { BASKETS, EDGES, NODES, ST, edgePath, statsFor, statusFor } from '../data/knowledgeGraph'
-import { LOG_BY_STUDENT } from '../data/activityLog'
-import type { LogQuestion } from '../data/activityLog'
-import { CURRIC, DEFAULT_BASKET, DEFAULT_ROSTER, GRADES } from '../data/curriculum'
-import { OVERSIGHT_KIND_META, OVERSIGHT_RAW } from '../data/oversight'
-import type { OversightDetail } from '../data/oversight'
+import {
+  activityLogFor,
+  catalogueGroups,
+  defaultBasket,
+  defaultRoster,
+  edgePairs,
+  edgePath,
+  graphFilters,
+  graphTopics,
+  oversightItems,
+  questionAt,
+  sampleNodeStats,
+  sampleNodeStatus,
+  topicLabel,
+  studentProfile,
+  yearBands,
+} from '../content'
+import type { LogQuestion, OversightDetail, Topic } from '../content'
 import { getLiveFlags } from '../data/liveOversight'
+import { summariseGaps } from '../data/liveGaps'
+import { suggestedOrder, orderWarnings, missingPrereqs } from '../data/basket'
+import { exportProfile, importProfile, importSummary } from '../data/transfer'
+import { initEngineState } from '../data/engine'
 import { getLiveSessions } from '../data/liveSessions'
-import { PROFILE_BY_ID } from '../data/studentProfiles'
-import { problemAt } from '../data/problems'
 import { addProblemSet, getProblemSets } from '../data/teacherProblemSets'
 import type { AuthoredQuestion } from '../data/teacherProblemSets'
-import { FONT_MONO, FONT_SERIF } from '../theme'
-
-const PREVIEW_PROBLEM = problemAt('linear', 0)!
+import { FONT_MONO, FONT_SERIF, NODE_STYLE, OVERSIGHT_KIND_META } from '../theme'
 
 /**
  * Teacher POV — triage a class, drill into a student's knowledge profile,
@@ -52,7 +64,7 @@ interface LogDetailSource {
   result: string
   flag: 'attention' | 'ok'
   upload: boolean
-  items: LogQuestion[]
+  items: readonly LogQuestion[]
 }
 
 interface TeacherState {
@@ -62,6 +74,8 @@ interface TeacherState {
   expAhead: boolean
   activeClass: string
   selectedStudentId: string
+  /** One-line result of the last transferable-profile export. */
+  transferNote: string | null
   graphFilter: string
   openLog: number | null
   selectedNode: string | null
@@ -232,7 +246,9 @@ const NODE_META: Record<string, { ret: string; retColor: string }> = {
 /** Derives the Frontier panel's three buckets from live per-student node status, instead of hand-curating them per student. */
 function buildFrontierGroups(studentId: string) {
   const chipsFor = (pred: (st: string) => boolean, color: string, bg: string, bd: string) =>
-    NODES.filter((n) => pred(statusFor(studentId, n.id))).map((n) => ({ name: n.label, style: chipStyle(bg, color, bd) }))
+    graphTopics()
+      .filter((n) => pred(sampleNodeStatus(studentId, n.id)))
+      .map((n) => ({ name: n.label, style: chipStyle(bg, color, bd) }))
   return [
     { label: 'Mastered', color: '#1f4e75', chips: chipsFor((st) => st === 'mastered', '#1f4e75', '#e4edf3', '#cddceb') },
     { label: 'Ready to learn now', color: '#b6531f', chips: chipsFor((st) => st === 'frontier', '#b6531f', '#fdf0e6', '#f0d3bc') },
@@ -240,47 +256,50 @@ function buildFrontierGroups(studentId: string) {
   ]
 }
 
-const INITIAL: TeacherState = {
-  screen: 'dashboard',
-  layout: 'attention',
-  expOnTrack: false,
-  expAhead: false,
-  activeClass: '8M2',
-  selectedStudentId: 'aisha',
-  graphFilter: 'all',
-  openLog: null,
-  selectedNode: null,
-  selectedLog: null,
-  qOpen: null,
-  ovDetail: null,
-  detailReturn: 'student',
-  addressList: [],
-  dismissedOv: [],
-  addSeq: 0,
-  addingNote: false,
-  noteDraft: '',
-  menuOpen: null,
-  suClass: '8M2',
-  suGrade: 'Year 8',
-  suYear: 'all',
-  suSearch: '',
-  suRoster: [...DEFAULT_ROSTER],
-  suDraft: '',
-  suBasket: { ...DEFAULT_BASKET },
-  hwTitle: '',
-  hwDue: '',
-  hwSearch: '',
-  hwBasket: {},
-  hwQTopic: '',
-  hwQText: '',
-  hwQHint: '',
-  hwQuestions: [],
-  hwRequireHandwriting: false,
-  hwExpandedId: null,
-}
-
 export default function TeacherApp() {
-  const [s, setS] = useState<TeacherState>(INITIAL)
+  // Lazy initialiser, not a module-scope constant: the store is installed by
+  // main.tsx's `await loadContent()`, which runs AFTER this module is
+  // evaluated. Reading defaultRoster()/defaultBasket() at module scope would
+  // throw before the first render. See content-schema-spec §6.12.
+  const [s, setS] = useState<TeacherState>(() => ({
+    screen: 'dashboard',
+    layout: 'attention',
+    expOnTrack: false,
+    expAhead: false,
+    activeClass: '8M2',
+    selectedStudentId: 'aisha',
+    transferNote: null,
+    graphFilter: 'all',
+    openLog: null,
+    selectedNode: null,
+    selectedLog: null,
+    qOpen: null,
+    ovDetail: null,
+    detailReturn: 'student',
+    addressList: [],
+    dismissedOv: [],
+    addSeq: 0,
+    addingNote: false,
+    noteDraft: '',
+    menuOpen: null,
+    suClass: '8M2',
+    suGrade: 'Year 8',
+    suYear: 'all',
+    suSearch: '',
+    suRoster: [...defaultRoster()],
+    suDraft: '',
+    suBasket: { ...defaultBasket() },
+    hwTitle: '',
+    hwDue: '',
+    hwSearch: '',
+    hwBasket: {},
+    hwQTopic: '',
+    hwQText: '',
+    hwQHint: '',
+    hwQuestions: [],
+    hwRequireHandwriting: false,
+    hwExpandedId: null,
+  }))
   const setState = (patch: Partial<TeacherState> | ((st: TeacherState) => Partial<TeacherState>)) =>
     setS((st) => ({ ...st, ...(typeof patch === 'function' ? patch(st) : patch) }))
 
@@ -299,11 +318,15 @@ export default function TeacherApp() {
 
   // Both Resolve and Address in person dismiss a flag; prototype-local, resets on reload.
   // getLiveFlags() (data/liveOversight.ts) is real, session-detected flags added to - never
-  // replacing - the static OVERSIGHT_RAW sample narrative; see that module's comment for the
-  // cross-route caveat (this only sees a flag pushed from /student on this screen's next mount).
-  const ovList = [...OVERSIGHT_RAW.map((it, i) => ({ ...it, id: `ov${i}` })), ...getLiveFlags()].filter(
+  // replacing - the authored oversightItems() sample narrative; see that module's comment for
+  // the cross-route caveat (this only sees a flag pushed from /student on this screen's next mount).
+  const ovList = [...oversightItems().map((it, i) => ({ ...it, id: `ov${i}` })), ...getLiveFlags()].filter(
     (it) => !s.dismissedOv.includes(it.id),
   )
+
+  // Read inside the component, never at module scope: the store is not installed
+  // until main.tsx awaits loadContent(). See content-schema-spec §6.12.
+  const PREVIEW_PROBLEM = questionAt('alg.linear', 0)!
 
   if (s.screen === 'practice') {
     return (
@@ -383,12 +406,12 @@ export default function TeacherApp() {
   // A name without a profile shows the summary plus an honest "not built out yet" note —
   // never another student's data relabeled.
   const selectedRoster = rosterAll.find((r) => r.id === s.selectedStudentId) ?? rosterAll[0]
-  const selectedProfile = PROFILE_BY_ID[s.selectedStudentId]
+  const selectedProfile = studentProfile(s.selectedStudentId)
   const frontierGroups = buildFrontierGroups(s.selectedStudentId)
 
   // ---- knowledge graph (student drill-down) ----
-  const graphNodes = NODES.map((n) => {
-    const st = ST[statusFor(s.selectedStudentId, n.id)]
+  const graphNodes = graphTopics().map((n) => {
+    const st = NODE_STYLE[sampleNodeStatus(s.selectedStudentId, n.id)]
     const sel = s.selectedNode === n.id
     return {
       id: n.id,
@@ -405,33 +428,37 @@ export default function TeacherApp() {
       onClick: () => setState((prev) => ({ selectedNode: prev.selectedNode === n.id ? null : n.id })),
     }
   })
-  const graphEdges = EDGES.map(([a, b]) => {
-    const frontier = statusFor(s.selectedStudentId, b) === 'frontier'
+  const graphEdges = edgePairs().map(([a, b]) => {
+    const frontier = sampleNodeStatus(s.selectedStudentId, b) === 'frontier'
     return { d: edgePath(a, b), stroke: frontier ? '#e8a06a' : '#d3c6ab', sw: frontier ? 2 : 1.4 }
   })
   const gf = s.graphFilter
-  const activeBasket = gf === 'all' ? null : BASKETS.find((b) => b.key === gf)
-  const inFocus = (id: string) => !activeBasket || activeBasket.ids.indexOf(id) > -1
+  const activeBasket = gf === 'all' ? null : graphFilters().find((f) => f.id === gf)
+  const inFocus = (id: string) => !activeBasket || activeBasket.topicIds.indexOf(id) > -1
   const focusedNodes = graphNodes.map((n) => ({ ...n, op: inFocus(n.id) ? 1 : 0.14 }))
   const focusedEdges = graphEdges.map((e, idx) => {
-    const [a, b] = EDGES[idx]
+    const [a, b] = edgePairs()[idx]
     return { ...e, op: inFocus(a) && inFocus(b) ? 1 : 0.1 }
   })
-  const filterChips = [{ key: 'all', label: 'All basket topics' }, ...BASKETS.map((b) => ({ key: b.key, label: b.label }))]
+  const filterChips = [
+    { key: 'all', label: 'All basket topics' },
+    ...graphFilters().map((f) => ({ key: f.id, label: f.label })),
+  ]
 
-  const selNode = s.selectedNode ? NODES.find((n) => n.id === s.selectedNode) : null
+  const selNode = s.selectedNode ? graphTopics().find((n) => n.id === s.selectedNode) : null
   const nodeInfoCard = selNode && (
     <NodeInfoCard
-      heading="Subtopic"
+      topicId={selNode.id}
+      heading="Topic"
       title={selNode.label}
       fields={[
-        { label: 'Last worked', value: statsFor(s.selectedStudentId, selNode.id).last },
-        { label: 'Next review', value: statsFor(s.selectedStudentId, selNode.id).next },
-        { label: 'Times practised', value: statsFor(s.selectedStudentId, selNode.id).reps },
+        { label: 'Last worked', value: sampleNodeStats(s.selectedStudentId, selNode.id).last },
+        { label: 'Next review', value: sampleNodeStats(s.selectedStudentId, selNode.id).next },
+        { label: 'Times practised', value: sampleNodeStats(s.selectedStudentId, selNode.id).reps },
         {
           label: 'Retention',
-          value: NODE_META[statusFor(s.selectedStudentId, selNode.id)].ret,
-          color: NODE_META[statusFor(s.selectedStudentId, selNode.id)].retColor,
+          value: NODE_META[sampleNodeStatus(s.selectedStudentId, selNode.id)].ret,
+          color: NODE_META[sampleNodeStatus(s.selectedStudentId, selNode.id)].retColor,
         },
       ]}
       onClose={() => setState({ selectedNode: null })}
@@ -450,38 +477,43 @@ export default function TeacherApp() {
   // always Aisha - so they're only merged in for her, ahead of her static sample history. Same
   // merge-live-in pattern as ovList's getLiveFlags() below.
   const studentLog =
-    s.selectedStudentId === 'aisha' ? [...getLiveSessions(), ...(LOG_BY_STUDENT.aisha ?? [])] : (LOG_BY_STUDENT[s.selectedStudentId] ?? [])
+    s.selectedStudentId === 'aisha' ? [...getLiveSessions(), ...activityLogFor('aisha')] : activityLogFor(s.selectedStudentId)
   const ld: LogDetailSource | null = s.ovDetail ? s.ovDetail : s.selectedLog != null ? (studentLog[s.selectedLog] ?? null) : null
 
   // ---- class setup ----
   const q = s.suSearch.toLowerCase()
-  const matchTopic = (t: [string, string, string]) =>
-    (s.suYear === 'all' || t[2] === s.suYear) && (!q || t[1].toLowerCase().indexOf(q) > -1)
-  const basketGroups = CURRIC.map((g) => ({ group: g.group, topics: g.topics.filter(matchTopic) })).filter(
-    (g) => g.topics.length > 0,
-  )
+  const matchTopic = (t: Topic) =>
+    (s.suYear === 'all' || t.yearBand === s.suYear) && (!q || t.label.toLowerCase().indexOf(q) > -1)
+  const basketGroups = catalogueGroups()
+    .map((g) => ({ group: g.label, topics: g.topics.filter(matchTopic) }))
+    .filter((g) => g.topics.length > 0)
   const basketCount = Object.values(s.suBasket).filter(Boolean).length
 
   // ---- homework (teacher problem-set authoring) ----
-  // Reuses Class setup's grouped topic-chip picker pattern above (same CURRIC groups, same
+  // Reuses Class setup's grouped topic-chip picker pattern above (same catalogue groups, same
   // toggle-chip look) rather than a fresh widget - see Homework screen render below.
   const hq = s.hwSearch.toLowerCase()
-  const hwBasketGroups = CURRIC.map((g) => ({
-    group: g.group,
-    topics: g.topics.filter(([, label]) => !hq || label.toLowerCase().indexOf(hq) > -1),
-  })).filter((g) => g.topics.length > 0)
+  const hwBasketGroups = catalogueGroups()
+    .map((g) => ({
+      group: g.label,
+      topics: g.topics.filter((t) => !hq || t.label.toLowerCase().indexOf(hq) > -1),
+    }))
+    .filter((g) => g.topics.length > 0)
   const hwBasketCount = Object.values(s.hwBasket).filter(Boolean).length
-  const hwSelectedTopics = CURRIC.flatMap((g) => g.topics).filter(([key]) => s.hwBasket[key])
-  const hwQuestionTopicOptions = hwSelectedTopics.map(([, label]) => label)
+  const hwSelectedTopics = catalogueGroups()
+    .flatMap((g) => g.topics)
+    .filter((t) => s.hwBasket[t.id])
+  const hwQuestionTopicOptions = hwSelectedTopics.map((t) => t.label)
   const hwCanCreate = s.hwTitle.trim().length > 0 && hwBasketCount > 0 && s.hwQuestions.length > 0
   const createdProblemSets = getProblemSets()
 
   const toggleHwTopic = (key: string) =>
     setState((st) => {
       const hwBasket = { ...st.hwBasket, [key]: !st.hwBasket[key] }
-      const remainingLabels = CURRIC.flatMap((g) => g.topics)
-        .filter(([k]) => hwBasket[k])
-        .map(([, label]) => label)
+      const remainingLabels = catalogueGroups()
+        .flatMap((g) => g.topics)
+        .filter((t) => hwBasket[t.id])
+        .map((t) => t.label)
       // Keep the per-question topic selector pointed at a still-selected topic - never left
       // referencing one that was just unchecked.
       const hwQTopic = remainingLabels.includes(st.hwQTopic) ? st.hwQTopic : (remainingLabels[0] ?? '')
@@ -503,7 +535,7 @@ export default function TeacherApp() {
     if (!hwCanCreate) return
     addProblemSet({
       title: s.hwTitle.trim(),
-      topics: hwSelectedTopics.map(([, label]) => label).join(' · '),
+      topics: hwSelectedTopics.map((t) => t.label).join(' · '),
       due: s.hwDue.trim() || 'No due date set',
       questions: s.hwQuestions,
       requireHandwriting: s.hwRequireHandwriting,
@@ -595,6 +627,61 @@ export default function TeacherApp() {
                   })}
                 </div>
               </div>
+
+              {/* Cross-topic gaps — the diagnostic claim, live */}
+              {(() => {
+                const gaps = summariseGaps()
+                return (
+                  <div style={{ marginTop: 24, background: '#fff', border: '1px solid #cddceb', borderRadius: 12, padding: '18px 20px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                      <span style={{ width: 9, height: 9, borderRadius: '50%', background: '#1f4e75', flex: 'none' }} />
+                      <h2 style={{ fontFamily: FONT_SERIF, fontSize: 16, fontWeight: 600, margin: 0, color: '#0e2a43' }}>
+                        Gaps found inside other topics
+                      </h2>
+                      <span style={{ fontFamily: FONT_MONO, fontSize: 12, color: '#2b4a63' }}>
+                        {gaps.length === 0 ? 'none yet' : `${gaps.length} topic${gaps.length === 1 ? '' : 's'}`}
+                      </span>
+                    </div>
+                    <p style={{ margin: '8px 0 0', fontSize: 13, lineHeight: 1.5, color: '#5c6773', maxWidth: 560, textWrap: 'pretty' }}>
+                      Where a student's working went wrong on a step that belongs to an{' '}
+                      <em>earlier</em> topic. A percentage question they can't finish is often a
+                      fractions problem — this is where that shows up, before the fractions review
+                      is due.
+                    </p>
+
+                    {gaps.length === 0 ? (
+                      <div style={{ marginTop: 14, fontSize: 13, color: '#8a7c63', background: '#f6f1e7', border: '1px solid #e4dccb', borderRadius: 9, padding: '12px 14px' }}>
+                        Nothing observed this session. Gaps appear here as students flag lines of
+                        working in their sessions.
+                      </div>
+                    ) : (
+                      <div style={{ marginTop: 14, display: 'flex', flexDirection: 'column', gap: 10 }}>
+                        {gaps.map((g) => (
+                          <div key={g.prereqTopicId} style={{ background: '#eef3f7', border: '1px solid #d3e0ea', borderRadius: 10, padding: '13px 15px' }}>
+                            <div style={{ display: 'flex', alignItems: 'baseline', gap: 9, flexWrap: 'wrap' }}>
+                              <span style={{ fontSize: 14.5, fontWeight: 600, color: '#0e2a43' }}>{g.prereqTopicLabel}</span>
+                              <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: '#b6531f' }}>
+                                {g.count} time{g.count === 1 ? '' : 's'}
+                              </span>
+                              <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: '#2b4a63', marginLeft: 'auto' }}>
+                                surfaced in {g.seenInLabels.join(', ')}
+                              </span>
+                            </div>
+                            <div style={{ fontSize: 13, color: '#2b4a63', marginTop: 5 }}>
+                              Specifically: {g.subtopicLabels.join(' · ')}
+                            </div>
+                            {g.latest.lineText && (
+                              <div style={{ fontFamily: FONT_MONO, fontSize: 12, color: '#5c6773', marginTop: 6, background: '#fff', border: '1px solid #d3e0ea', borderRadius: 7, padding: '7px 10px' }}>
+                                {g.latest.lineText}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )
+              })()}
 
               {/* Address in person to-do */}
               <div style={{ marginTop: 24, background: '#fdf0e6', border: '1px solid #f0d3bc', borderRadius: 12, padding: '18px 20px' }}>
@@ -834,6 +921,11 @@ export default function TeacherApp() {
               <div onClick={() => setState({ screen: 'dashboard' })} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 13, color: '#5c6773', cursor: 'pointer', marginBottom: 16 }}>
                 ← 8M2 class overview
               </div>
+              {s.transferNote && (
+                <div style={{ marginBottom: 12, background: '#eef3f7', border: '1px solid #d3e0ea', borderRadius: 9, padding: '10px 13px', fontSize: 13, color: '#2b4a63' }}>
+                  Profile exported · {s.transferNote}
+                </div>
+              )}
               <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
                 <div style={{ width: 52, height: 52, borderRadius: '50%', background: selectedRoster.avatarStyle.background, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 600, fontSize: 19, flex: 'none' }}>
                   {selectedRoster.initials}
@@ -843,6 +935,29 @@ export default function TeacherApp() {
                   <div style={{ fontSize: 13.5, color: '#5c6773' }}>Year 8 · 8M2</div>
                 </div>
                 <span style={selectedRoster.chipStyle}>{selectedRoster.statusLabel}</span>
+                <button
+                  onClick={() => {
+                    // A transferable profile (build-plan §5.2): everything this
+                    // school knows about the student, stamped with the graph
+                    // version it was computed against so a receiving school can
+                    // tell whether the numbers still mean the same thing.
+                    const state = initEngineState(s.selectedStudentId)
+                    const profile = exportProfile(s.selectedStudentId, state, new Date().toISOString())
+                    const round = importProfile(profile)
+                    const blob = new Blob([JSON.stringify(profile, null, 2)], { type: 'application/json' })
+                    const url = URL.createObjectURL(blob)
+                    const a = document.createElement('a')
+                    a.href = url
+                    a.download = `${s.selectedStudentId}-profile.json`
+                    a.click()
+                    URL.revokeObjectURL(url)
+                    setState({ transferNote: importSummary(round) })
+                  }}
+                  title="Download this student's knowledge profile to move with them"
+                  style={{ marginLeft: 'auto', background: '#f2ece0', color: '#5c6773', border: '1px solid #e0d4bd', borderRadius: 9, padding: '11px 16px', fontWeight: 600, fontSize: 13, cursor: 'pointer' }}
+                >
+                  ⤓ Transferable profile
+                </button>
                 <button
                   onClick={() => setState({ screen: 'practice' })}
                   style={{ marginLeft: 'auto', background: '#0e2a43', color: '#fff', border: 'none', borderRadius: 9, padding: '11px 18px', fontWeight: 600, fontSize: 13.5, cursor: 'pointer' }}
@@ -877,9 +992,9 @@ export default function TeacherApp() {
                     </p>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 15 }}>
                       {selectedProfile.pace.map((p) => (
-                        <div key={p.topic}>
+                        <div key={p.label}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>
-                            <span style={{ fontSize: 13, fontWeight: 500, color: '#1a2129' }}>{p.topic}</span>
+                            <span style={{ fontSize: 13, fontWeight: 500, color: '#1a2129' }}>{p.label}</span>
                             <span style={tagStyleFor(p.kind)}>{p.tag}</span>
                           </div>
                           <div style={{ position: 'relative', height: 14, background: '#f0e9dc', borderRadius: 7 }}>
@@ -907,8 +1022,8 @@ export default function TeacherApp() {
                     <p style={{ margin: '0 0 16px', fontSize: 12.5, color: '#8a7c63' }}>No place to hide: solid on the easy items, thin where it gets hard.</p>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                       {selectedProfile.mastery.map((t) => (
-                        <div key={t.name}>
-                          <div style={{ fontSize: 13, fontWeight: 500, color: '#1a2129', marginBottom: 6 }}>{t.name}</div>
+                        <div key={t.label}>
+                          <div style={{ fontSize: 13, fontWeight: 500, color: '#1a2129', marginBottom: 6 }}>{t.label}</div>
                           <div style={{ display: 'flex', gap: 6 }}>
                             {T(t.foundations, t.core, t.stretch).map((tier, i) => (
                               <div key={i} style={{ flex: 1, height: 20, borderRadius: 5, background: '#f0e9dc', overflow: 'hidden' }}>
@@ -1040,7 +1155,7 @@ export default function TeacherApp() {
                   {selectedProfile && (
                     <div style={{ background: '#fdf0e6', border: '1px solid #f0d3bc', borderRadius: 12, padding: '18px 20px' }}>
                       <div style={monoCap({ letterSpacing: '.6px', color: '#b6531f' })}>Working on now</div>
-                      <div style={{ fontFamily: FONT_SERIF, fontSize: 18, fontWeight: 600, color: '#0e2a43', margin: '6px 0 4px' }}>{selectedProfile.workingOnNow.topic}</div>
+                      <div style={{ fontFamily: FONT_SERIF, fontSize: 18, fontWeight: 600, color: '#0e2a43', margin: '6px 0 4px' }}>{selectedProfile.workingOnNow.label}</div>
                       <p style={{ margin: '0 0 10px', fontSize: 13, color: '#5c3a24' }}>{selectedProfile.workingOnNow.detail}</p>
                       <p style={{ margin: 0, fontSize: 12.5, lineHeight: 1.5, color: '#8a6b4f', textWrap: 'pretty' }}>{selectedProfile.workingOnNow.note}</p>
                     </div>
@@ -1360,7 +1475,7 @@ export default function TeacherApp() {
                   <div>
                     <label style={{ display: 'block', ...monoCap({ marginBottom: 7 }) }}>Grade band</label>
                     <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                      {GRADES.map((g) => {
+                      {yearBands().map((g) => {
                         const on = s.suGrade === g
                         return (
                           <button
@@ -1441,7 +1556,7 @@ export default function TeacherApp() {
                   We carry every maths topic Anadromos offers; you work with us to map which map to which year group. Pick what this class should master by year's end, Anadromos expands each choice into its prerequisite subtopics automatically, and that expanded set is the focused knowledge graph you'll use day to day.
                 </p>
                 <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center', marginBottom: 18 }}>
-                  {[{ k: 'all', l: 'All years' }, ...GRADES.map((g) => ({ k: g, l: g }))].map((o) => {
+                  {[{ k: 'all', l: 'All years' }, ...yearBands().map((g) => ({ k: g, l: g }))].map((o) => {
                     const on = s.suYear === o.k
                     return (
                       <button
@@ -1466,16 +1581,16 @@ export default function TeacherApp() {
                       <div key={grp.group}>
                         <div style={monoCap({ marginBottom: 8 })}>{grp.group}</div>
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                          {grp.topics.map(([key, label]) => {
-                            const on = !!s.suBasket[key]
+                          {grp.topics.map((t) => {
+                            const on = !!s.suBasket[t.id]
                             return (
                               <button
-                                key={key}
-                                onClick={() => setState((st) => ({ suBasket: { ...st.suBasket, [key]: !st.suBasket[key] } }))}
+                                key={t.id}
+                                onClick={() => setState((st) => ({ suBasket: { ...st.suBasket, [t.id]: !st.suBasket[t.id] } }))}
                                 style={{ cursor: 'pointer', fontSize: 13, fontWeight: on ? 600 : 500, padding: '8px 13px', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 7, background: on ? '#0e2a43' : '#f2ece0', color: on ? '#fff' : '#5c6773', border: on ? '1px solid #0e2a43' : '1px solid #e0d4bd' }}
                               >
                                 <span style={{ fontSize: 12, opacity: on ? 1 : 0.6 }}>{on ? '✓' : '+'}</span>
-                                {label}
+                                {t.label}
                               </button>
                             )
                           })}
@@ -1487,6 +1602,52 @@ export default function TeacherApp() {
                   <p style={{ margin: 0, fontSize: 13, color: '#8a7c63' }}>No topics match that filter. Try another year group or search term.</p>
                 )}
               </div>
+
+              {/* Suggested teaching order, derived from the prerequisite graph */}
+              {(() => {
+                const chosen = Object.keys(s.suBasket).filter((id) => s.suBasket[id])
+                if (chosen.length === 0) return null
+                const order = suggestedOrder(chosen)
+                const warnings = orderWarnings(order)
+                const missing = missingPrereqs(chosen)
+                return (
+                  <div style={{ marginTop: 22, background: '#eef3f7', border: '1px solid #d3e0ea', borderRadius: 12, padding: '18px 20px' }}>
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, flexWrap: 'wrap' }}>
+                      <h3 style={{ fontFamily: FONT_SERIF, fontSize: 16, fontWeight: 600, margin: 0, color: '#0e2a43' }}>
+                        Suggested teaching order
+                      </h3>
+                      <span style={{ fontFamily: FONT_MONO, fontSize: 12, color: '#2b4a63' }}>
+                        {order.length} topic{order.length === 1 ? '' : 's'}
+                      </span>
+                    </div>
+                    <p style={{ margin: '7px 0 12px', fontSize: 13, lineHeight: 1.5, color: '#5c6773', maxWidth: 560, textWrap: 'pretty' }}>
+                      Ordered so nothing is taught before what it depends on. Teach in your own
+                      order if you prefer — this is a suggestion, never a constraint.
+                    </p>
+                    <ol style={{ margin: 0, paddingLeft: 20, display: 'flex', flexDirection: 'column', gap: 5 }}>
+                      {order.map((id) => (
+                        <li key={id} style={{ fontSize: 13.5, color: '#1a2129' }}>{topicLabel(id)}</li>
+                      ))}
+                    </ol>
+                    {warnings.length > 0 && (
+                      <div style={{ marginTop: 12, fontSize: 12.5, color: '#b6531f' }}>
+                        {warnings.length} ordering conflict{warnings.length === 1 ? '' : 's'} in the graph.
+                      </div>
+                    )}
+                    {missing.length > 0 && (
+                      <div style={{ marginTop: 12, background: '#fdf0e6', border: '1px solid #f0d3bc', borderRadius: 9, padding: '11px 13px' }}>
+                        <div style={{ fontFamily: FONT_MONO, fontSize: 10.5, letterSpacing: '.5px', textTransform: 'uppercase', color: '#b6531f', marginBottom: 5 }}>
+                          Not in this basket
+                        </div>
+                        <div style={{ fontSize: 13, color: '#8a6b4f', lineHeight: 1.55 }}>
+                          {[...new Set(missing.map((m) => m.prereqLabel))].join(' · ')} — assumed
+                          already taught. Add them if this class hasn't covered them.
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )
+              })()}
 
               <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap', marginTop: 20 }}>
                 <button style={{ background: '#dd6a2f', color: '#fff', border: 'none', borderRadius: 9, padding: '12px 22px', fontSize: 14.5, fontWeight: 600, cursor: 'pointer' }}>Create class</button>
@@ -1597,16 +1758,16 @@ export default function TeacherApp() {
                       <div key={grp.group}>
                         <div style={monoCap({ marginBottom: 8 })}>{grp.group}</div>
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                          {grp.topics.map(([key, label]) => {
-                            const on = !!s.hwBasket[key]
+                          {grp.topics.map((t) => {
+                            const on = !!s.hwBasket[t.id]
                             return (
                               <button
-                                key={key}
-                                onClick={() => toggleHwTopic(key)}
+                                key={t.id}
+                                onClick={() => toggleHwTopic(t.id)}
                                 style={{ cursor: 'pointer', fontSize: 13, fontWeight: on ? 600 : 500, padding: '8px 13px', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 7, background: on ? '#0e2a43' : '#f2ece0', color: on ? '#fff' : '#5c6773', border: on ? '1px solid #0e2a43' : '1px solid #e0d4bd' }}
                               >
                                 <span style={{ fontSize: 12, opacity: on ? 1 : 0.6 }}>{on ? '✓' : '+'}</span>
-                                {label}
+                                {t.label}
                               </button>
                             )
                           })}

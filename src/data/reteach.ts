@@ -1,8 +1,14 @@
 import type { CSSProperties } from 'react'
 import { FONT_MONO } from '../theme'
-import type { Problem } from './problems'
-import { topicLabel } from './curriculum'
+import type { Question } from '../content'
+import { lineTexts, reteachCardFor, topicLabel } from '../content'
 
+/**
+ * The re-teach *view model*: what the practice loop renders. Not the same
+ * thing as the store's `ReteachCardContent`, which is the authored content
+ * entity - this one carries `scopeStyle`, `route` and `cta`, none of which
+ * belong in a JSON file.
+ */
 export interface ReteachCard {
   scope: string
   scopeStyle: CSSProperties
@@ -39,18 +45,39 @@ function scope(txt: string): Pick<ReteachCard, 'scope' | 'scopeStyle'> {
  * Chooses the re-teach card for one flagged line: scoped to a focused
  * re-teach, quick reminder, full walk-back — or no re-teach for a slip.
  *
+ * An authored card for this exact (question, line) wins if the content
+ * store has one. `content/curriculum/reteach-cards.json` is empty today, so
+ * that branch never fires and the synthesised cards below are what every
+ * POV shows; the seam exists so Phase 2's generated cards land as a data
+ * drop rather than a code change.
+ *
  * The worked-example steps always come from `problem.lines` - the actual
  * problem the student just attempted - never a hardcoded equation, so the
  * card can't show a walk-back for a different problem than the one on
- * screen. The specific "what went wrong" sentence is pulled from
- * `problem.solNotes[problem.errIdx]` where the original had it hand-written;
- * elsewhere the prose stays generic rather than guessing a per-problem moral
- * ("watch the sign", "isolate the term"...) that would need its own content
- * pass to get right for every family in the problem bank.
+ * screen. The specific "what went wrong" sentence is pulled from the note
+ * on `problem.lines[problem.errorLineIndex]` where the original had it
+ * hand-written; elsewhere the prose stays generic rather than guessing a
+ * per-problem moral ("watch the sign", "isolate the term"...) that would
+ * need its own content pass to get right for every family in the question
+ * bank.
  */
-export function buildReteach(line: number | 'all', reason: string | undefined, problem: Problem): ReteachCard {
-  const topic = topicLabel(problem.topic)
-  const errNote = problem.solNotes[problem.errIdx] || 'that step is where it slipped'
+export function buildReteach(line: number | 'all', reason: string | undefined, problem: Question): ReteachCard {
+  const topic = topicLabel(problem.topicId)
+  const errNote = problem.lines[problem.errorLineIndex]?.note || 'that step is where it slipped'
+
+  const authored = reteachCardFor(problem.id, line)
+  if (authored) {
+    return {
+      ...scope(authored.scope),
+      heading: authored.heading,
+      body: [...authored.body],
+      hasExample: authored.workedExample !== null,
+      exampleTitle: authored.workedExample ? 'Worked through' : undefined,
+      exampleSteps: authored.workedExample ? [...authored.workedExample] : undefined,
+      route: `Routed to: ${topic} on your map.`,
+      cta: 'Practise this step →',
+    }
+  }
 
   if (reason === 'slip') {
     return {
@@ -73,23 +100,23 @@ export function buildReteach(line: number | 'all', reason: string | undefined, p
       ],
       hasExample: true,
       exampleTitle: `${problem.prompt}: ${problem.statement}, worked through`,
-      exampleSteps: problem.lines,
+      exampleSteps: lineTexts(problem),
       route: `Routed to: ${topic} - the foundation this builds on.`,
       cta: 'Walk through a similar one →',
     }
   }
-  if (line !== problem.errIdx) {
+  if (line !== problem.errorLineIndex) {
     return {
       ...scope('Focused re-teach'),
       heading: 'That line is actually fine',
       body: [
-        `The line you picked is correct. The step that slipped is line ${problem.errIdx + 1} - ${errNote}.`,
+        `The line you picked is correct. The step that slipped is line ${problem.errorLineIndex + 1} - ${errNote}.`,
         'That’s useful to know - we check what you tell us against your wider pattern, and here the real error is elsewhere.',
       ],
       hasExample: true,
       exampleTitle: 'The full worked solution',
-      exampleSteps: problem.lines,
-      route: `Routed to: ${topic} - line ${problem.errIdx + 1} is the step to revisit.`,
+      exampleSteps: lineTexts(problem),
+      route: `Routed to: ${topic} - line ${problem.errorLineIndex + 1} is the step to revisit.`,
       cta: 'Try that step again →',
     }
   }
@@ -102,20 +129,20 @@ export function buildReteach(line: number | 'all', reason: string | undefined, p
       ],
       hasExample: true,
       exampleTitle: 'The corrected step',
-      exampleSteps: problem.lines,
+      exampleSteps: lineTexts(problem),
       route: 'Logged - your teacher can still see the pattern if it repeats.',
       cta: 'Next problem →',
     }
   }
   return {
     ...scope('Focused re-teach'),
-    heading: `Let’s look at line ${problem.errIdx + 1} again`,
+    heading: `Let’s look at line ${problem.errorLineIndex + 1} again`,
     body: [
       `Here’s the key step: ${errNote}. We’ll give you a couple of these before returning to the full problem.`,
     ],
     hasExample: true,
     exampleTitle: 'Same problem, worked through',
-    exampleSteps: problem.lines,
+    exampleSteps: lineTexts(problem),
     route: `Routed to: ${topic} on your map.`,
     cta: 'Practise this step →',
   }

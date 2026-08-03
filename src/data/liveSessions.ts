@@ -1,4 +1,4 @@
-import type { LogActivity } from './activityLog'
+import type { LogActivity } from '../content'
 
 /**
  * Live Lesson/Review sessions Aisha has actually completed, surfaced
@@ -8,7 +8,7 @@ import type { LogActivity } from './activityLog'
  * ReviewSession.tsx's `onSessionLogged`, fired once a session reaches its
  * summary screen.
  *
- * Same module-singleton-plus-sessionStorage pattern as
+ * Same module-singleton-plus-localStorage pattern as
  * data/teacherProblemSets.ts and data/liveOversight.ts, including the same
  * caveat: does NOT live-sync into an already-mounted route, survives a
  * reload in this tab, and starts fresh in a new tab or browser. See either
@@ -20,7 +20,7 @@ const STORAGE_KEY = 'anadromos.liveSessions'
 /** Reads back whatever was persisted for this tab - any parse failure is treated as "nothing saved yet" rather than thrown. */
 function loadInitial(): LogActivity[] {
   try {
-    const raw = sessionStorage.getItem(STORAGE_KEY)
+    const raw = localStorage.getItem(STORAGE_KEY)
     const parsed = raw ? JSON.parse(raw) : []
     return Array.isArray(parsed) ? parsed : []
   } catch {
@@ -30,7 +30,7 @@ function loadInitial(): LogActivity[] {
 
 function persist(sessions: LogActivity[]) {
   try {
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(sessions))
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(sessions))
   } catch {
     // Storage unavailable - the in-memory array still works for the rest of this tab's session.
   }

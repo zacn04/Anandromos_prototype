@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "kind": "school-class",
+  "items": [
+    { "id": "8M2", "subject": "Mathematics", "yearBand": "Year 8", "teacherId": "teacher.okafor" },
+    { "id": "8M4", "subject": "Mathematics", "yearBand": "Year 8", "teacherId": "teacher.okafor" },
+    { "id": "9S1", "subject": "Mathematics", "yearBand": "Year 9", "teacherId": "teacher.okafor" },
+    { "id": "8E1", "subject": "English", "yearBand": "Year 8", "teacherId": "teacher.whitfield" },
+    { "id": "9E3", "subject": "English", "yearBand": "Year 9", "teacherId": "teacher.whitfield" },
+    { "id": "7S2", "subject": "Science", "yearBand": "Year 7", "teacherId": "teacher.petrova" },
+    { "id": "8S1", "subject": "Science", "yearBand": "Year 8", "teacherId": "teacher.petrova" },
+    { "id": "9H1", "subject": "History", "yearBand": "Year 9", "teacherId": "teacher.adeyemi" }
+  ]
+}

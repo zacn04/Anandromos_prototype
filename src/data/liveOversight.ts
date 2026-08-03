@@ -1,8 +1,8 @@
-import type { OversightItem } from './oversight'
+import type { OversightItem } from '../content'
 
 /**
  * Live, session-detected Oversight flags - real detection, as opposed to
- * data/oversight.ts's OVERSIGHT_RAW, which is static sample narrative. The
+ * content/samples/oversight.json, which is static sample narrative. The
  * one gaming pattern this prototype's own mechanics can actually observe is
  * three consecutive "I got it all wrong" attempts (PracticeLoop's
  * `flaggedLines === 'all'`) within one Lesson or Review session - see the
@@ -15,7 +15,7 @@ import type { OversightItem } from './oversight'
  * NOT sync across already-mounted routes - TeacherApp.tsx's Oversight screen
  * only sees a flag pushed from /student the next time it (re)renders/mounts,
  * not instantly if it happened to already be open in the background. A hard
- * reload no longer loses it (sessionStorage survives for this tab), but a
+ * reload no longer loses it (sessionStorage survives a browser restart), but a
  * new tab or a different browser still starts fresh, same as everything
  * else in this prototype.
  */
@@ -29,7 +29,7 @@ const STORAGE_KEY = 'anadromos.liveOversight'
 /** Reads back whatever was persisted for this tab - any parse failure is treated as "nothing saved yet" rather than thrown. */
 function loadInitial(): LiveFlag[] {
   try {
-    const raw = sessionStorage.getItem(STORAGE_KEY)
+    const raw = localStorage.getItem(STORAGE_KEY)
     const parsed = raw ? JSON.parse(raw) : []
     return Array.isArray(parsed) ? parsed : []
   } catch {
@@ -39,7 +39,7 @@ function loadInitial(): LiveFlag[] {
 
 function persist(flags: LiveFlag[]) {
   try {
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(flags))
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(flags))
   } catch {
     // Storage unavailable - the in-memory array still works for the rest of this tab's session.
   }

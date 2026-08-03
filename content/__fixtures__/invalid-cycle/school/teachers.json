@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "kind": "teacher",
+  "items": [
+    {
+      "id": "teacher.okafor",
+      "name": "Ms. Okafor",
+      "subject": "Mathematics",
+      "classIds": [
+        "8M2"
+      ]
+    }
+  ]
+}

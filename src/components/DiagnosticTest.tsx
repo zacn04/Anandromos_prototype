@@ -2,16 +2,15 @@ import { useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
 import { FONT_MONO, FONT_SERIF } from '../theme'
 import { Logo } from './Logo'
-import type { Problem } from '../data/problems'
-import { problemAt } from '../data/problems'
-import { topicLabel } from '../data/curriculum'
+import type { Question, QuestionId, TopicId } from '../content'
+import { questionAt, topicLabel } from '../content'
 
 /**
  * The one-time diagnostic / placement test (Appendix A) - a short, calm
  * warm-up shown once before Aisha ever reaches Home, so the live mastery
  * engine (data/engine.ts) has a genuine starting point instead of only its
- * seeded overlay numbers. Six questions, pulled from the real problem bank
- * (data/problems.ts) across the three topics that have one.
+ * seeded overlay numbers. Six questions, pulled from the real question bank
+ * (content/curriculum/questions.json) across the three topics that have one.
  *
  * Deliberately NOT the same thing as PracticeLoop's diagnostic practice
  * loop (solve → solution → reason → re-teach): this never pinpoints wrong
@@ -22,27 +21,6 @@ import { topicLabel } from '../data/curriculum'
  * than turning into six full re-teach cycles before Aisha has even seen
  * her own home screen.
  */
-
-/**
- * Picks: linear and substitution each have two distinct error-pattern
- * families (see problems.ts's comment on `familyId`), so one question per
- * family gives breadth across both at an easy, non-discouraging first
- * touch. fracpct has only one family, so depth instead - one foundations,
- * one core - for at least a little difficulty signal within it. All six
- * ids are resolved through the same `problemAt` helper problems.ts already
- * exports for "Nth question in this topic", rather than reaching into
- * PROBLEMS directly.
- */
-const RAW_QUESTIONS: Array<Problem | undefined> = [
-  problemAt('linear', 0), // lin-ce-1 · crossing the equals sign · foundations
-  problemAt('linear', 4), // lin-dn-1 · dividing by a negative · foundations
-  problemAt('substitution', 0), // sub-two-1 · two-term expression · foundations
-  problemAt('substitution', 5), // sub-one-2 · single-term expression · foundations
-  problemAt('fracpct', 1), // fracpct-2 · quarters · foundations
-  problemAt('fracpct', 2), // fracpct-3 · twentieths · core
-]
-/** Defensive - drops anything that stopped existing if problems.ts is ever pruned; not expected to filter anything given the ids above are real. */
-const QUESTIONS: Problem[] = RAW_QUESTIONS.filter((p): p is Problem => !!p)
 
 /** Same small notation-palette pattern as PracticeLoop's solve step, kept local rather than imported since PracticeLoop doesn't export it and this component is deliberately kept separate from that file. */
 const PALETTE_DEFS: Array<[string, string, string]> = [
@@ -84,11 +62,11 @@ export interface DiagnosticTestProps {
    * Fires once per genuine, checked answer - i.e. "Submit answer" only.
    * Never fires for "I don't know". Fires for "I guessed" too, but always
    * with `correct: false` and `weak: true` (see pickGuess below for why).
-   * Deliberately just (topic, problemId, correct, weak) rather than a
-   * knowledge-graph node id - StudentApp already owns TOPIC_TO_NODE_ID and
-   * the live engine setter; this component only knows problems.ts topics.
+   * Deliberately just (topicId, questionId, correct, weak) rather than a
+   * knowledge-graph node id: StudentApp owns the graph check (`isGraphTopic`)
+   * and the live engine setter; this component only knows topic ids.
    */
-  onAnswer: (topic: string, problemId: string, correct: boolean, weak: boolean) => void
+  onAnswer: (topicId: TopicId, questionId: QuestionId, correct: boolean, weak: boolean) => void
   /** Fires once, when the student presses Continue on the closing summary screen. */
   onDone: () => void
 }
@@ -108,6 +86,28 @@ export function DiagnosticTest({ onAnswer, onDone }: DiagnosticTestProps) {
   const setState = (patch: Partial<DState> | ((st: DState) => Partial<DState>)) =>
     setS((st) => ({ ...st, ...(typeof patch === 'function' ? patch(st) : patch) }))
 
+  /**
+   * Picks: alg.linear and alg.substitution each have two distinct
+   * error-pattern families - one subtopic each - so one question per family
+   * gives breadth across both at an easy, non-discouraging first touch.
+   * num.fractions-to-percent has only one, so depth instead - one
+   * foundations, one core - for at least a little difficulty signal within
+   * it. All six are resolved through the store's `questionAt` accessor
+   * ("Nth question in this topic") rather than reaching into the question
+   * bank directly. Read here, inside the component, rather than at module
+   * scope: the content store isn't loaded until main.tsx has awaited it.
+   */
+  const RAW_QUESTIONS: Array<Question | undefined> = [
+    questionAt('alg.linear', 0), // …cross-equals.q01 · crossing the equals sign · foundations
+    questionAt('alg.linear', 4), // …divide-negative.q01 · dividing by a negative · foundations
+    questionAt('alg.substitution', 0), // …two-term.q01 · two-term expression · foundations
+    questionAt('alg.substitution', 5), // …single-term.q02 · single-term expression · foundations
+    questionAt('num.fractions-to-percent', 1), // …convert.q02 · quarters · foundations
+    questionAt('num.fractions-to-percent', 2), // …convert.q03 · twentieths · core
+  ]
+  /** Defensive - drops anything that stopped existing if the question bank is ever pruned; not expected to filter anything given the ids above are real. */
+  const QUESTIONS: Question[] = RAW_QUESTIONS.filter((p): p is Question => !!p)
+
   if (QUESTIONS.length === 0) return null // defensive only - see RAW_QUESTIONS' comment
   const problem = QUESTIONS[Math.min(s.idx, QUESTIONS.length - 1)]
 
@@ -120,7 +120,7 @@ export function DiagnosticTest({ onAnswer, onDone }: DiagnosticTestProps) {
 
   const submitAnswer = () => {
     const correct = normalize(s.answer) === normalize(problem.correctAnswer)
-    onAnswer(problem.topic, problem.id, correct, false)
+    onAnswer(problem.topicId, problem.id, correct, false)
     advance()
   }
 
@@ -132,7 +132,7 @@ export function DiagnosticTest({ onAnswer, onDone }: DiagnosticTestProps) {
     // silently crediting a lucky match; `weak: true` then halves how hard
     // that pulls the topic's mastery down, so it never reads the same as a
     // genuine, confident wrong answer.
-    onAnswer(problem.topic, problem.id, false, true)
+    onAnswer(problem.topicId, problem.id, false, true)
     advance()
   }
 
@@ -219,7 +219,7 @@ export function DiagnosticTest({ onAnswer, onDone }: DiagnosticTestProps) {
 
       <div style={{ width: '100%', maxWidth: 680, padding: '26px 24px 60px' }}>
         <div style={{ marginBottom: 20 }}>
-          <div style={monoCap({ fontSize: 11, letterSpacing: '.8px' })}>{topicLabel(problem.topic)}</div>
+          <div style={monoCap({ fontSize: 11, letterSpacing: '.8px' })}>{topicLabel(problem.topicId)}</div>
         </div>
 
         <div style={{ background: '#fff', border: '1px solid #e4dccb', borderRadius: 14, padding: '26px 28px', boxShadow: '0 1px 3px rgba(20,48,74,.05)' }}>

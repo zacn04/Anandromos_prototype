@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "kind": "student-profile",
+  "items": [
+    {
+      "studentId": "aisha",
+      "whereToStart": [
+        "Start with linear equations."
+      ],
+      "pace": [
+        {
+          "label": "Linear equations",
+          "topicId": "alg.linear",
+          "tag": "On pace",
+          "kind": "onpace",
+          "actual": 0.5,
+          "expected": 0.5
+        }
+      ],
+      "mastery": [
+        {
+          "label": "Linear equations",
+          "topicId": "alg.linear",
+          "foundations": 1,
+          "core": 0.5,
+          "stretch": 0
+        }
+      ],
+      "workingOnNow": {
+        "label": "Linear equations",
+        "topicId": "alg.linear",
+        "detail": "Cross-equals",
+        "note": "Steady."
+      }
+    }
+  ]
+}

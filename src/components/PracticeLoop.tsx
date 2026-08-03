@@ -2,8 +2,8 @@ import { useRef, useState } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
 import { FONT_MONO, FONT_SERIF } from '../theme'
 import { buildReteach } from '../data/reteach'
-import type { Problem } from '../data/problems'
-import { topicLabel } from '../data/curriculum'
+import type { Question } from '../content'
+import { topicLabel } from '../content'
 import { TeachingCard } from './TeachingCard'
 
 /**
@@ -30,7 +30,7 @@ export interface AttemptResult {
 
 export interface PracticeLoopProps {
   variant: 'student' | 'preview'
-  problem: Problem
+  problem: Question
   /** Teacher-set flag: block "Check my answer" until handwriting is attached. */
   requireHandwriting?: boolean
   /** Free-play banner label; null when not in free play. */
@@ -96,9 +96,9 @@ const normalize = (s: string): string => s.trim().toLowerCase().replace(/\s+/g, 
  * `distractors` array, so the caller can cleanly fall back to the ordinary
  * free-typed input rather than ever rendering a partial multiple-choice.
  */
-function buildMcqOptions(mcq: boolean, problem: Problem): string[] | null {
+function buildMcqOptions(mcq: boolean, problem: Question): string[] | null {
   if (!mcq || !problem.distractors || problem.distractors.length < 3) return null
-  const options = [problem.correctAnswer, ...problem.distractors.slice(0, 3)]
+  const options = [problem.correctAnswer, ...problem.distractors.slice(0, 3).map((d) => d.text)]
   for (let i = options.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1))
     ;[options[i], options[j]] = [options[j], options[i]]
@@ -200,7 +200,7 @@ export function PracticeLoop({
     )
   }
 
-  const reasonPrompt = `Line ${curLine + 1}: ${problem.lines[curLine] || ''}`
+  const reasonPrompt = `Line ${curLine + 1}: ${problem.lines[curLine]?.text ?? ''}`
   const reasonCounter =
     s.pLines.length > 1
       ? `Line ${Math.min(s.pIdx, s.pLines.length - 1) + 1} of ${s.pLines.length} you flagged`
@@ -232,7 +232,7 @@ export function PracticeLoop({
         key: String(li),
         isAllWrong: false,
         line: li + 1,
-        lineTex: problem.lines[li],
+        lineTex: problem.lines[li]?.text ?? '',
         note: s.pNotes[li] || '',
         hasNote: !!s.pNotes[li],
         ...buildReteach(li, effectiveReason(li), problem),
@@ -266,8 +266,8 @@ export function PracticeLoop({
     : { fontSize: 10.5, fontWeight: 600, padding: '2px 9px', borderRadius: 20, color: '#5c6773', background: '#eef0f2', border: '1px solid #dfe3e7' }
 
   const workingLine = (i: number, interactive: boolean): ReactNode => {
-    const tex = problem.lines[i]
-    const note = problem.solNotes[i]
+    const tex = problem.lines[i].text
+    const note = problem.lines[i].note
     if (!interactive) {
       return (
         <div key={i} style={{ display: 'flex', alignItems: 'baseline', gap: 14 }}>
@@ -358,7 +358,7 @@ export function PracticeLoop({
       <div style={{ width: '100%', maxWidth: 680, padding: '26px 24px 60px' }}>
         {/* informational topic label (never a score / comparison) */}
         <div style={{ marginBottom: 20 }}>
-          <div style={monoCap({ fontSize: 11, letterSpacing: '.8px' })}>{topicLabel(problem.topic)}</div>
+          <div style={monoCap({ fontSize: 11, letterSpacing: '.8px' })}>{topicLabel(problem.topicId)}</div>
         </div>
 
         {/* PROBLEM CARD */}

@@ -1,0 +1,566 @@
+{
+  "schemaVersion": 1,
+  "kind": "subtopic-prereq-edge",
+  "items": [
+    {
+      "from": "num.negatives.number-line",
+      "to": "num.negatives.ordering",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.negatives.ordering",
+      "to": "num.negatives.compare",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.negatives.number-line",
+      "to": "num.negatives.context",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.negatives.number-line",
+      "to": "num.negatives-arithmetic.add",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.negatives-arithmetic.add",
+      "to": "num.negatives-arithmetic.subtract",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.negatives-arithmetic.subtract",
+      "to": "num.negatives-arithmetic.multiply",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.negatives-arithmetic.multiply",
+      "to": "num.negatives-arithmetic.divide",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.negatives-arithmetic.multiply",
+      "to": "num.negatives-arithmetic.squaring",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.negatives-arithmetic.divide",
+      "to": "num.negatives-arithmetic.mixed",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.negatives-arithmetic.subtract",
+      "to": "num.negatives-arithmetic.mixed",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.fractions.part-of-whole",
+      "to": "num.fractions.equivalent",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.fractions.equivalent",
+      "to": "num.fractions.simplify",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.fractions.part-of-whole",
+      "to": "num.fractions.mixed-to-improper",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.fractions.mixed-to-improper",
+      "to": "num.fractions.improper-to-mixed",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.fractions.equivalent",
+      "to": "num.fractions.compare",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.fractions.part-of-whole",
+      "to": "num.fractions.add-same",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.fractions.add-same",
+      "to": "num.fractions.add-different",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.fractions.equivalent",
+      "to": "num.fractions.add-different",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.fractions.part-of-whole",
+      "to": "num.fractions.multiply",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.fractions.multiply",
+      "to": "num.fractions.divide",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.fractions.multiply",
+      "to": "num.fractions.of-quantity",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.fractions.part-of-whole",
+      "to": "num.fractions.to-decimal",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.decimals.place-value",
+      "to": "num.decimals.ordering",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.decimals.place-value",
+      "to": "num.decimals.add-subtract",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.decimals.place-value",
+      "to": "num.decimals.multiply-powers-ten",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.decimals.multiply-powers-ten",
+      "to": "num.decimals.multiply",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.decimals.multiply",
+      "to": "num.decimals.divide",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.decimals.place-value",
+      "to": "num.decimals.to-fraction",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.fractions.equivalent",
+      "to": "num.decimals.to-fraction",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.decimals.divide",
+      "to": "num.decimals.recurring",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.fractions.to-decimal",
+      "to": "num.decimals.recurring",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.decimals.multiply-powers-ten",
+      "to": "num.decimals.to-percent",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.rounding.nearest",
+      "to": "num.rounding.decimal-places",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.decimals.place-value",
+      "to": "num.rounding.decimal-places",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.rounding.decimal-places",
+      "to": "num.rounding.significant-figures",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.rounding.significant-figures",
+      "to": "num.rounding.estimate",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.primes.factors",
+      "to": "num.primes.recognise",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.primes.recognise",
+      "to": "num.primes.factorise",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.primes.factorise",
+      "to": "num.primes.hcf",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.primes.factors",
+      "to": "num.primes.hcf",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.primes.factorise",
+      "to": "num.primes.lcm",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.primes.multiples",
+      "to": "num.primes.lcm",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.fractions.to-decimal",
+      "to": "num.fractions-to-percent.convert",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.decimals.to-percent",
+      "to": "num.fractions-to-percent.convert",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.fractions.simplify",
+      "to": "num.fractions-to-percent.percent-to-fraction",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.decimals.multiply-powers-ten",
+      "to": "num.fractions-to-percent.percent-to-decimal",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.fractions-to-percent.percent-to-decimal",
+      "to": "num.fractions-to-percent.percent-of-quantity",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.fractions.of-quantity",
+      "to": "num.fractions-to-percent.percent-of-quantity",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.fractions-to-percent.convert",
+      "to": "num.fractions-to-percent.compare-forms",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.fractions-to-percent.percent-to-decimal",
+      "to": "num.fractions-to-percent.compare-forms",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.ratio.notation",
+      "to": "num.ratio.simplify",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.primes.hcf",
+      "to": "num.ratio.simplify",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.ratio.simplify",
+      "to": "num.ratio.equivalent",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.ratio.equivalent",
+      "to": "num.ratio.share",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.ratio.simplify",
+      "to": "num.ratio.unitary",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.ratio.notation",
+      "to": "num.ratio.to-fraction",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.fractions.part-of-whole",
+      "to": "num.ratio.to-fraction",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.ratio.equivalent",
+      "to": "num.proportion.direct",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.proportion.direct",
+      "to": "num.proportion.unitary-method",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.proportion.unitary-method",
+      "to": "num.proportion.recipe",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.proportion.unitary-method",
+      "to": "num.proportion.best-buy",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.proportion.direct",
+      "to": "num.proportion.inverse",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.fractions-to-percent.percent-of-quantity",
+      "to": "num.percent-change.increase",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.percent-change.increase",
+      "to": "num.percent-change.decrease",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.percent-change.increase",
+      "to": "num.percent-change.multiplier",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.percent-change.decrease",
+      "to": "num.percent-change.find-change",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.percent-change.increase",
+      "to": "num.percent-change.simple-interest",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.percent-change.multiplier",
+      "to": "num.percent-change.reverse",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.percent-change.multiplier",
+      "to": "num.percent-change.compound",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.percent-change.simple-interest",
+      "to": "num.percent-change.compound",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.decimals.multiply-powers-ten",
+      "to": "num.standard-form.write-large",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.standard-form.write-large",
+      "to": "num.standard-form.write-small",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.standard-form.write-small",
+      "to": "num.standard-form.to-ordinary",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.standard-form.to-ordinary",
+      "to": "num.standard-form.multiply-divide",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.standard-form.multiply-divide",
+      "to": "num.standard-form.add-subtract",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.primes.factorise",
+      "to": "num.surds.simplify",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.surds.simplify",
+      "to": "num.surds.multiply",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.surds.simplify",
+      "to": "num.surds.add-subtract",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.surds.multiply",
+      "to": "num.surds.expand",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    },
+    {
+      "from": "num.surds.multiply",
+      "to": "num.surds.rationalise",
+      "strength": 1,
+      "source": "ai",
+      "confidence": 0.7
+    }
+  ]
+}

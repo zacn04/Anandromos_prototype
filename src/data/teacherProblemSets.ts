@@ -47,7 +47,7 @@ const STORAGE_KEY = 'anadromos.teacherProblemSets'
 /** Reads back whatever was persisted for this tab - any parse failure (corrupted value, private-mode quota, storage disabled) is treated the same as "nothing saved yet" rather than thrown. */
 function loadInitial(): AuthoredProblemSet[] {
   try {
-    const raw = sessionStorage.getItem(STORAGE_KEY)
+    const raw = localStorage.getItem(STORAGE_KEY)
     const parsed = raw ? JSON.parse(raw) : []
     return Array.isArray(parsed) ? parsed : []
   } catch {
@@ -57,7 +57,7 @@ function loadInitial(): AuthoredProblemSet[] {
 
 function persist(sets: AuthoredProblemSet[]) {
   try {
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(sets))
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(sets))
   } catch {
     // Storage unavailable (private mode quota, disabled, etc.) - the in-memory array still
     // works for the rest of this tab's session, it just won't survive a reload.
