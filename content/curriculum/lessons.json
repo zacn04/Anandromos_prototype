@@ -367,6 +367,1074 @@
           }
         }
       ]
+    },
+    {
+      "topicId": "num.negatives",
+      "prerequisites": [
+        {
+          "subtopicId": "num.negatives.number-line",
+          "transferIn": {
+            "hook": "Below zero on the thermometer",
+            "body": [
+              "A freezer at −18°C is colder than one at −4°C, even though 18 is the bigger number. Once you are below zero, the bigger the digit, the further down you are.",
+              "A number line makes that obvious: −18 sits further left than −4, and left always means smaller."
+            ]
+          },
+          "teach": {
+            "heading": "Negatives run leftwards from zero",
+            "body": [
+              "Numbers get smaller as you move left along a number line and bigger as you move right. Zero is the middle, and negatives continue leftwards past it.",
+              "Moving left means subtracting. That stays true whether you are at 7, at 0, or already at −3."
+            ],
+            "exampleTitle": "Three places left of 1",
+            "exampleSteps": [
+              "Start at 1",
+              "1 − 3",
+              "= −2"
+            ]
+          },
+          "transferOut": {
+            "prompt": "Where have you seen numbers carry on below zero — temperature, a bank balance, a lift going to a basement? Describe your own example.",
+            "placeholder": "e.g. the car park lift goes down to level −2, which is two floors below the ground floor..."
+          }
+        },
+        {
+          "subtopicId": "num.negatives.compare",
+          "transferIn": {
+            "hook": "Who owes the most?",
+            "body": [
+              "Owing £30 is a worse position than owing £5, but −30 is the smaller number. People trip over this constantly, and it is worth being clear about once.",
+              "Smaller means further left on the line, which for debts means owing more."
+            ]
+          },
+          "teach": {
+            "heading": "Further left is always smaller",
+            "body": [
+              "To compare two negatives, picture where each sits on the line. Whichever is further left is smaller, no matter which digit looks bigger.",
+              "The instinct to compare the digits and ignore the minus sign is the mistake to watch for."
+            ],
+            "exampleTitle": "Which is smaller, −9 or −2?",
+            "exampleSteps": [
+              "−9 sits further left than −2",
+              "Further left means smaller",
+              "−9 is smaller"
+            ]
+          },
+          "transferOut": {
+            "prompt": "Where does 'more' actually mean a smaller number — debts, temperatures, points deducted? Describe your own example.",
+            "placeholder": "e.g. my brother owes more than me, so his balance is the lower number even though he says the bigger one..."
+          }
+        }
+      ]
+    },
+    {
+      "topicId": "num.fractions",
+      "prerequisites": [
+        {
+          "subtopicId": "num.fractions.simplify",
+          "transferIn": {
+            "hook": "The same slice, described two ways",
+            "body": [
+              "Half a pizza and four eighths of a pizza are the same amount of pizza. Nobody eating it would notice a difference — only the description changed.",
+              "Simplifying is choosing the tidiest description of an amount that has not changed."
+            ]
+          },
+          "teach": {
+            "heading": "Divide top and bottom by the same number",
+            "body": [
+              "A fraction stays worth the same if you divide the numerator and denominator by the same number. Keep going until nothing divides both.",
+              "Dividing only one of them changes the amount, which is the error to avoid — whatever you do above the line you must do below it."
+            ],
+            "exampleTitle": "Simplify 12/18",
+            "exampleSteps": [
+              "Both divide by 6",
+              "12 ÷ 6 = 2, 18 ÷ 6 = 3",
+              "= 2/3"
+            ]
+          },
+          "transferOut": {
+            "prompt": "Where do you describe the same amount in tidier terms — a recipe, a score, a measurement? Describe your own example.",
+            "placeholder": "e.g. saying I got half marks rather than 17 out of 34..."
+          }
+        },
+        {
+          "subtopicId": "num.fractions.of-quantity",
+          "transferIn": {
+            "hook": "Splitting the bill",
+            "body": [
+              "Paying two thirds of a £30 bill is not guesswork: work out a third, then take two of them. The fraction tells you exactly how to split it.",
+              "Finding a fraction of an amount is one division followed by one multiplication, in that order."
+            ]
+          },
+          "teach": {
+            "heading": "Divide by the bottom, multiply by the top",
+            "body": [
+              "Divide the amount by the denominator to find one part, then multiply by the numerator to get however many parts you want.",
+              "Doing it the other way round works too, but dividing first usually keeps the numbers small enough to do in your head."
+            ],
+            "exampleTitle": "Find 2/3 of 30",
+            "exampleSteps": [
+              "30 ÷ 3 = 10",
+              "10 × 2",
+              "= 20"
+            ]
+          },
+          "transferOut": {
+            "prompt": "Where have you taken a fraction of an amount — splitting a bill, a discount, sharing something out? Describe your own example.",
+            "placeholder": "e.g. three of us split a £24 taxi, so we each paid a third..."
+          }
+        }
+      ]
+    },
+    {
+      "topicId": "num.decimals",
+      "prerequisites": [
+        {
+          "subtopicId": "num.decimals.to-percent",
+          "transferIn": {
+            "hook": "Per cent means per hundred",
+            "body": [
+              "A shop sign saying 0.25 off would baffle everyone; 25% off is instantly clear. Same number, and the percentage is just the friendlier costume.",
+              "'Per cent' literally means 'per hundred', which is why the conversion is a multiplication by 100."
+            ]
+          },
+          "teach": {
+            "heading": "Multiply the decimal by 100",
+            "body": [
+              "To turn a decimal into a percentage, multiply by 100. The digits do not change — the decimal point moves two places right.",
+              "Going the other way, from a percentage to a decimal, you divide by 100 and the point moves two places left."
+            ],
+            "exampleTitle": "Write 0.375 as a percentage",
+            "exampleSteps": [
+              "0.375 × 100",
+              "The point moves two places right",
+              "= 37.5%"
+            ]
+          },
+          "transferOut": {
+            "prompt": "Where have you seen the same amount as a decimal in one place and a percentage in another? Describe your own example.",
+            "placeholder": "e.g. my running app shows 0.8 of the route done, but the progress bar says 80%..."
+          }
+        }
+      ]
+    },
+    {
+      "topicId": "num.rounding",
+      "prerequisites": [
+        {
+          "subtopicId": "num.rounding.nearest",
+          "transferIn": {
+            "hook": "Near enough to be useful",
+            "body": [
+              "Asked how far it is to the next town you say 'about 40 miles', not 38.6. Rounding trades a little accuracy for a number people can actually hold in their heads.",
+              "The rule is simple, and it is always about which side of halfway you are on."
+            ]
+          },
+          "teach": {
+            "heading": "Look at the digit to the right",
+            "body": [
+              "To round to the nearest ten, look at the units digit. Five or more rounds up; less than five rounds down. The digits to the right become zero.",
+              "The digit you are rounding TO is not the one you look at — you look at the one immediately after it."
+            ],
+            "exampleTitle": "Round 47 to the nearest 10",
+            "exampleSteps": [
+              "The units digit is 7",
+              "7 is 5 or more, so round up",
+              "= 50"
+            ]
+          },
+          "transferOut": {
+            "prompt": "Where do you round rather than give an exact figure — distances, times, prices, crowd sizes? Describe your own example.",
+            "placeholder": "e.g. I tell people the journey takes half an hour when it is really 26 minutes..."
+          }
+        }
+      ]
+    },
+    {
+      "topicId": "num.primes",
+      "prerequisites": [
+        {
+          "subtopicId": "num.primes.hcf",
+          "transferIn": {
+            "hook": "The biggest tile that fits",
+            "body": [
+              "Tiling a 12cm by 18cm rectangle with identical square tiles and no cutting, the biggest square that works is 6cm. That is the highest common factor, doing a real job.",
+              "The HCF is the largest number that divides both, which is exactly what 'fits into both without a remainder' means."
+            ]
+          },
+          "teach": {
+            "heading": "Find the largest number dividing both",
+            "body": [
+              "List what divides each number, or split both into prime factors, and take the largest they share.",
+              "Confusing it with the lowest common multiple is easy: the HCF is smaller than both numbers, the LCM is bigger than both."
+            ],
+            "exampleTitle": "HCF of 12 and 18",
+            "exampleSteps": [
+              "12 = 2 × 2 × 3",
+              "18 = 2 × 3 × 3",
+              "Shared: 2 × 3 = 6"
+            ]
+          },
+          "transferOut": {
+            "prompt": "Where have you needed the biggest size that divides two things evenly — tiling, cutting, packing, sharing? Describe your own example.",
+            "placeholder": "e.g. cutting two ribbons of different lengths into equal pieces with none left over..."
+          }
+        }
+      ]
+    },
+    {
+      "topicId": "num.ratio",
+      "prerequisites": [
+        {
+          "subtopicId": "num.ratio.simplify",
+          "transferIn": {
+            "hook": "Two parts squash to one part orange",
+            "body": [
+              "A squash bottle says 1 part squash to 4 parts water. It works the same in a cup or a jug — the ratio describes the relationship, not the amounts.",
+              "Simplifying a ratio finds the smallest whole numbers that describe the same relationship."
+            ]
+          },
+          "teach": {
+            "heading": "Divide every part by the same number",
+            "body": [
+              "Divide all the parts of a ratio by their highest common factor. The relationship is unchanged; the numbers just get smaller.",
+              "Every part must be divided, not just some of them — dividing one side only changes the mix."
+            ],
+            "exampleTitle": "Simplify 12 : 18",
+            "exampleSteps": [
+              "Both divide by 6",
+              "12 ÷ 6 = 2, 18 ÷ 6 = 3",
+              "= 2 : 3"
+            ]
+          },
+          "transferOut": {
+            "prompt": "Where have you seen a mix described as a ratio — squash, paint, cement, a recipe? Describe your own example.",
+            "placeholder": "e.g. the paint tin said mix three parts paint to one part water..."
+          }
+        }
+      ]
+    },
+    {
+      "topicId": "num.standard-form",
+      "prerequisites": [
+        {
+          "subtopicId": "num.standard-form.write-large",
+          "transferIn": {
+            "hook": "Numbers too big to write out",
+            "body": [
+              "The distance to the sun is about 150,000,000 km. Writing that out invites a miscounted zero, and comparing two such numbers by eye is hopeless.",
+              "Standard form writes any number as one digit, a decimal part, and a power of ten — compact and easy to compare."
+            ]
+          },
+          "teach": {
+            "heading": "One digit, then a power of ten",
+            "body": [
+              "Move the decimal point until exactly one non-zero digit sits in front of it, then count how many places it moved. That count is the power of ten.",
+              "The power counts the places the point moved, not the number of zeros — those only coincide for round numbers."
+            ],
+            "exampleTitle": "Write 40,000 in standard form",
+            "exampleSteps": [
+              "The first digit is 4",
+              "The point moves 4 places",
+              "= 4 × 10⁴"
+            ]
+          },
+          "transferOut": {
+            "prompt": "Where have you met a number too big or small to write comfortably — distances, populations, file sizes? Describe your own example.",
+            "placeholder": "e.g. my phone said the file was 2.4 GB rather than writing out the bytes..."
+          }
+        }
+      ]
+    },
+    {
+      "topicId": "num.surds",
+      "prerequisites": [
+        {
+          "subtopicId": "num.surds.simplify",
+          "transferIn": {
+            "hook": "An exact answer beats a rounded one",
+            "body": [
+              "√8 is 2.828427... and never stops. Writing 2√2 instead keeps the value exact, and exact answers stay correct however many steps come after them.",
+              "Simplifying a surd pulls out whatever square factor is hiding inside the root."
+            ]
+          },
+          "teach": {
+            "heading": "Take out the largest square factor",
+            "body": [
+              "Split the number under the root into a square number times something else, then square-root the square part and leave the rest inside.",
+              "Use the LARGEST square factor. Using a smaller one is not wrong, it just leaves you simplifying again."
+            ],
+            "exampleTitle": "Simplify √48",
+            "exampleSteps": [
+              "48 = 16 × 3",
+              "√16 = 4",
+              "= 4√3"
+            ]
+          },
+          "transferOut": {
+            "prompt": "Where is an exact answer worth more than a rounded one — money, measurements, anything you build on later? Describe your own example.",
+            "placeholder": "e.g. rounding early when splitting a bill left us 3p short at the end..."
+          }
+        }
+      ]
+    },
+    {
+      "topicId": "num.negatives-arithmetic",
+      "prerequisites": [
+        {
+          "subtopicId": "num.negatives-arithmetic.subtract",
+          "transferIn": {
+            "hook": "Taking away a debt",
+            "body": [
+              "If someone cancels £5 you owed, you are £5 better off. Removing a negative leaves you higher up — subtracting a negative is adding.",
+              "It sounds like a trick until you have a picture for it, and cancelled debt is the picture."
+            ]
+          },
+          "teach": {
+            "heading": "Subtracting a negative moves you right",
+            "body": [
+              "Two minus signs together become a plus: 7 − (−3) is 7 + 3. Taking away something that was pulling you down leaves you higher.",
+              "Careful with the other direction: 3 − 7 is genuinely negative, and there is nothing wrong with an answer below zero."
+            ],
+            "exampleTitle": "Work out 3 − 7",
+            "exampleSteps": [
+              "Start at 3, move 7 left",
+              "You pass zero after 3 steps",
+              "= −4"
+            ]
+          },
+          "transferOut": {
+            "prompt": "Where has something being removed left you better off — a cancelled charge, a refund, a penalty overturned? Describe your own example.",
+            "placeholder": "e.g. the shop took the £4 delivery charge off, so my total went up by less than I expected..."
+          }
+        },
+        {
+          "subtopicId": "num.negatives-arithmetic.multiply",
+          "transferIn": {
+            "hook": "Two negatives cancel out",
+            "body": [
+              "'Not unhelpful' means helpful. Two negatives in the same sentence undo each other, and multiplication behaves the same way.",
+              "One negative flips the sign; a second flips it back."
+            ]
+          },
+          "teach": {
+            "heading": "Same signs give a positive",
+            "body": [
+              "Multiplying two numbers with the same sign gives a positive; different signs give a negative. That covers every case.",
+              "Count the minus signs: an even number of them gives a positive answer, an odd number gives a negative one."
+            ],
+            "exampleTitle": "Work out −4 × −6",
+            "exampleSteps": [
+              "Both are negative",
+              "Same signs give a positive",
+              "= 24"
+            ]
+          },
+          "transferOut": {
+            "prompt": "Where do two negatives cancel in ordinary language or in life? Describe your own example.",
+            "placeholder": "e.g. saying I'm 'not unhappy' with my result really means I'm quite pleased..."
+          }
+        }
+      ]
+    },
+    {
+      "topicId": "alg.basics",
+      "prerequisites": [
+        {
+          "subtopicId": "alg.basics.solve-one-step",
+          "transferIn": {
+            "hook": "Undoing what was done",
+            "body": [
+              "To open a locked door you turn the key the other way. Solving an equation is the same move: whatever was done to x, you undo it.",
+              "Multiplication is undone by division, and addition by subtraction. Nothing more is needed for a one-step equation."
+            ]
+          },
+          "teach": {
+            "heading": "Undo the operation on both sides",
+            "body": [
+              "If x has been multiplied by a number, divide both sides by that number. Doing it to both sides keeps the equation balanced.",
+              "The commonest slip is doing the same operation again instead of the opposite one."
+            ],
+            "exampleTitle": "Solve 5x = 40",
+            "exampleSteps": [
+              "x has been multiplied by 5",
+              "Divide both sides by 5",
+              "x = 8"
+            ]
+          },
+          "transferOut": {
+            "prompt": "Where do you undo a step to get back to where you started — retracing a route, reversing a transaction? Describe your own example.",
+            "placeholder": "e.g. to work out the original price after 20% off, I had to undo the discount rather than take another 20% off..."
+          }
+        },
+        {
+          "subtopicId": "alg.basics.substitute-value",
+          "transferIn": {
+            "hook": "Filling in the blank",
+            "body": [
+              "A parking sign reading '£2 per hour' is a rule with a gap in it. Stay three hours and you fill the gap with 3.",
+              "Substituting is filling that gap with the number you have been given, then doing the arithmetic."
+            ]
+          },
+          "teach": {
+            "heading": "Replace the letter, then calculate",
+            "body": [
+              "Swap each letter for its value and work the answer out. Remember 3x means 3 × x — the multiplication sign is invisible but real.",
+              "Writing the × in before you calculate prevents the usual error, which is adding the number to x instead of multiplying."
+            ],
+            "exampleTitle": "Work out 3x + 4 when x = 5",
+            "exampleSteps": [
+              "3 × 5 + 4",
+              "15 + 4",
+              "= 19"
+            ]
+          },
+          "transferOut": {
+            "prompt": "Where have you put your own number into a general rule — a fare, a cooking time, a phone tariff? Describe your own example.",
+            "placeholder": "e.g. the recipe said 20 minutes per kilo, and my chicken was 2kg..."
+          }
+        }
+      ]
+    },
+    {
+      "topicId": "alg.notation",
+      "prerequisites": [
+        {
+          "subtopicId": "alg.notation.implicit-multiply",
+          "transferIn": {
+            "hook": "The invisible times sign",
+            "body": [
+              "Algebra drops the × sign because it looks too much like the letter x. So 3a means 3 × a, and it is doing exactly that even though nothing is written.",
+              "Once you know the sign is there, expressions stop looking like codes and start looking like calculations."
+            ]
+          },
+          "teach": {
+            "heading": "Numbers and letters written together are multiplied",
+            "body": [
+              "Write the number first, then the letters: 3 × a × 2 × b tidies to 6ab. Multiply the numbers and let the letters sit alongside.",
+              "Writing 32ab by putting the digits next to each other is the error to avoid — the numbers must actually be multiplied."
+            ],
+            "exampleTitle": "Simplify 3 × a × 2 × b",
+            "exampleSteps": [
+              "Multiply the numbers: 3 × 2 = 6",
+              "The letters sit alongside",
+              "= 6ab"
+            ]
+          },
+          "transferOut": {
+            "prompt": "Where is something left out because everyone knows it is there — a sign, a unit, a step? Describe your own example.",
+            "placeholder": "e.g. the recipe just said '180', because everyone knows that means degrees..."
+          }
+        }
+      ]
+    },
+    {
+      "topicId": "alg.simplifying",
+      "prerequisites": [
+        {
+          "subtopicId": "alg.simplifying.collect-like-terms",
+          "transferIn": {
+            "hook": "Apples with apples",
+            "body": [
+              "Three apples and two oranges and another four apples comes to seven apples and two oranges. You cannot add apples to oranges, and there is no need to.",
+              "Like terms in algebra are the same idea: only terms with the same letter can be added together."
+            ]
+          },
+          "teach": {
+            "heading": "Only add terms with the same letter",
+            "body": [
+              "Group the terms that share a letter and add their numbers. Terms with different letters stay separate.",
+              "Merging x and y terms into one is the common mistake — 3x + 2y is already as simple as it gets."
+            ],
+            "exampleTitle": "Simplify 5x + 3y + 2x",
+            "exampleSteps": [
+              "The x terms: 5x + 2x = 7x",
+              "The y term is on its own",
+              "= 7x + 3y"
+            ]
+          },
+          "transferOut": {
+            "prompt": "Where do you group like with like before counting — sorting shopping, tidying, counting change? Describe your own example.",
+            "placeholder": "e.g. counting up my coins by sorting them into piles of the same value first..."
+          }
+        }
+      ]
+    },
+    {
+      "topicId": "alg.factorising",
+      "prerequisites": [
+        {
+          "subtopicId": "alg.factorising.common-factor",
+          "transferIn": {
+            "hook": "Putting the brackets back",
+            "body": [
+              "Expanding takes a bracket apart. Factorising is the same journey in reverse — spotting what both terms share and pulling it outside.",
+              "If you can expand, you can check your factorising instantly, which makes this one of the safest things in algebra."
+            ]
+          },
+          "teach": {
+            "heading": "Take the common factor outside",
+            "body": [
+              "Find the largest number (and any letter) that divides every term, write it outside a bracket, and put what is left inside.",
+              "Check by expanding: multiply back out and you should land exactly where you started."
+            ],
+            "exampleTitle": "Factorise 6x + 15",
+            "exampleSteps": [
+              "Both terms divide by 3",
+              "6x ÷ 3 = 2x, 15 ÷ 3 = 5",
+              "= 3(2x + 5)"
+            ]
+          },
+          "transferOut": {
+            "prompt": "Where do you pull out something shared rather than repeat it — a shared cost, a common ingredient? Describe your own example.",
+            "placeholder": "e.g. instead of listing the delivery fee on every line, the invoice charged it once at the bottom..."
+          }
+        }
+      ]
+    },
+    {
+      "topicId": "alg.sequences",
+      "prerequisites": [
+        {
+          "subtopicId": "alg.sequences.nth-term-linear",
+          "transferIn": {
+            "hook": "Predicting the hundredth term",
+            "body": [
+              "A pattern going 5, 8, 11, 14 is easy to continue one step at a time — but nobody wants to count to the hundredth term that way.",
+              "A rule for the nth term jumps straight there, and finding it is mostly about spotting the step size."
+            ]
+          },
+          "teach": {
+            "heading": "The common difference is the coefficient of n",
+            "body": [
+              "Work out how much the sequence goes up by each time. That is the number in front of n. Then adjust so the first term comes out right.",
+              "Stopping at the difference is the usual slip: 3n alone gives 3, 6, 9, so if the sequence starts at 5 you still need + 2."
+            ],
+            "exampleTitle": "nth term of 5, 8, 11, 14",
+            "exampleSteps": [
+              "It goes up by 3 each time, so start with 3n",
+              "3 × 1 = 3, but the first term is 5",
+              "= 3n + 2"
+            ]
+          },
+          "transferOut": {
+            "prompt": "Where have you spotted a rule that lets you skip ahead rather than counting step by step? Describe your own example.",
+            "placeholder": "e.g. working out what a saving would be after a year rather than adding it up week by week..."
+          }
+        }
+      ]
+    },
+    {
+      "topicId": "alg.inequalities",
+      "prerequisites": [
+        {
+          "subtopicId": "alg.inequalities.solve-linear",
+          "transferIn": {
+            "hook": "A limit, not a target",
+            "body": [
+              "A sign reading 'maximum 8 people' does not mean exactly eight — it means eight or fewer. Plenty of real answers are a range rather than a single value.",
+              "Inequalities describe those ranges, and they solve almost exactly like equations."
+            ]
+          },
+          "teach": {
+            "heading": "Solve like an equation, but watch the sign",
+            "body": [
+              "Do the same things to both sides as you would with an equation. The inequality sign stays pointing the same way — unless you multiply or divide by a negative, which flips it.",
+              "Dividing by a positive never flips it. That is the case to be sure of before worrying about the exception."
+            ],
+            "exampleTitle": "Solve 4x > 20",
+            "exampleSteps": [
+              "Divide both sides by 4",
+              "4 is positive, so the sign stays",
+              "x > 5"
+            ]
+          },
+          "transferOut": {
+            "prompt": "Where is the answer a range rather than one number — a speed limit, an age restriction, a weight allowance? Describe your own example.",
+            "placeholder": "e.g. the hand luggage limit was 10kg, so anything up to that was fine..."
+          }
+        }
+      ]
+    },
+    {
+      "topicId": "alg.quadratics",
+      "prerequisites": [
+        {
+          "subtopicId": "alg.quadratics.expand-double",
+          "transferIn": {
+            "hook": "Every piece meets every piece",
+            "body": [
+              "Working out the area of a garden that is (x + 3) long and (x + 2) wide means four rectangles, not two. Every part of one side meets every part of the other.",
+              "Expanding two brackets is that grid of four multiplications, then tidying up."
+            ]
+          },
+          "teach": {
+            "heading": "Multiply every term by every term",
+            "body": [
+              "Each term in the first bracket multiplies each term in the second: four products from two brackets of two terms. Then collect the like terms.",
+              "Multiplying only the firsts and only the lasts is the classic error — it loses the two middle terms that make the x coefficient."
+            ],
+            "exampleTitle": "Expand (x + 3)(x + 2)",
+            "exampleSteps": [
+              "x × x = x², x × 2 = 2x, 3 × x = 3x, 3 × 2 = 6",
+              "Collect: 2x + 3x = 5x",
+              "= x² + 5x + 6"
+            ]
+          },
+          "transferOut": {
+            "prompt": "Where does every part of one thing have to meet every part of another — seating plans, fixtures, combinations? Describe your own example.",
+            "placeholder": "e.g. in our league every team plays every other team, so the fixtures multiply up fast..."
+          }
+        }
+      ]
+    },
+    {
+      "topicId": "geo.angles",
+      "prerequisites": [
+        {
+          "subtopicId": "geo.angles.name-types",
+          "transferIn": {
+            "hook": "A door swinging shut",
+            "body": [
+              "A door opened flat against the wall and then swung shut sweeps half a full turn. Wherever it stops, the angle in front of it and the angle behind it always add to that half turn.",
+              "That is all 'angles on a straight line add to 180°' means, and it is one of the most useful facts in geometry."
+            ]
+          },
+          "teach": {
+            "heading": "Angles on a straight line add to 180°",
+            "body": [
+              "A straight line is half a full turn. Any angles sitting along it must add up to 180°, so a missing one is found by subtracting from 180.",
+              "Reaching for 360° is the usual mistake — that is a complete turn, not a straight line."
+            ],
+            "exampleTitle": "One angle on a straight line is 115°",
+            "exampleSteps": [
+              "Angles on a line add to 180°",
+              "180 − 115",
+              "= 65°"
+            ]
+          },
+          "transferOut": {
+            "prompt": "Where have you seen something turn through a half or a quarter turn — a door, a handle, a junction? Describe your own example.",
+            "placeholder": "e.g. the tap goes a quarter turn from off to full..."
+          }
+        }
+      ]
+    },
+    {
+      "topicId": "geo.area",
+      "prerequisites": [
+        {
+          "subtopicId": "geo.area.rectangle",
+          "transferIn": {
+            "hook": "How many tiles cover the floor",
+            "body": [
+              "A kitchen floor 5 tiles across and 3 tiles deep takes 15 tiles. You could count them, or you could multiply — and multiplying is why area works.",
+              "Area counts the squares that fit inside a shape; perimeter measures the distance round the edge. Different questions, easily confused."
+            ]
+          },
+          "teach": {
+            "heading": "Area is length times width",
+            "body": [
+              "Multiply the two side lengths to get the number of unit squares that fit inside. The answer is in square units — cm², m² — because you multiplied two lengths.",
+              "Adding the sides gives the perimeter, not the area. If the answer should be in cm² and you added, something has gone wrong."
+            ],
+            "exampleTitle": "Area of a 7cm by 4cm rectangle",
+            "exampleSteps": [
+              "Area = length × width",
+              "7 × 4",
+              "= 28cm²"
+            ]
+          },
+          "transferOut": {
+            "prompt": "Where have you worked out how much surface something covers — flooring, paint, turf, wrapping paper? Describe your own example.",
+            "placeholder": "e.g. working out how many packs of laminate we needed for the front room..."
+          }
+        }
+      ]
+    },
+    {
+      "topicId": "geo.linear-graphs",
+      "prerequisites": [
+        {
+          "subtopicId": "geo.linear-graphs.table-of-values",
+          "transferIn": {
+            "hook": "A rule you can draw",
+            "body": [
+              "A taxi charging £3 plus £2 a mile has a rule, and that rule draws a straight line. Every point on it is a journey you could actually take.",
+              "Working out points from the rule is how a line gets onto the grid in the first place."
+            ]
+          },
+          "teach": {
+            "heading": "Put x in, get y out",
+            "body": [
+              "Substitute a value for x into the rule and calculate y. That pair (x, y) is one point on the line. A few points and you can draw it.",
+              "Multiply before adding: in y = 2x + 3 with x = 4, it is 8 + 3, not 2 × 7."
+            ],
+            "exampleTitle": "y = 2x + 3, find y when x = 4",
+            "exampleSteps": [
+              "y = 2 × 4 + 3",
+              "= 8 + 3",
+              "= 11"
+            ]
+          },
+          "transferOut": {
+            "prompt": "Where does a cost or amount follow a fixed rule with a starting figure plus a rate? Describe your own example.",
+            "placeholder": "e.g. my gym charges a joining fee plus a monthly amount..."
+          }
+        }
+      ]
+    },
+    {
+      "topicId": "geo.polygons",
+      "prerequisites": [
+        {
+          "subtopicId": "geo.polygons.name-by-sides",
+          "transferIn": {
+            "hook": "Cutting a shape into triangles",
+            "body": [
+              "Draw lines from one corner of any polygon to all the others and it falls into triangles. A pentagon gives three; a hexagon gives four — always two fewer than the number of sides.",
+              "Since every triangle's angles add to 180°, that immediately gives the angle sum of any polygon."
+            ]
+          },
+          "teach": {
+            "heading": "Angle sum is (n − 2) × 180°",
+            "body": [
+              "Split the shape into triangles from one corner. An n-sided polygon gives n − 2 of them, each contributing 180°.",
+              "Multiplying by n instead of n − 2 is the usual slip — a quadrilateral gives two triangles, not four."
+            ],
+            "exampleTitle": "Angle sum of a hexagon",
+            "exampleSteps": [
+              "6 sides gives 6 − 2 = 4 triangles",
+              "4 × 180",
+              "= 720°"
+            ]
+          },
+          "transferOut": {
+            "prompt": "Where have you broken an awkward shape into simpler ones to measure it? Describe your own example.",
+            "placeholder": "e.g. working out the carpet for an L-shaped room by treating it as two rectangles..."
+          }
+        }
+      ]
+    },
+    {
+      "topicId": "geo.volume",
+      "prerequisites": [
+        {
+          "subtopicId": "geo.volume.cube-cuboid",
+          "transferIn": {
+            "hook": "Filling a box with cubes",
+            "body": [
+              "A box 4 cubes long, 3 wide and 2 high holds 24 cubes. Multiply the three dimensions and you have counted them without stacking a thing.",
+              "Volume is that count — how much space is inside."
+            ]
+          },
+          "teach": {
+            "heading": "Volume is length × width × height",
+            "body": [
+              "Multiply all three dimensions. The answer is in cubic units — cm³, m³ — because three lengths were multiplied.",
+              "Multiplying only two gives an area, not a volume. Check the units: cm² means something has been missed."
+            ],
+            "exampleTitle": "Volume of a 5cm × 3cm × 2cm cuboid",
+            "exampleSteps": [
+              "Volume = l × w × h",
+              "5 × 3 × 2",
+              "= 30cm³"
+            ]
+          },
+          "transferOut": {
+            "prompt": "Where have you worked out how much fits inside something — a box, a tank, a suitcase, a fridge? Describe your own example.",
+            "placeholder": "e.g. checking whether the new fridge would actually hold a week's shopping..."
+          }
+        }
+      ]
+    },
+    {
+      "topicId": "geo.transformations",
+      "prerequisites": [
+        {
+          "subtopicId": "geo.transformations.translation",
+          "transferIn": {
+            "hook": "Sliding, not turning",
+            "body": [
+              "Pushing a book across a table moves it without spinning it. Every corner travels the same distance in the same direction, and the book stays the same size and the same way up.",
+              "A translation is exactly that slide, described by how far across and how far up."
+            ]
+          },
+          "teach": {
+            "heading": "Add the translation to each coordinate",
+            "body": [
+              "A translation moves every point by the same amount. Add the horizontal shift to x and the vertical shift to y.",
+              "Negative shifts move left or down — the arithmetic is identical, so no special case is needed."
+            ],
+            "exampleTitle": "Translate (2, 5) by (3, −1)",
+            "exampleSteps": [
+              "x: 2 + 3 = 5",
+              "y: 5 + (−1) = 4",
+              "= (5, 4)"
+            ]
+          },
+          "transferOut": {
+            "prompt": "Where does something move without turning or resizing — furniture, a piece on a board, a window on a screen? Describe your own example.",
+            "placeholder": "e.g. dragging an app icon to a different spot on the home screen..."
+          }
+        }
+      ]
+    },
+    {
+      "topicId": "geo.pythagoras",
+      "prerequisites": [
+        {
+          "subtopicId": "geo.pythagoras.find-hypotenuse",
+          "transferIn": {
+            "hook": "The short cut across the park",
+            "body": [
+              "Walking 30m along one path and 40m along another at right angles takes 70m. Cutting straight across the grass is only 50m — and Pythagoras is what tells you so without pacing it out.",
+              "The diagonal of a right-angled triangle is always shorter than going round the two sides, and always longer than either one."
+            ]
+          },
+          "teach": {
+            "heading": "a² + b² = c²",
+            "body": [
+              "Square both short sides, add them, then square-root the total. That gives the hypotenuse — the side opposite the right angle, always the longest.",
+              "Adding the sides without squaring is the error to watch for: 30 + 40 is 70, but the answer is 50."
+            ],
+            "exampleTitle": "Short sides 6cm and 8cm",
+            "exampleSteps": [
+              "6² + 8² = 36 + 64 = 100",
+              "√100",
+              "= 10cm"
+            ]
+          },
+          "transferOut": {
+            "prompt": "Where have you cut a corner diagonally rather than going round two sides? Describe your own example.",
+            "placeholder": "e.g. the worn path across the field where everyone cuts the corner..."
+          }
+        }
+      ]
+    },
+    {
+      "topicId": "geo.circles",
+      "prerequisites": [
+        {
+          "subtopicId": "geo.circles.circumference",
+          "transferIn": {
+            "hook": "Rolling a wheel one full turn",
+            "body": [
+              "A bike wheel rolled through exactly one revolution covers its own circumference. Do that with any wheel and the distance is always a bit over three times the width across.",
+              "That 'bit over three' is π, and it is the same for every circle that has ever existed."
+            ]
+          },
+          "teach": {
+            "heading": "Circumference = 2πr",
+            "body": [
+              "Multiply the radius by 2 to get the diameter, then by π. Leaving π in the answer keeps it exact.",
+              "Confusing it with the area formula πr² is the usual trip — circumference is a distance, so the radius appears once, not squared."
+            ],
+            "exampleTitle": "Circumference of a circle with radius 7cm",
+            "exampleSteps": [
+              "C = 2πr",
+              "2 × π × 7",
+              "= 14π cm"
+            ]
+          },
+          "transferOut": {
+            "prompt": "Where does something roll or wrap around a circle — a wheel, a tin label, a running track? Describe your own example.",
+            "placeholder": "e.g. working out how much ribbon would go round a round cake..."
+          }
+        }
+      ]
+    },
+    {
+      "topicId": "stat.charts",
+      "prerequisites": [
+        {
+          "subtopicId": "stat.charts.tally-frequency",
+          "transferIn": {
+            "hook": "Counting without losing your place",
+            "body": [
+              "Counting cars going past, people use gate-five tallies rather than trying to remember a running number. The marks do the remembering.",
+              "The frequency is just how many marks each row ended up with, and the total is all of them added together."
+            ]
+          },
+          "teach": {
+            "heading": "Add every frequency for the total",
+            "body": [
+              "Each row's frequency is its count. Add every row to get how many things were recorded altogether.",
+              "The number of categories is not the total — five rows can easily hold fifty items between them."
+            ],
+            "exampleTitle": "Frequencies 7, 4 and 9",
+            "exampleSteps": [
+              "Add every row",
+              "7 + 4 + 9",
+              "= 20"
+            ]
+          },
+          "transferOut": {
+            "prompt": "Where have you kept a tally rather than a running total — a game, stock, a survey, a headcount? Describe your own example.",
+            "placeholder": "e.g. marking off each round on a beer mat so nobody argued about whose turn it was..."
+          }
+        }
+      ]
+    },
+    {
+      "topicId": "stat.averages",
+      "prerequisites": [
+        {
+          "subtopicId": "stat.averages.mean",
+          "transferIn": {
+            "hook": "Sharing out equally",
+            "body": [
+              "Three people bring 4, 6 and 8 sweets and pool them. Shared equally that is 6 each — the mean is what everyone would get if it were levelled out.",
+              "That is why you add everything then divide: you are pooling, then sharing."
+            ]
+          },
+          "teach": {
+            "heading": "Add them up, divide by how many",
+            "body": [
+              "Add every value, then divide by how many values there were. The answer sits somewhere between the smallest and the largest.",
+              "Dividing by the wrong count is the usual error. Count the values, not the categories or the largest number."
+            ],
+            "exampleTitle": "Mean of 4, 6 and 8",
+            "exampleSteps": [
+              "4 + 6 + 8 = 18",
+              "There are 3 values, so 18 ÷ 3",
+              "= 6"
+            ]
+          },
+          "transferOut": {
+            "prompt": "Where have you levelled something out to a fair share — splitting a bill, an average score, miles per week? Describe your own example.",
+            "placeholder": "e.g. working out what we each owed after one person paid for everything..."
+          }
+        }
+      ]
+    },
+    {
+      "topicId": "stat.spread",
+      "prerequisites": [
+        {
+          "subtopicId": "stat.spread.range",
+          "transferIn": {
+            "hook": "How spread out, not how big",
+            "body": [
+              "Two classes can average the same test score while one is tightly bunched and the other has everything from 20 to 95. The average hides that completely.",
+              "The range is the simplest measure of how spread out a set of values is."
+            ]
+          },
+          "teach": {
+            "heading": "Largest minus smallest",
+            "body": [
+              "Find the biggest value and the smallest, and subtract. That single number says how far the data stretches.",
+              "The range is a difference, not a value from the list — so it is usually smaller than any of the numbers you started with."
+            ],
+            "exampleTitle": "Range of 12, 19 and 15",
+            "exampleSteps": [
+              "Largest 19, smallest 12",
+              "19 − 12",
+              "= 7"
+            ]
+          },
+          "transferOut": {
+            "prompt": "Where does the spread matter more than the average — delivery times, temperatures, exam results, journey times? Describe your own example.",
+            "placeholder": "e.g. my commute averages 30 minutes but ranges from 20 to 55, so I always leave early..."
+          }
+        }
+      ]
+    },
+    {
+      "topicId": "stat.probability",
+      "prerequisites": [
+        {
+          "subtopicId": "stat.probability.single-event",
+          "transferIn": {
+            "hook": "Counting the ways it can go right",
+            "body": [
+              "A bag with 3 red and 5 blue counters holds 8 counters. Three of the eight are red, so pulling one out blind, the chance of red is 3 out of 8.",
+              "Probability is that comparison: how many outcomes you want, against how many there are altogether."
+            ]
+          },
+          "teach": {
+            "heading": "Wanted outcomes over total outcomes",
+            "body": [
+              "Count the outcomes you want, count all the outcomes, and write the first over the second. Simplify if it will.",
+              "Comparing red to blue instead of red to the total is the classic error — the bottom of the fraction is always everything."
+            ],
+            "exampleTitle": "3 red and 5 blue, P(red)?",
+            "exampleSteps": [
+              "3 red out of 8 counters altogether",
+              "P(red) = 3/8",
+              "= 3/8"
+            ]
+          },
+          "transferOut": {
+            "prompt": "Where have you judged a chance by counting how many ways something could happen? Describe your own example.",
+            "placeholder": "e.g. two of the ten raffle tickets left were mine, so I fancied my odds..."
+          }
+        }
+      ]
+    },
+    {
+      "topicId": "stat.scatter",
+      "prerequisites": [
+        {
+          "subtopicId": "stat.scatter.line-of-best-fit",
+          "transferIn": {
+            "hook": "Reading between the dots",
+            "body": [
+              "Plot revision hours against test scores for a class and the dots scatter, but they trend upwards. A line through the middle lets you estimate a score for hours nobody actually did.",
+              "That line is the pattern, drawn through the noise."
+            ]
+          },
+          "teach": {
+            "heading": "Use the line, not the dots",
+            "body": [
+              "Once a line of best fit is drawn, estimate by reading off it: put your x value into its rule and get y.",
+              "Estimating far outside the data is where this stops being reliable — the pattern is only evidenced where the dots are."
+            ],
+            "exampleTitle": "Line y = 4x + 10, estimate y when x = 6",
+            "exampleSteps": [
+              "y = 4 × 6 + 10",
+              "= 24 + 10",
+              "= 34"
+            ]
+          },
+          "transferOut": {
+            "prompt": "Where have you predicted something from a trend rather than an exact figure — growth, weather, revision, savings? Describe your own example.",
+            "placeholder": "e.g. guessing what my next electricity bill would be from the last few..."
+          }
+        }
+      ]
+    },
+    {
+      "topicId": "stat.trees",
+      "prerequisites": [
+        {
+          "subtopicId": "stat.trees.multiply-along",
+          "transferIn": {
+            "hook": "Both things happening",
+            "body": [
+              "The chance of rain is 3 in 10 and the chance your bus is late is 2 in 10. The chance of both, on an independent day, is much smaller than either — bad luck twice over is rarer than bad luck once.",
+              "Multiplying along the branches of a tree diagram is how that gets calculated."
+            ]
+          },
+          "teach": {
+            "heading": "Multiply along the branches",
+            "body": [
+              "For independent events, multiply the probabilities to get the chance of both. Multiply the tops together and the bottoms together.",
+              "Adding them is the usual error, and it gives an answer bigger than either — which cannot be right for 'both happening'."
+            ],
+            "exampleTitle": "P(A) = 3/10, P(B) = 2/10, P(both)?",
+            "exampleSteps": [
+              "Multiply along the branches",
+              "3/10 × 2/10",
+              "= 6/100"
+            ]
+          },
+          "transferOut": {
+            "prompt": "Where did two things both have to go right — a connection to catch, two results to go your way? Describe your own example.",
+            "placeholder": "e.g. I needed my train to be on time AND a seat free to get any work done..."
+          }
+        }
+      ]
     }
   ]
 }
